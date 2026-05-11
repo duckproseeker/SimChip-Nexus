@@ -189,14 +189,24 @@ def get_settings() -> Settings:
         Path("/ros2_ws/carla_workspace/scenario_runner"),
         Path("/workspace/scenario_runner"),
     )
+    default_hil_runtime_root = (
+        project_root / "hil_runtime"
+        if (project_root / "hil_runtime").exists()
+        else project_root.parent / "hil_runtime"
+    )
+    default_hil_runtime_workdir = (
+        project_root
+        if default_hil_runtime_root == project_root / "hil_runtime"
+        else project_root.parent
+    )
     hil_runtime_root = _path_from_env(
         "HIL_RUNTIME_ROOT",
-        project_root.parent / "hil_runtime",
+        default_hil_runtime_root,
         base_dir=project_root,
     )
     hil_runtime_workdir = _path_from_env(
         "HIL_RUNTIME_WORKDIR",
-        project_root.parent,
+        default_hil_runtime_workdir,
         base_dir=project_root,
     )
     hil_platform_base_url = os.getenv("HIL_PLATFORM_BASE_URL")

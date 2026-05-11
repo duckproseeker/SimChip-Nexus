@@ -1,0 +1,14 @@
+[Unit]
+Description=DuckPark Pi UVC Gadget
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/duckpark/src
+ExecStart=/bin/bash /opt/duckpark/src/hil_runtime/pi/scripts/start_pi_uvc_gadget.sh
+ExecStop=/bin/bash /opt/duckpark/src/hil_runtime/pi/scripts/stop_pi_uvc_gadget.sh
+
+[Install]
+WantedBy=multi-user.target

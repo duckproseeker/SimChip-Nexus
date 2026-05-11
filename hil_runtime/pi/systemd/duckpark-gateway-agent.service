@@ -1,0 +1,15 @@
+[Unit]
+Description=DuckPark Pi Gateway Agent
+After=network-online.target duckpark-uvc-gadget.service
+Wants=network-online.target duckpark-uvc-gadget.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/duckpark/src
+EnvironmentFile=/etc/duckpark/pi-gateway.env
+ExecStart=/bin/bash /opt/duckpark/src/hil_runtime/pi/scripts/start_pi_gateway_agent.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+[Unit]
+Description=DuckPark Pi HDMI to UVC Bridge
+After=network-online.target duckpark-uvc-gadget.service
+Wants=network-online.target duckpark-uvc-gadget.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/duckpark/src
+EnvironmentFile=/etc/duckpark/pi-gateway.env
+ExecStart=/bin/bash /opt/duckpark/src/hil_runtime/pi/scripts/start_pi_hdmi_to_uvc_bridge.sh
+ExecStop=/bin/bash /opt/duckpark/src/hil_runtime/pi/scripts/stop_pi_hdmi_to_uvc_bridge.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
