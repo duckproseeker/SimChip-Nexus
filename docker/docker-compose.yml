@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  carla-server:
+    image: carlasim/carla:0.9.16
+    command: >
+      /bin/bash -lc "./CarlaUE4.sh -RenderOffScreen -quality-level=Low -carla-rpc-port=2000"
+    ports:
+      - "2000:2000"
+      - "2001:2001"
+    restart: unless-stopped
+
+  sim-executor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.executor
+    environment:
+      CARLA_HOST: carla-server
+      CARLA_PORT: 2000
+      CARLA_TIMEOUT_SECONDS: 10
+      TRAFFIC_MANAGER_PORT: 8010
+      RUNS_ROOT: /app/run_data/runs
+      COMMANDS_ROOT: /app/run_data/commands
+      ARTIFACTS_ROOT: /app/artifacts
+      COMMAND_POLL_INTERVAL_SECONDS: 0.5
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    volumes:
+      - ../artifacts:/app/artifacts
+      - ../run_data:/app/run_data
+      - ../configs:/app/configs
+    ports:
+      - "8000:8000"
+    depends_on:
+      - carla-server
+    command: ["bash", "scripts/start_platform.sh"]

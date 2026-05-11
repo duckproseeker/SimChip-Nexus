@@ -1,0 +1,34 @@
+version: 1
+scenario_name: empty_drive
+map_name: Town01
+weather:
+  preset: ClearNoon
+sync:
+  enabled: true
+  fixed_delta_seconds: 0.05
+ego_vehicle:
+  blueprint: vehicle.tesla.model3
+  spawn_point:
+    x: 230.0
+    y: 195.0
+    z: 0.5
+    roll: 0.0
+    pitch: 0.0
+    yaw: 90.0
+traffic:
+  enabled: false
+  num_vehicles: 0
+  num_walkers: 0
+sensors:
+  enabled: false
+termination:
+  timeout_seconds: 60
+  success_condition: timeout
+recorder:
+  enabled: false
+debug:
+  viewer_friendly: true
+metadata:
+  author: debug
+  tags: ["viewer", "friendly"]
+  description: "用于本地 pygame viewer 调试的慢速样例"

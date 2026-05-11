@@ -1,0 +1,6000 @@
+{
+  "components": {
+    "schemas": {
+      "ApiResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据",
+            "title": "Data"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ApiResponse",
+        "type": "object"
+      },
+      "BenchmarkDefinitionListPayload": {
+        "properties": {
+          "definitions": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkDefinitionPayload"
+            },
+            "title": "Definitions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "definitions"
+        ],
+        "title": "BenchmarkDefinitionListPayload",
+        "type": "object"
+      },
+      "BenchmarkDefinitionListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkDefinitionListPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "BenchmarkDefinitionListResponse",
+        "type": "object"
+      },
+      "BenchmarkDefinitionPayload": {
+        "properties": {
+          "benchmark_definition_id": {
+            "title": "Benchmark Definition Id",
+            "type": "string"
+          },
+          "cadence": {
+            "title": "Cadence",
+            "type": "string"
+          },
+          "candidate_scenario_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Candidate Scenario Ids",
+            "type": "array"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "default_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Duration Seconds"
+          },
+          "default_evaluation_profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Evaluation Profile Name"
+          },
+          "default_project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Project Id"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "focus_metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Focus Metrics",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "planning_mode": {
+            "title": "Planning Mode",
+            "type": "string"
+          },
+          "project_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Project Ids",
+            "type": "array"
+          },
+          "queue_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue Note"
+          },
+          "report_shape": {
+            "title": "Report Shape",
+            "type": "string"
+          },
+          "supports_duration_seconds": {
+            "title": "Supports Duration Seconds",
+            "type": "boolean"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          }
+        },
+        "required": [
+          "benchmark_definition_id",
+          "name",
+          "description",
+          "focus_metrics",
+          "cadence",
+          "report_shape",
+          "project_ids",
+          "default_project_id",
+          "default_evaluation_profile_name",
+          "planning_mode",
+          "candidate_scenario_ids",
+          "supports_duration_seconds",
+          "default_duration_seconds",
+          "queue_note",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "title": "BenchmarkDefinitionPayload",
+        "type": "object"
+      },
+      "BenchmarkDefinitionResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkDefinitionPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "BenchmarkDefinitionResponse",
+        "type": "object"
+      },
+      "BenchmarkTaskExecutionQueuePayload": {
+        "properties": {
+          "active_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Run Id"
+          },
+          "canceled_run_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Canceled Run Ids",
+            "type": "array"
+          },
+          "completed_run_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Completed Run Ids",
+            "type": "array"
+          },
+          "failed_run_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failed Run Ids",
+            "type": "array"
+          },
+          "next_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run Id"
+          },
+          "ordered_runs": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskOrderedRunPayload"
+            },
+            "title": "Ordered Runs",
+            "type": "array"
+          },
+          "queued_run_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Queued Run Ids",
+            "type": "array"
+          }
+        },
+        "title": "BenchmarkTaskExecutionQueuePayload",
+        "type": "object"
+      },
+      "BenchmarkTaskListPayload": {
+        "properties": {
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskPayload"
+            },
+            "title": "Tasks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tasks"
+        ],
+        "title": "BenchmarkTaskListPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkTaskListPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "BenchmarkTaskListResponse",
+        "type": "object"
+      },
+      "BenchmarkTaskOrderedRunPayload": {
+        "properties": {
+          "display_map_name": {
+            "title": "Display Map Name",
+            "type": "string"
+          },
+          "ended_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At Utc"
+          },
+          "error_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Reason"
+          },
+          "execution_backend": {
+            "title": "Execution Backend",
+            "type": "string"
+          },
+          "is_active": {
+            "default": false,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "is_next": {
+            "default": false,
+            "title": "Is Next",
+            "type": "boolean"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scenario_display_name": {
+            "title": "Scenario Display Name",
+            "type": "string"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "started_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At Utc"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "run_id",
+          "scenario_display_name",
+          "display_map_name",
+          "execution_backend",
+          "status"
+        ],
+        "title": "BenchmarkTaskOrderedRunPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskPayload": {
+        "properties": {
+          "auto_start": {
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "benchmark_definition_id": {
+            "title": "Benchmark Definition Id",
+            "type": "string"
+          },
+          "benchmark_name": {
+            "title": "Benchmark Name",
+            "type": "string"
+          },
+          "benchmark_task_id": {
+            "title": "Benchmark Task Id",
+            "type": "string"
+          },
+          "counts_by_status": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts By Status",
+            "type": "object"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "dut_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dut Model"
+          },
+          "ended_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At Utc"
+          },
+          "evaluation_profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Profile Name"
+          },
+          "hil_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HilConfigPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "planned_run_count": {
+            "title": "Planned Run Count",
+            "type": "integer"
+          },
+          "planning_mode": {
+            "title": "Planning Mode",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "project_name": {
+            "title": "Project Name",
+            "type": "string"
+          },
+          "requested_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Duration Seconds"
+          },
+          "run_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Run Ids",
+            "type": "array"
+          },
+          "scenario_matrix": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskScenarioMatrixEntryPayload"
+            },
+            "title": "Scenario Matrix",
+            "type": "array"
+          },
+          "selected_scenario_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Scenario Ids",
+            "type": "array"
+          },
+          "started_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At Utc"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BenchmarkTaskSummaryPayload"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          }
+        },
+        "required": [
+          "benchmark_task_id",
+          "project_id",
+          "project_name",
+          "benchmark_definition_id",
+          "benchmark_name",
+          "status",
+          "planned_run_count",
+          "counts_by_status",
+          "run_ids",
+          "scenario_matrix",
+          "planning_mode",
+          "selected_scenario_ids",
+          "requested_duration_seconds",
+          "hil_config",
+          "evaluation_profile_name",
+          "auto_start",
+          "summary",
+          "created_at_utc",
+          "updated_at_utc",
+          "started_at_utc",
+          "ended_at_utc"
+        ],
+        "title": "BenchmarkTaskPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkTaskPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "BenchmarkTaskResponse",
+        "type": "object"
+      },
+      "BenchmarkTaskScenarioBreakdownPayload": {
+        "properties": {
+          "canceled": {
+            "title": "Canceled",
+            "type": "integer"
+          },
+          "completed": {
+            "title": "Completed",
+            "type": "integer"
+          },
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "total_runs": {
+            "title": "Total Runs",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_runs",
+          "completed",
+          "failed",
+          "canceled"
+        ],
+        "title": "BenchmarkTaskScenarioBreakdownPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskScenarioMatrixEntryPayload": {
+        "properties": {
+          "display_map_name": {
+            "title": "Display Map Name",
+            "type": "string"
+          },
+          "environment_name": {
+            "title": "Environment Name",
+            "type": "string"
+          },
+          "environment_preset_id": {
+            "title": "Environment Preset Id",
+            "type": "string"
+          },
+          "execution_backend": {
+            "default": "native",
+            "title": "Execution Backend",
+            "type": "string"
+          },
+          "requested_map_name": {
+            "title": "Requested Map Name",
+            "type": "string"
+          },
+          "requested_timeout_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Timeout Seconds"
+          },
+          "resolved_map_name": {
+            "title": "Resolved Map Name",
+            "type": "string"
+          },
+          "resolved_timeout_seconds": {
+            "title": "Resolved Timeout Seconds",
+            "type": "integer"
+          },
+          "scenario_display_name": {
+            "title": "Scenario Display Name",
+            "type": "string"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "scenario_name": {
+            "title": "Scenario Name",
+            "type": "string"
+          },
+          "sensor_profile_name": {
+            "title": "Sensor Profile Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "scenario_name",
+          "scenario_display_name",
+          "requested_map_name",
+          "resolved_map_name",
+          "display_map_name",
+          "environment_preset_id",
+          "environment_name",
+          "sensor_profile_name",
+          "resolved_timeout_seconds"
+        ],
+        "title": "BenchmarkTaskScenarioMatrixEntryPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskScenarioMatrixItemPayload": {
+        "properties": {
+          "environment_preset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Environment Preset Id"
+          },
+          "map_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map Name"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "sensor_profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Name"
+          },
+          "timeout_seconds": {
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout Seconds"
+          }
+        },
+        "required": [
+          "scenario_id"
+        ],
+        "title": "BenchmarkTaskScenarioMatrixItemPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskSummaryCountsPayload": {
+        "properties": {
+          "canceled_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canceled Runs"
+          },
+          "completed_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Runs"
+          },
+          "created_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created Runs"
+          },
+          "failed_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failed Runs"
+          },
+          "queued_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queued Runs"
+          },
+          "running_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Running Runs"
+          },
+          "total_runs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Runs"
+          }
+        },
+        "title": "BenchmarkTaskSummaryCountsPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskSummaryMetricsPayload": {
+        "properties": {
+          "anomaly_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anomaly Rate"
+          },
+          "fps": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fps"
+          },
+          "frame_drop_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frame Drop Rate"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "map": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map"
+          },
+          "pass_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pass Rate"
+          },
+          "power_w": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power W"
+          },
+          "temperature_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature C"
+          }
+        },
+        "title": "BenchmarkTaskSummaryMetricsPayload",
+        "type": "object"
+      },
+      "BenchmarkTaskSummaryPayload": {
+        "properties": {
+          "counts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkTaskSummaryCountsPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_queue": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkTaskExecutionQueuePayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gateway_snapshot": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gateway Snapshot"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkTaskSummaryMetricsPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scenario_breakdown": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/BenchmarkTaskScenarioBreakdownPayload"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Breakdown"
+          }
+        },
+        "title": "BenchmarkTaskSummaryPayload",
+        "type": "object"
+      },
+      "CaptureFramePayload": {
+        "properties": {
+          "captured_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captured At Utc"
+          },
+          "frame_index": {
+            "minimum": 0.0,
+            "title": "Frame Index",
+            "type": "integer"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "relative_path": {
+            "title": "Relative Path",
+            "type": "string"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Bytes"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          }
+        },
+        "required": [
+          "frame_index",
+          "relative_path"
+        ],
+        "title": "CaptureFramePayload",
+        "type": "object"
+      },
+      "CaptureSyncRequest": {
+        "properties": {
+          "error_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Reason"
+          },
+          "frames": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CaptureFramePayload"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frames"
+          },
+          "saved_frames": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saved Frames"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "title": "CaptureSyncRequest",
+        "type": "object"
+      },
+      "CreateBenchmarkTaskRequest": {
+        "properties": {
+          "auto_start": {
+            "default": false,
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "benchmark_definition_id": {
+            "title": "Benchmark Definition Id",
+            "type": "string"
+          },
+          "dut_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dut Model"
+          },
+          "evaluation_profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Profile Name"
+          },
+          "hil_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HilConfigPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "run_duration_seconds": {
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Duration Seconds"
+          },
+          "scenario_matrix": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskScenarioMatrixItemPayload"
+            },
+            "title": "Scenario Matrix",
+            "type": "array"
+          },
+          "selected_scenario_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Scenario Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "benchmark_definition_id"
+        ],
+        "title": "CreateBenchmarkTaskRequest",
+        "type": "object"
+      },
+      "CreateCaptureRequest": {
+        "properties": {
+          "gateway_id": {
+            "title": "Gateway Id",
+            "type": "string"
+          },
+          "max_frames": {
+            "default": 300,
+            "maximum": 100000.0,
+            "minimum": 1.0,
+            "title": "Max Frames",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sample_fps": {
+            "default": 2.0,
+            "exclusiveMinimum": 0.0,
+            "maximum": 30.0,
+            "title": "Sample Fps",
+            "type": "number"
+          },
+          "save_dir": {
+            "title": "Save Dir",
+            "type": "string"
+          },
+          "save_format": {
+            "default": "jpg",
+            "title": "Save Format",
+            "type": "string"
+          },
+          "source": {
+            "default": "hdmi_x1301",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gateway_id",
+          "save_dir"
+        ],
+        "title": "CreateCaptureRequest",
+        "type": "object"
+      },
+      "CreateRunRequest": {
+        "properties": {
+          "descriptor": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "场景 descriptor 对象。与 descriptor_path 二选一。",
+            "title": "Descriptor"
+          },
+          "descriptor_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "容器内可读的 descriptor 文件路径。与 descriptor 二选一。",
+            "title": "Descriptor Path"
+          },
+          "evaluation_profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationProfilePayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "阶段二评测配置。未提供时不绑定评测模板。"
+          },
+          "hil_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HilConfigPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "阶段二 HIL 运行配置。未提供时保持当前纯 CARLA 控制模式。"
+          }
+        },
+        "title": "CreateRunRequest",
+        "type": "object"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "description": "错误代码",
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "description": "错误说明",
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "EvaluationProfilePayload": {
+        "properties": {
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "iou_threshold": {
+            "default": 0.5,
+            "maximum": 1.0,
+            "minimum": 0.1,
+            "title": "Iou Threshold",
+            "type": "number"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "profile_name": {
+            "default": "yolo_open_loop_v1",
+            "title": "Profile Name",
+            "type": "string"
+          }
+        },
+        "title": "EvaluationProfilePayload",
+        "type": "object"
+      },
+      "GatewayHeartbeatRequest": {
+        "properties": {
+          "current_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Run Id"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "GatewayHeartbeatRequest",
+        "type": "object"
+      },
+      "GatewayRegisterRequest": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "agent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Version"
+          },
+          "capabilities": {
+            "additionalProperties": true,
+            "title": "Capabilities",
+            "type": "object"
+          },
+          "gateway_id": {
+            "title": "Gateway Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gateway_id",
+          "name"
+        ],
+        "title": "GatewayRegisterRequest",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HilConfigPayload": {
+        "properties": {
+          "dut_input_mode": {
+            "default": "uvc_camera",
+            "title": "Dut Input Mode",
+            "type": "string"
+          },
+          "gateway_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "绑定的网关 ID。对于仅拉起 Host/Pi sidecar 的本地演示链路可为空。",
+            "title": "Gateway Id"
+          },
+          "mode": {
+            "default": "camera_open_loop",
+            "title": "Mode",
+            "type": "string"
+          },
+          "result_ingest_mode": {
+            "default": "http_push",
+            "title": "Result Ingest Mode",
+            "type": "string"
+          },
+          "video_source": {
+            "default": "hdmi_x1301",
+            "title": "Video Source",
+            "type": "string"
+          }
+        },
+        "title": "HilConfigPayload",
+        "type": "object"
+      },
+      "ProjectPayload": {
+        "properties": {
+          "benchmark_focus": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Benchmark Focus",
+            "type": "array"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "input_modes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Modes",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "processor": {
+            "title": "Processor",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "target_metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Metrics",
+            "type": "array"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          },
+          "vendor": {
+            "title": "Vendor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "name",
+          "vendor",
+          "processor",
+          "description",
+          "benchmark_focus",
+          "target_metrics",
+          "input_modes",
+          "status",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "title": "ProjectPayload",
+        "type": "object"
+      },
+      "RecorderConfigPayload": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "RecorderConfigPayload",
+        "type": "object"
+      },
+      "RecorderRuntimeControlPayload": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "output_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Path"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          }
+        },
+        "required": [
+          "enabled",
+          "active",
+          "status",
+          "output_path",
+          "last_error",
+          "updated_at_utc"
+        ],
+        "title": "RecorderRuntimeControlPayload",
+        "type": "object"
+      },
+      "ReportExportRequest": {
+        "properties": {
+          "benchmark_task_id": {
+            "title": "Benchmark Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "benchmark_task_id"
+        ],
+        "title": "ReportExportRequest",
+        "type": "object"
+      },
+      "ReportListPayload": {
+        "properties": {
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ReportPayload"
+            },
+            "title": "Reports",
+            "type": "array"
+          }
+        },
+        "required": [
+          "reports"
+        ],
+        "title": "ReportListPayload",
+        "type": "object"
+      },
+      "ReportListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportListPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ReportListResponse",
+        "type": "object"
+      },
+      "ReportPayload": {
+        "properties": {
+          "artifact_dir": {
+            "title": "Artifact Dir",
+            "type": "string"
+          },
+          "benchmark_definition_id": {
+            "title": "Benchmark Definition Id",
+            "type": "string"
+          },
+          "benchmark_task_id": {
+            "title": "Benchmark Task Id",
+            "type": "string"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "dut_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dut Model"
+          },
+          "json_path": {
+            "title": "Json Path",
+            "type": "string"
+          },
+          "markdown_path": {
+            "title": "Markdown Path",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "report_id": {
+            "title": "Report Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BenchmarkTaskSummaryPayload"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          }
+        },
+        "required": [
+          "report_id",
+          "benchmark_task_id",
+          "project_id",
+          "benchmark_definition_id",
+          "dut_model",
+          "title",
+          "status",
+          "artifact_dir",
+          "json_path",
+          "markdown_path",
+          "summary",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "title": "ReportPayload",
+        "type": "object"
+      },
+      "ReportResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ReportResponse",
+        "type": "object"
+      },
+      "ReportsWorkspacePayload": {
+        "properties": {
+          "benchmark_tasks": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskPayload"
+            },
+            "title": "Benchmark Tasks",
+            "type": "array"
+          },
+          "exportable_tasks": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskPayload"
+            },
+            "title": "Exportable Tasks",
+            "type": "array"
+          },
+          "pending_report_tasks": {
+            "items": {
+              "$ref": "#/components/schemas/BenchmarkTaskPayload"
+            },
+            "title": "Pending Report Tasks",
+            "type": "array"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectPayload"
+            },
+            "title": "Projects",
+            "type": "array"
+          },
+          "recent_failures": {
+            "items": {
+              "$ref": "#/components/schemas/RunPayload"
+            },
+            "title": "Recent Failures",
+            "type": "array"
+          },
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ReportPayload"
+            },
+            "title": "Reports",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ReportsWorkspaceSummaryPayload"
+          }
+        },
+        "required": [
+          "summary",
+          "projects",
+          "reports",
+          "benchmark_tasks",
+          "exportable_tasks",
+          "pending_report_tasks",
+          "recent_failures"
+        ],
+        "title": "ReportsWorkspacePayload",
+        "type": "object"
+      },
+      "ReportsWorkspaceResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportsWorkspacePayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ReportsWorkspaceResponse",
+        "type": "object"
+      },
+      "ReportsWorkspaceSummaryPayload": {
+        "properties": {
+          "benchmark_task_count": {
+            "title": "Benchmark Task Count",
+            "type": "integer"
+          },
+          "exportable_task_count": {
+            "title": "Exportable Task Count",
+            "type": "integer"
+          },
+          "pending_report_task_count": {
+            "title": "Pending Report Task Count",
+            "type": "integer"
+          },
+          "project_count": {
+            "title": "Project Count",
+            "type": "integer"
+          },
+          "recent_failure_count": {
+            "title": "Recent Failure Count",
+            "type": "integer"
+          },
+          "report_count": {
+            "title": "Report Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "project_count",
+          "report_count",
+          "benchmark_task_count",
+          "exportable_task_count",
+          "pending_report_task_count",
+          "recent_failure_count"
+        ],
+        "title": "ReportsWorkspaceSummaryPayload",
+        "type": "object"
+      },
+      "RerunBenchmarkTaskRequest": {
+        "properties": {
+          "auto_start": {
+            "default": true,
+            "title": "Auto Start",
+            "type": "boolean"
+          }
+        },
+        "title": "RerunBenchmarkTaskRequest",
+        "type": "object"
+      },
+      "RunCreatePayload": {
+        "properties": {
+          "evaluation_profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationProfilePayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hil_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HilConfigPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "status",
+          "hil_config",
+          "evaluation_profile"
+        ],
+        "title": "RunCreatePayload",
+        "type": "object"
+      },
+      "RunCreateResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCreatePayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "RunCreateResponse",
+        "type": "object"
+      },
+      "RunDebugPayload": {
+        "additionalProperties": true,
+        "properties": {
+          "viewer_friendly": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Viewer Friendly"
+          }
+        },
+        "title": "RunDebugPayload",
+        "type": "object"
+      },
+      "RunEnvironmentStatePayload": {
+        "properties": {
+          "descriptor_debug": {
+            "$ref": "#/components/schemas/RunDebugPayload"
+          },
+          "descriptor_weather": {
+            "$ref": "#/components/schemas/WeatherPayload"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "runtime_control": {
+            "$ref": "#/components/schemas/RunRuntimeControlPayload"
+          },
+          "weather": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WeatherPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "descriptor_weather",
+          "descriptor_debug",
+          "runtime_control"
+        ],
+        "title": "RunEnvironmentStatePayload",
+        "type": "object"
+      },
+      "RunEnvironmentStateResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunEnvironmentStatePayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "RunEnvironmentStateResponse",
+        "type": "object"
+      },
+      "RunEnvironmentUpdateRequest": {
+        "properties": {
+          "debug": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debug"
+          },
+          "weather": {
+            "$ref": "#/components/schemas/WeatherPayload"
+          }
+        },
+        "required": [
+          "weather"
+        ],
+        "title": "RunEnvironmentUpdateRequest",
+        "type": "object"
+      },
+      "RunEventListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RunEventPayload"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据",
+            "title": "Data"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "RunEventListResponse",
+        "type": "object"
+      },
+      "RunEventPayload": {
+        "properties": {
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "timestamp": {
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "timestamp",
+          "run_id",
+          "level",
+          "event_type",
+          "message",
+          "payload"
+        ],
+        "title": "RunEventPayload",
+        "type": "object"
+      },
+      "RunListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RunPayload"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据",
+            "title": "Data"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "RunListResponse",
+        "type": "object"
+      },
+      "RunPayload": {
+        "properties": {
+          "achieved_tick_rate_hz": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Achieved Tick Rate Hz"
+          },
+          "artifact_dir": {
+            "title": "Artifact Dir",
+            "type": "string"
+          },
+          "benchmark_definition_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benchmark Definition Id"
+          },
+          "benchmark_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benchmark Name"
+          },
+          "benchmark_task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benchmark Task Id"
+          },
+          "cancel_requested": {
+            "title": "Cancel Requested",
+            "type": "boolean"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "created_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created Time"
+          },
+          "current_tick": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Tick"
+          },
+          "debug": {
+            "$ref": "#/components/schemas/RunDebugPayload"
+          },
+          "device_metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Metrics"
+          },
+          "dut_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dut Model"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "ended_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At Utc"
+          },
+          "error_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Reason"
+          },
+          "evaluation_profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationProfilePayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "executed_tick_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed Tick Count"
+          },
+          "execution_backend": {
+            "title": "Execution Backend",
+            "type": "string"
+          },
+          "hil_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HilConfigPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "map_name": {
+            "title": "Map Name",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ScenarioMetadataPayload"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "project_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Name"
+          },
+          "recorder": {
+            "$ref": "#/components/schemas/RecorderConfigPayload"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "runtime_capabilities": {
+            "$ref": "#/components/schemas/RunRuntimeCapabilitiesPayload"
+          },
+          "scenario_name": {
+            "title": "Scenario Name",
+            "type": "string"
+          },
+          "scenario_source": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Source"
+          },
+          "sensors": {
+            "$ref": "#/components/schemas/SensorsConfigPayload"
+          },
+          "sim_elapsed_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sim Elapsed Seconds"
+          },
+          "sim_time": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sim Time"
+          },
+          "spawned_actors_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spawned Actors Count"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "started_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At Utc"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "stop_requested": {
+            "title": "Stop Requested",
+            "type": "boolean"
+          },
+          "traffic": {
+            "$ref": "#/components/schemas/TrafficPayload"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          },
+          "updated_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated Time"
+          },
+          "wall_elapsed_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wall Elapsed Seconds"
+          },
+          "weather": {
+            "$ref": "#/components/schemas/WeatherPayload"
+          }
+        },
+        "required": [
+          "run_id",
+          "status",
+          "scenario_name",
+          "map_name",
+          "created_at_utc",
+          "updated_at_utc",
+          "started_at_utc",
+          "ended_at_utc",
+          "created_time",
+          "updated_time",
+          "start_time",
+          "end_time",
+          "error_reason",
+          "stop_requested",
+          "cancel_requested",
+          "hil_config",
+          "evaluation_profile",
+          "artifact_dir",
+          "execution_backend",
+          "scenario_source",
+          "project_id",
+          "project_name",
+          "benchmark_definition_id",
+          "benchmark_name",
+          "benchmark_task_id",
+          "dut_model",
+          "metadata",
+          "weather",
+          "traffic",
+          "sensors",
+          "recorder",
+          "debug",
+          "runtime_capabilities",
+          "sim_time",
+          "current_tick",
+          "executed_tick_count",
+          "sim_elapsed_seconds",
+          "achieved_tick_rate_hz",
+          "wall_elapsed_seconds",
+          "spawned_actors_count"
+        ],
+        "title": "RunPayload",
+        "type": "object"
+      },
+      "RunResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "RunResponse",
+        "type": "object"
+      },
+      "RunRuntimeCapabilitiesPayload": {
+        "properties": {
+          "viewer_friendly": {
+            "title": "Viewer Friendly",
+            "type": "boolean"
+          },
+          "weather_update": {
+            "title": "Weather Update",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "weather_update",
+          "viewer_friendly"
+        ],
+        "title": "RunRuntimeCapabilitiesPayload",
+        "type": "object"
+      },
+      "RunRuntimeControlPayload": {
+        "properties": {
+          "debug": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunDebugPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recorder": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecorderRuntimeControlPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sensor_capture": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SensorCaptureRuntimeControlPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          },
+          "weather": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WeatherPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "weather",
+          "debug",
+          "updated_at_utc"
+        ],
+        "title": "RunRuntimeControlPayload",
+        "type": "object"
+      },
+      "RunViewerInfoPayload": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "playback_interval_ms": {
+            "title": "Playback Interval Ms",
+            "type": "integer"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "refresh_interval_ms": {
+            "title": "Refresh Interval Ms",
+            "type": "integer"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "snapshot_url": {
+            "title": "Snapshot Url",
+            "type": "string"
+          },
+          "stream_buffer_max_frames": {
+            "title": "Stream Buffer Max Frames",
+            "type": "integer"
+          },
+          "stream_buffer_min_frames": {
+            "title": "Stream Buffer Min Frames",
+            "type": "integer"
+          },
+          "stream_interval_ms": {
+            "title": "Stream Interval Ms",
+            "type": "integer"
+          },
+          "stream_ws_path": {
+            "title": "Stream Ws Path",
+            "type": "string"
+          },
+          "views": {
+            "items": {
+              "$ref": "#/components/schemas/RunViewerViewPayload"
+            },
+            "title": "Views",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "available",
+          "reason",
+          "views",
+          "snapshot_url",
+          "stream_ws_path",
+          "refresh_interval_ms",
+          "stream_interval_ms",
+          "playback_interval_ms",
+          "stream_buffer_min_frames",
+          "stream_buffer_max_frames"
+        ],
+        "title": "RunViewerInfoPayload",
+        "type": "object"
+      },
+      "RunViewerInfoResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunViewerInfoPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "RunViewerInfoResponse",
+        "type": "object"
+      },
+      "RunViewerViewPayload": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "view_id": {
+            "title": "View Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "view_id",
+          "label"
+        ],
+        "title": "RunViewerViewPayload",
+        "type": "object"
+      },
+      "ScenarioLaunchRequest": {
+        "properties": {
+          "auto_start": {
+            "default": true,
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "map_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map Name"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioMetadataPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "sensor_profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Name"
+          },
+          "template_params": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "title": "Template Params",
+            "type": "object"
+          },
+          "timeout_seconds": {
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout Seconds"
+          },
+          "traffic": {
+            "$ref": "#/components/schemas/TrafficPayload"
+          },
+          "weather": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WeatherPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "scenario_id"
+        ],
+        "title": "ScenarioLaunchRequest",
+        "type": "object"
+      },
+      "ScenarioMetadataPayload": {
+        "additionalProperties": true,
+        "properties": {
+          "author": {
+            "default": "",
+            "title": "Author",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "dut_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dut Model"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "title": "ScenarioMetadataPayload",
+        "type": "object"
+      },
+      "SensorCaptureOutputPayload": {
+        "properties": {
+          "file_count": {
+            "default": 0,
+            "title": "File Count",
+            "type": "integer"
+          },
+          "frame_file_count": {
+            "default": 0,
+            "title": "Frame File Count",
+            "type": "integer"
+          },
+          "latest_artifact_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Artifact Path"
+          },
+          "record_count": {
+            "default": 0,
+            "title": "Record Count",
+            "type": "integer"
+          },
+          "relative_dir": {
+            "title": "Relative Dir",
+            "type": "string"
+          },
+          "sample_count": {
+            "default": 0,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "sensor_id": {
+            "title": "Sensor Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sensor_id",
+          "relative_dir"
+        ],
+        "title": "SensorCaptureOutputPayload",
+        "type": "object"
+      },
+      "SensorCaptureRuntimeControlPayload": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "auto_start": {
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "desired_state": {
+            "title": "Desired State",
+            "type": "string"
+          },
+          "download_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Download Url"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "manifest": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest"
+          },
+          "manifest_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Path"
+          },
+          "output_root": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Root"
+          },
+          "profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Name"
+          },
+          "saved_frames": {
+            "default": 0,
+            "title": "Saved Frames",
+            "type": "integer"
+          },
+          "saved_samples": {
+            "default": 0,
+            "title": "Saved Samples",
+            "type": "integer"
+          },
+          "sensor_count": {
+            "title": "Sensor Count",
+            "type": "integer"
+          },
+          "sensor_outputs": {
+            "items": {
+              "$ref": "#/components/schemas/SensorCaptureOutputPayload"
+            },
+            "title": "Sensor Outputs",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          },
+          "worker_log_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worker Log Path"
+          },
+          "worker_log_tail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worker Log Tail"
+          },
+          "worker_state_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worker State Path"
+          }
+        },
+        "required": [
+          "enabled",
+          "auto_start",
+          "desired_state",
+          "active",
+          "status",
+          "profile_name",
+          "sensor_count",
+          "output_root",
+          "last_error",
+          "updated_at_utc"
+        ],
+        "title": "SensorCaptureRuntimeControlPayload",
+        "type": "object"
+      },
+      "SensorProfileListPayload": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SensorProfilePayload"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "SensorProfileListPayload",
+        "type": "object"
+      },
+      "SensorProfileListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SensorProfileListPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "SensorProfileListResponse",
+        "type": "object"
+      },
+      "SensorProfilePayload": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "profile_name": {
+            "title": "Profile Name",
+            "type": "string"
+          },
+          "raw_yaml": {
+            "title": "Raw Yaml",
+            "type": "string"
+          },
+          "sensors": {
+            "items": {
+              "$ref": "#/components/schemas/SensorSpecPayload"
+            },
+            "title": "Sensors",
+            "type": "array"
+          },
+          "source_path": {
+            "title": "Source Path",
+            "type": "string"
+          },
+          "vehicle_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vehicle Model"
+          }
+        },
+        "required": [
+          "profile_name",
+          "display_name",
+          "description",
+          "sensors",
+          "raw_yaml",
+          "source_path"
+        ],
+        "title": "SensorProfilePayload",
+        "type": "object"
+      },
+      "SensorProfileResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SensorProfilePayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "SensorProfileResponse",
+        "type": "object"
+      },
+      "SensorProfileSaveRequest": {
+        "properties": {
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "profile_name": {
+            "title": "Profile Name",
+            "type": "string"
+          },
+          "sensors": {
+            "items": {
+              "$ref": "#/components/schemas/SensorSpecPayload"
+            },
+            "title": "Sensors",
+            "type": "array"
+          },
+          "vehicle_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vehicle Model"
+          }
+        },
+        "required": [
+          "profile_name",
+          "display_name",
+          "sensors"
+        ],
+        "title": "SensorProfileSaveRequest",
+        "type": "object"
+      },
+      "SensorSpecPayload": {
+        "properties": {
+          "attributes": {
+            "additionalProperties": true,
+            "title": "Attributes",
+            "type": "object"
+          },
+          "channels": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channels"
+          },
+          "fov": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fov"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "horizontal_fov": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizontal Fov"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "pitch": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pitch"
+          },
+          "points_per_second": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Points Per Second"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Range"
+          },
+          "reading_frequency": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reading Frequency"
+          },
+          "roll": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roll"
+          },
+          "rotation_frequency": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rotation Frequency"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "vertical_fov": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Fov"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          },
+          "yaw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yaw"
+          },
+          "z": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Z"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "SensorSpecPayload",
+        "type": "object"
+      },
+      "SensorsConfigPayload": {
+        "properties": {
+          "auto_start": {
+            "default": false,
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "config_yaml_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config Yaml Path"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Name"
+          },
+          "sensors": {
+            "items": {
+              "$ref": "#/components/schemas/SensorSpecPayload"
+            },
+            "title": "Sensors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enabled",
+          "profile_name",
+          "config_yaml_path",
+          "sensors"
+        ],
+        "title": "SensorsConfigPayload",
+        "type": "object"
+      },
+      "TrafficPayload": {
+        "properties": {
+          "num_vehicles": {
+            "default": 0,
+            "maximum": 128.0,
+            "minimum": 0.0,
+            "title": "Num Vehicles",
+            "type": "integer"
+          },
+          "num_walkers": {
+            "default": 0,
+            "maximum": 128.0,
+            "minimum": 0.0,
+            "title": "Num Walkers",
+            "type": "integer"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 2147483647.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          }
+        },
+        "title": "TrafficPayload",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "WeatherPayload": {
+        "properties": {
+          "cloudiness": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cloudiness"
+          },
+          "fog_density": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fog Density"
+          },
+          "precipitation": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitation"
+          },
+          "precipitation_deposits": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitation Deposits"
+          },
+          "preset": {
+            "default": "ClearNoon",
+            "title": "Preset",
+            "type": "string"
+          },
+          "sun_altitude_angle": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sun Altitude Angle"
+          },
+          "sun_azimuth_angle": {
+            "anyOf": [
+              {
+                "maximum": 360.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sun Azimuth Angle"
+          },
+          "wetness": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wetness"
+          },
+          "wind_intensity": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wind Intensity"
+          }
+        },
+        "title": "WeatherPayload",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "SimChip Nexus 芯境智测平台提供 CARLA 场景仿真、硬件在环测试、设备接入和评测报告服务。\n\n- `/docs`：接口文档\n- `/`：平台展示页\n- `/ui`：Web 测评控制台",
+    "title": "SimChip Nexus API",
+    "version": "0.2.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/benchmark-definitions": {
+      "get": {
+        "operationId": "list_benchmark_definitions_benchmark_definitions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkDefinitionListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询基准定义列表",
+        "tags": [
+          "基准任务"
+        ]
+      }
+    },
+    "/benchmark-definitions/{benchmark_definition_id}": {
+      "get": {
+        "operationId": "get_benchmark_definition_benchmark_definitions__benchmark_definition_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "benchmark_definition_id",
+            "required": true,
+            "schema": {
+              "title": "Benchmark Definition Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkDefinitionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个基准定义",
+        "tags": [
+          "基准任务"
+        ]
+      }
+    },
+    "/benchmark-tasks": {
+      "get": {
+        "operationId": "list_benchmark_tasks_benchmark_tasks_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "project_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkTaskListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询基准任务列表",
+        "tags": [
+          "基准任务"
+        ]
+      },
+      "post": {
+        "operationId": "create_benchmark_task_benchmark_tasks_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBenchmarkTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "创建基准任务",
+        "tags": [
+          "基准任务"
+        ]
+      }
+    },
+    "/benchmark-tasks/{benchmark_task_id}": {
+      "get": {
+        "operationId": "get_benchmark_task_benchmark_tasks__benchmark_task_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "benchmark_task_id",
+            "required": true,
+            "schema": {
+              "title": "Benchmark Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个基准任务",
+        "tags": [
+          "基准任务"
+        ]
+      }
+    },
+    "/benchmark-tasks/{benchmark_task_id}/rerun": {
+      "post": {
+        "operationId": "rerun_benchmark_task_benchmark_tasks__benchmark_task_id__rerun_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "benchmark_task_id",
+            "required": true,
+            "schema": {
+              "title": "Benchmark Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RerunBenchmarkTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "再次执行批量任务",
+        "tags": [
+          "基准任务"
+        ]
+      }
+    },
+    "/benchmark-tasks/{benchmark_task_id}/stop": {
+      "post": {
+        "operationId": "stop_benchmark_task_benchmark_tasks__benchmark_task_id__stop_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "benchmark_task_id",
+            "required": true,
+            "schema": {
+              "title": "Benchmark Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "停止当前批量任务",
+        "tags": [
+          "基准任务"
+        ]
+      }
+    },
+    "/captures": {
+      "get": {
+        "operationId": "list_captures_captures_get",
+        "parameters": [
+          {
+            "description": "可选采集状态过滤值",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选采集状态过滤值",
+              "title": "Status"
+            }
+          },
+          {
+            "description": "可选网关过滤值",
+            "in": "query",
+            "name": "gateway_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选网关过滤值",
+              "title": "Gateway Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询采集列表",
+        "tags": [
+          "采集管理"
+        ]
+      },
+      "post": {
+        "operationId": "create_capture_captures_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCaptureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "创建采集任务",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/captures/{capture_id}": {
+      "get": {
+        "operationId": "get_capture_captures__capture_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "capture_id",
+            "required": true,
+            "schema": {
+              "title": "Capture Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个采集",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/captures/{capture_id}/frames": {
+      "get": {
+        "operationId": "get_capture_frames_captures__capture_id__frames_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "capture_id",
+            "required": true,
+            "schema": {
+              "title": "Capture Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询采集帧列表",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/captures/{capture_id}/manifest": {
+      "get": {
+        "operationId": "get_capture_manifest_captures__capture_id__manifest_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "capture_id",
+            "required": true,
+            "schema": {
+              "title": "Capture Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询采集 manifest",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/captures/{capture_id}/start": {
+      "post": {
+        "operationId": "start_capture_captures__capture_id__start_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "capture_id",
+            "required": true,
+            "schema": {
+              "title": "Capture Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "启动采集",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/captures/{capture_id}/stop": {
+      "post": {
+        "operationId": "stop_capture_captures__capture_id__stop_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "capture_id",
+            "required": true,
+            "schema": {
+              "title": "Capture Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "停止采集",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/captures/{capture_id}/sync": {
+      "post": {
+        "operationId": "sync_capture_captures__capture_id__sync_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "capture_id",
+            "required": true,
+            "schema": {
+              "title": "Capture Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureSyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "同步采集进度",
+        "tags": [
+          "采集管理"
+        ]
+      }
+    },
+    "/devices/workspace": {
+      "get": {
+        "operationId": "get_devices_workspace_devices_workspace_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询设备工作台数据",
+        "tags": [
+          "设备工作台"
+        ]
+      }
+    },
+    "/devices/{gateway_id}/workspace": {
+      "get": {
+        "operationId": "get_device_workspace_devices__gateway_id__workspace_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "gateway_id",
+            "required": true,
+            "schema": {
+              "title": "Gateway Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个设备工作台数据",
+        "tags": [
+          "设备工作台"
+        ]
+      }
+    },
+    "/evaluation-profiles": {
+      "get": {
+        "operationId": "get_evaluation_profiles_evaluation_profiles_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询评测模板",
+        "tags": [
+          "网关管理"
+        ]
+      }
+    },
+    "/gateways": {
+      "get": {
+        "operationId": "list_gateways_gateways_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询网关列表",
+        "tags": [
+          "网关管理"
+        ]
+      }
+    },
+    "/gateways/register": {
+      "post": {
+        "operationId": "register_gateway_gateways_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GatewayRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "注册网关",
+        "tags": [
+          "网关管理"
+        ]
+      }
+    },
+    "/gateways/{gateway_id}": {
+      "get": {
+        "operationId": "get_gateway_gateways__gateway_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "gateway_id",
+            "required": true,
+            "schema": {
+              "title": "Gateway Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个网关",
+        "tags": [
+          "网关管理"
+        ]
+      }
+    },
+    "/gateways/{gateway_id}/heartbeat": {
+      "post": {
+        "operationId": "heartbeat_gateway_gateways__gateway_id__heartbeat_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "gateway_id",
+            "required": true,
+            "schema": {
+              "title": "Gateway Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GatewayHeartbeatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "网关心跳",
+        "tags": [
+          "网关管理"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Healthz Healthz Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Healthz",
+        "tags": [
+          "系统"
+        ]
+      }
+    },
+    "/maps": {
+      "get": {
+        "description": "直接从当前配置的 CARLA server 读取可加载地图列表，用于前端下拉选择。",
+        "operationId": "list_maps_maps_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询 CARLA 可用地图",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/projects": {
+      "get": {
+        "operationId": "list_projects_projects_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询项目列表",
+        "tags": [
+          "项目管理"
+        ]
+      }
+    },
+    "/projects/{project_id}": {
+      "get": {
+        "operationId": "get_project_projects__project_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个项目",
+        "tags": [
+          "项目管理"
+        ]
+      }
+    },
+    "/projects/{project_id}/workspace": {
+      "get": {
+        "operationId": "get_project_workspace_projects__project_id__workspace_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询项目工作台数据",
+        "tags": [
+          "项目管理"
+        ]
+      }
+    },
+    "/reports": {
+      "get": {
+        "operationId": "list_reports_reports_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "benchmark_task_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Benchmark Task Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "project_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询报告列表",
+        "tags": [
+          "报告中心"
+        ]
+      }
+    },
+    "/reports/export": {
+      "post": {
+        "operationId": "export_report_reports_export_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "导出基准任务报告",
+        "tags": [
+          "报告中心"
+        ]
+      }
+    },
+    "/reports/workspace": {
+      "get": {
+        "operationId": "get_reports_workspace_reports_workspace_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportsWorkspaceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询报告工作台数据",
+        "tags": [
+          "报告中心"
+        ]
+      }
+    },
+    "/reports/{report_id}": {
+      "get": {
+        "operationId": "get_report_reports__report_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个报告",
+        "tags": [
+          "报告中心"
+        ]
+      }
+    },
+    "/runs": {
+      "get": {
+        "description": "返回运行列表，可按状态过滤。",
+        "operationId": "list_runs_runs_get",
+        "parameters": [
+          {
+            "description": "可选状态过滤值",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "可选状态过滤值",
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询运行列表",
+        "tags": [
+          "运行管理"
+        ]
+      },
+      "post": {
+        "description": "根据 descriptor 创建一个 run，创建后状态为 CREATED。",
+        "operationId": "create_run_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCreateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "创建运行",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}": {
+      "get": {
+        "description": "返回 run 当前状态、起止时间、错误原因和 artifact 路径。",
+        "operationId": "get_run_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单个运行",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/cancel": {
+      "post": {
+        "description": "请求取消运行。语义与 stop 类似，但标记为取消请求。",
+        "operationId": "cancel_run_runs__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "取消运行",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/environment": {
+      "get": {
+        "description": "返回该 run 当前 descriptor 中的环境参数以及最近一次运行时环境控制值。",
+        "operationId": "get_run_environment_runs__run_id__environment_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunEnvironmentStateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询运行环境控制状态",
+        "tags": [
+          "运行管理"
+        ]
+      },
+      "post": {
+        "description": "更新 run 的环境参数。运行中会由 executor 轮询并应用天气更新。",
+        "operationId": "update_run_environment_runs__run_id__environment_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunEnvironmentUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunEnvironmentStateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "更新运行环境参数",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/events": {
+      "get": {
+        "description": "返回该 run 的 events.jsonl 事件流。",
+        "operationId": "get_run_events_runs__run_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunEventListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询运行事件",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/sensor-capture/start": {
+      "post": {
+        "description": "仅改变传感器采集状态，不影响场景运行本身。适合在需要保留真实传感器数据时手动开始采集。",
+        "operationId": "start_run_sensor_capture_runs__run_id__sensor_capture_start_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunEnvironmentStateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "开始运行中的传感器采集",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/sensor-capture/stop": {
+      "post": {
+        "description": "停止真实传感器数据落盘，但不会停止当前场景。",
+        "operationId": "stop_run_sensor_capture_runs__run_id__sensor_capture_stop_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunEnvironmentStateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "停止运行中的传感器采集",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/start": {
+      "post": {
+        "description": "将 run 放入执行队列，状态从 CREATED 变为 QUEUED。",
+        "operationId": "start_run_runs__run_id__start_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "启动运行",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/stop": {
+      "post": {
+        "description": "请求停止运行。若尚未启动会直接取消；若运行中则进入 STOPPING。",
+        "operationId": "stop_run_runs__run_id__stop_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "停止运行",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/runs/{run_id}/viewer": {
+      "get": {
+        "description": "返回前端运行时显示界面所需的视角列表和当前可用性。",
+        "operationId": "get_run_viewer_runs__run_id__viewer_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunViewerInfoResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询运行时 viewer 状态",
+        "tags": [
+          "运行管理"
+        ]
+      }
+    },
+    "/scenarios": {
+      "get": {
+        "description": "返回由平台 native runtime 驱动的场景目录、环境预设和传感器模板。sample_descriptors 仅保留兼容字段，正常情况下为空。",
+        "operationId": "list_scenarios_scenarios_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询场景目录",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/scenarios/catalog": {
+      "get": {
+        "description": "返回由平台 native runtime 驱动的场景目录。",
+        "operationId": "list_scenario_catalog_endpoint_scenarios_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询场景库目录",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/scenarios/environment-presets": {
+      "get": {
+        "description": "返回用于运行前配置和运行中环境调参的预设。",
+        "operationId": "get_environment_presets_scenarios_environment_presets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询环境参数预设",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/scenarios/launch": {
+      "post": {
+        "description": "前端只提交场景、地图、天气、传感器和背景交通参数。后端生成 per-run 的 native runtime 输入并创建 run，可按需自动加入执行队列。",
+        "operationId": "launch_scenario_scenarios_launch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioLaunchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "按场景启动配置创建运行",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/scenarios/sensor-profiles": {
+      "get": {
+        "description": "返回 YAML 传感器模板，格式参考 CARLA official agent sensors() 配置。",
+        "operationId": "get_sensor_profiles_scenarios_sensor_profiles_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询传感器配置模板",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/scenarios/sensor-profiles/{profile_name}": {
+      "put": {
+        "description": "用于运维界面维护与车型绑定的 YAML 传感器模板。场景运行仍只引用 profile_name。",
+        "operationId": "save_sensor_profile_endpoint_scenarios_sensor_profiles__profile_name__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_name",
+            "required": true,
+            "schema": {
+              "title": "Profile Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensorProfileSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "创建或更新传感器配置模板",
+        "tags": [
+          "场景管理"
+        ]
+      }
+    },
+    "/system/carla/weather": {
+      "put": {
+        "operationId": "update_carla_weather_system_carla_weather_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeatherPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "动态修改全局天气",
+        "tags": [
+          "全局仿真控制"
+        ]
+      }
+    },
+    "/system/status": {
+      "get": {
+        "operationId": "get_system_status_system_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询平台状态",
+        "tags": [
+          "系统"
+        ]
+      }
+    }
+  }
+}

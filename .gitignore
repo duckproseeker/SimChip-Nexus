@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.tsbuildinfo
+.pytest_cache/
+.ruff_cache/
+artifacts/
+run_data/
+.env
+.env.local
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+frontend/tmp/

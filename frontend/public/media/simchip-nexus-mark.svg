@@ -1,0 +1,26 @@
+<svg width="240" height="120" viewBox="0 0 240 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">SimChip Nexus mark</title>
+  <desc id="desc">A sharp blue S-shaped compute chip logo mark.</desc>
+  <defs>
+    <linearGradient id="body" x1="38" y1="103" x2="188" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#031243"/>
+      <stop offset="0.48" stop-color="#0A55D6"/>
+      <stop offset="1" stop-color="#1BB8FF"/>
+    </linearGradient>
+    <linearGradient id="dash" x1="176" y1="23" x2="226" y2="23" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#25D8FF"/>
+      <stop offset="1" stop-color="#0A6DEA"/>
+    </linearGradient>
+  </defs>
+  <path d="M57.2 94.4H124.9C128.3 94.4 131.6 93 134 90.6L162 62.6L151.5 52.1H88.6L104.3 36.4H158.1C162.1 36.4 165.8 38 168.6 40.8L185.6 57.8C188.2 60.4 188.2 64.6 185.6 67.2L143.8 109C140.5 112.3 136 114.1 131.4 114.1H38.4L57.2 94.4Z" fill="url(#body)"/>
+  <path d="M73.4 5.9H181.5C185.2 5.9 187 10.3 184.4 12.9L171.4 25.9H96.4L73.7 48.6L87.2 62.1H66.2C62.8 62.1 59.6 60.8 57.2 58.4L47.9 49.1C43.7 44.9 44.1 38 48.8 34.3L73.4 5.9Z" fill="url(#body)"/>
+  <rect x="188" y="5.8" width="34" height="8.8" rx="4.4" fill="url(#dash)"/>
+  <rect x="180.6" y="27.4" width="34" height="8.8" rx="4.4" fill="url(#dash)"/>
+  <rect x="211.2" y="43.4" width="18.4" height="8.4" rx="4.2" fill="url(#dash)"/>
+  <rect x="174" y="43.4" width="20.8" height="8.4" rx="4.2" fill="url(#dash)"/>
+  <g>
+    <rect x="103" y="62.8" width="33.8" height="33.8" rx="6.4" fill="#071844"/>
+    <rect x="112" y="71.8" width="15.8" height="15.8" rx="2.8" fill="#C8F4FF"/>
+    <path d="M109 55.6V62.7M116.2 55.6V62.7M123.4 55.6V62.7M130.6 55.6V62.7M109 96.8V103.9M116.2 96.8V103.9M123.4 96.8V103.9M130.6 96.8V103.9M95.8 68.8H103M95.8 76H103M95.8 83.2H103M95.8 90.4H103M136.8 68.8H144M136.8 76H144M136.8 83.2H144M136.8 90.4H144" stroke="#DDF8FF" stroke-width="3.1" stroke-linecap="round"/>
+  </g>
+</svg>

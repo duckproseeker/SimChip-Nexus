@@ -1,0 +1,40 @@
+profile_name: tri_camera
+display_name: Triple RGB Cameras
+description: 三目 RGB 相机配置，适合前向感知和多视角记录。
+metadata:
+  source: duckpark
+  category: multi-camera
+sensors:
+  - id: FrontCenter
+    type: sensor.camera.rgb
+    x: 1.5
+    y: 0.0
+    z: 1.7
+    yaw: 0.0
+    pitch: 0.0
+    roll: 0.0
+    width: 1920
+    height: 1080
+    fov: 90.0
+  - id: FrontLeft
+    type: sensor.camera.rgb
+    x: 1.5
+    y: -0.35
+    z: 1.7
+    yaw: -45.0
+    pitch: 0.0
+    roll: 0.0
+    width: 1280
+    height: 720
+    fov: 100.0
+  - id: FrontRight
+    type: sensor.camera.rgb
+    x: 1.5
+    y: 0.35
+    z: 1.7
+    yaw: 45.0
+    pitch: 0.0
+    roll: 0.0
+    width: 1280
+    height: 720
+    fov: 100.0
