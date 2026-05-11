@@ -10,7 +10,7 @@ QUALITY_LEVEL="${CARLA_HEADED_QUALITY_LEVEL:-High}"
 RENDERER="${CARLA_HEADED_RENDERER:-vulkan}"
 RES_X="${CARLA_HEADED_RES_X:-1920}"
 RES_Y="${CARLA_HEADED_RES_Y:-1080}"
-WINDOW_MODE="${CARLA_HEADED_WINDOW_MODE:-fullscreen}"
+WINDOW_MODE="${CARLA_HEADED_WINDOW_MODE:-windowed}"
 EXTRA_ARGS="${CARLA_HEADED_EXTRA_ARGS:-}"
 WAIT_FOR_RPC="${CARLA_HEADED_WAIT_FOR_RPC:-1}"
 WAIT_TIMEOUT_SECONDS="${CARLA_HEADED_WAIT_TIMEOUT_SECONDS:-45}"
@@ -39,7 +39,7 @@ Options:
   --renderer <name>         vulkan | opengl, default vulkan
   --res-x <pixels>          Window width, default 1920
   --res-y <pixels>          Window height, default 1080
-  --window-mode <mode>      fullscreen | windowed, default fullscreen
+  --window-mode <mode>      fullscreen | windowed, default windowed
   --help                    Show this help
 
 Environment overrides:
