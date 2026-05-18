@@ -368,61 +368,57 @@ export function ProjectsPage() {
             >
 
                 {viewMode === 'overview' && (
-                  <div className="project-console__section-stack">
-                    <div className="project-console__kv-grid">
-                      <div className="project-console__kv">
-                        <span>厂商 / 平台</span>
-                        <strong>{workspace.project.vendor}</strong>
-                        <small>{workspace.project.processor}</small>
-                      </div>
-                      <div className="project-console__kv">
-                        <span>适用模板</span>
-                        <strong>{workspace.summary.benchmark_definition_count}</strong>
-                        <small>用于快速确认当前项目可用的测评模板。</small>
-                      </div>
-                      <div className="project-console__kv">
-                        <span>归档报告</span>
-                        <strong>{reports.length}</strong>
-                        <small>{latestReport ? `最新 ${formatDateTime(latestReport.updated_at_utc)}` : '尚无报告'}</small>
-                      </div>
-                      <div className="project-console__kv">
-                        <span>活跃任务</span>
-                        <strong>{activeTaskCount}</strong>
-                        <small>{workspace.summary.active_run_count} 个运行仍在更新</small>
-                      </div>
-                    </div>
+                  <div className="project-console__overview-layout">
+                    <div className="project-console__project-identity">
+                      {workspace.project.description && (
+                        <p className="project-console__project-desc">{workspace.project.description}</p>
+                      )}
 
-                    <div className="project-console__chip-block">
-                      <div className="project-console__summary-item">
-                        <span>项目说明</span>
-                        <strong>{workspace.project.name}</strong>
-                        <small>{workspace.project.description}</small>
-                      </div>
-                      <div className="project-console__summary-item">
-                        <span>评测关注</span>
-                        <div className="project-console__chips">
-                          {workspace.project.benchmark_focus.map((item) => (
-                            <span className="project-console__chip" key={item}>
-                              {item}
-                            </span>
-                          ))}
+                      {workspace.project.benchmark_focus.length > 0 && (
+                        <div className="project-console__tag-group">
+                          <span className="project-console__tag-group-label">评测关注</span>
+                          <div className="project-console__chips">
+                            {workspace.project.benchmark_focus.map((item) => (
+                              <span className="project-console__chip" key={item}>{item}</span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <div className="project-console__summary-item">
-                        <span>目标指标</span>
-                        <div className="project-console__chips">
-                          {workspace.project.target_metrics.map((item) => (
-                            <span className="project-console__chip project-console__chip--muted" key={item}>
-                              {item}
-                            </span>
-                          ))}
+                      )}
+
+                      {workspace.project.target_metrics.length > 0 && (
+                        <div className="project-console__tag-group">
+                          <span className="project-console__tag-group-label">目标指标</span>
+                          <div className="project-console__chips">
+                            {workspace.project.target_metrics.map((item) => (
+                              <span className="project-console__chip project-console__chip--muted" key={item}>{item}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="project-console__stats-line">
+                        <div className="project-console__stats-line-item">
+                          <strong>{workspace.project.vendor}</strong>
+                          <span>{workspace.project.processor}</span>
+                        </div>
+                        <div className="project-console__stats-line-item">
+                          <strong>{workspace.summary.benchmark_definition_count}</strong>
+                          <span>个模板</span>
+                        </div>
+                        <div className="project-console__stats-line-item">
+                          <strong>{reports.length}</strong>
+                          <span>份报告</span>
+                        </div>
+                        <div className="project-console__stats-line-item">
+                          <strong>{activeTaskCount}</strong>
+                          <span>个活跃任务</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="project-console__table-split">
+                    <div className="project-console__section-stack">
                       <div>
-                        <div className="project-console__table-title">适用模板摘要</div>
+                        <div className="project-console__table-title">适用模板</div>
                         <div className="project-console__table">
                           {workspace.benchmark_definitions.map((definition) => (
                             <div className="project-console__table-row" key={definition.benchmark_definition_id}>

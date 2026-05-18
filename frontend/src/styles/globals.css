@@ -3808,6 +3808,68 @@ body::before {
   margin-top: 0.8rem;
 }
 
+.project-console__overview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.project-console__project-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.project-console__project-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+.project-console__tag-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.project-console__tag-group-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-caption);
+}
+
+.project-console__stats-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+
+.project-console__stats-line-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.28rem;
+}
+
+.project-console__stats-line-item strong {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.project-console__stats-line-item span {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
 .project-console__chips {
   display: flex;
   flex-wrap: wrap;
