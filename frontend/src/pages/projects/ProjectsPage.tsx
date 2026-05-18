@@ -262,60 +262,6 @@ export function ProjectsPage() {
             </Link>
           )}
         </div>
-
-        {systemQuery.data ? (
-          <div className="grid gap-4 xl:grid-cols-3">
-            <Panel className="h-full">
-                <DonutStatusChart
-                  title="运行状态分布"
-                  subtitle="查看调度是否集中在运行态或排队态。"
-                  items={Object.entries(systemQuery.data.counts.runs)
-                    .filter(([, value]) => value > 0)
-                    .map(([label, value]) => ({
-                      label,
-                      value,
-                      color: chartColorForStatus(label)
-                    }))}
-                />
-            </Panel>
-
-            <Panel className="h-full">
-                <DonutStatusChart
-                  title="采集状态分布"
-                  subtitle="直接确认采集链路是否稳定落盘。"
-                  items={Object.entries(systemQuery.data.counts.captures)
-                    .filter(([, value]) => value > 0)
-                    .map(([label, value]) => ({
-                      label,
-                      value,
-                      color: chartColorForStatus(label)
-                    }))}
-                />
-            </Panel>
-
-            <Panel className="h-full">
-                <DonutStatusChart
-                  title="网关状态分布"
-                  subtitle="关注就绪、忙碌、降级和离线状态的变化。"
-                  items={Object.entries(systemQuery.data.counts.gateways)
-                    .filter(([, value]) => value > 0)
-                    .map(([label, value]) => ({
-                      label,
-                      value,
-                      color: chartColorForStatus(label)
-                    }))}
-                />
-            </Panel>
-          </div>
-        ) : (
-          <Panel>
-            <EmptyState
-              description={systemQuery.error instanceof Error ? systemQuery.error.message : '系统状态接口暂时不可用。'}
-              icon={<LuOctagonAlert />}
-              title="全局状态概览不可用"
-            />
-          </Panel>
-        )}
       </div>
 
       <div className="project-console__layout">
@@ -708,6 +654,86 @@ export function ProjectsPage() {
           )}
         </div>
       </div>
+      <div className="project-console__health-section">
+        <button
+          className="project-console__health-trigger"
+          onClick={() => setHealthExpanded(v => !v)}
+          type="button"
+        >
+          <span className={`project-console__health-trigger-icon${healthExpanded ? ' project-console__health-trigger-icon--open' : ''}`}>▶</span>
+          平台健康详情
+          <span style={{ fontSize: '0.62rem', color: 'var(--text-caption)', fontWeight: 400, marginLeft: '0.25rem' }}>
+            运行分布 · 采集分布 · 网关分布 · 异常队列
+          </span>
+        </button>
+
+        {healthExpanded && (
+          <div className="project-console__health-body">
+            {systemQuery.data ? (
+              <div className="grid gap-4 xl:grid-cols-3">
+                <Panel className="h-full">
+                  <DonutStatusChart
+                    title="运行状态分布"
+                    subtitle="查看调度是否集中在运行态或排队态。"
+                    items={Object.entries(systemQuery.data.counts.runs)
+                      .filter(([, value]) => value > 0)
+                      .map(([label, value]) => ({
+                        label,
+                        value,
+                        color: chartColorForStatus(label)
+                      }))}
+                  />
+                </Panel>
+                <Panel className="h-full">
+                  <DonutStatusChart
+                    title="采集状态分布"
+                    subtitle="直接确认采集链路是否稳定落盘。"
+                    items={Object.entries(systemQuery.data.counts.captures)
+                      .filter(([, value]) => value > 0)
+                      .map(([label, value]) => ({
+                        label,
+                        value,
+                        color: chartColorForStatus(label)
+                      }))}
+                  />
+                </Panel>
+                <Panel className="h-full">
+                  <DonutStatusChart
+                    title="网关状态分布"
+                    subtitle="关注就绪、忙碌、降级和离线状态的变化。"
+                    items={Object.entries(systemQuery.data.counts.gateways)
+                      .filter(([, value]) => value > 0)
+                      .map(([label, value]) => ({
+                        label,
+                        value,
+                        color: chartColorForStatus(label)
+                      }))}
+                  />
+                </Panel>
+              </div>
+            ) : null}
+
+            {recentIncidents.length > 0 && (
+              <div className="project-console__incident-bar">
+                <span className="project-console__incident-bar__label">异常队列</span>
+                {recentIncidents.slice(0, 6).map((incident) => (
+                  <Link
+                    className="project-console__incident-chip"
+                    key={`${incident.type}-${incident.id}`}
+                    to={incident.to}
+                    viewTransition
+                  >
+                    <span className="project-console__incident-chip__type">{incident.type}</span>
+                    <span>{truncateMiddle(incident.id, 10)}</span>
+                    <StatusPill status={incident.status} />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <WorkflowNextStep />
     </div>
   );
