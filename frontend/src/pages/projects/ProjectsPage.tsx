@@ -10,7 +10,6 @@ import { getReportsWorkspace, listReports } from '../../api/reports';
 import { getSystemStatus } from '../../api/system';
 import { DonutStatusChart } from '../../components/common/DonutStatusChart';
 import { EmptyState } from '../../components/common/EmptyState';
-import { MetricCard } from '../../components/common/MetricCard';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Panel } from '../../components/common/Panel';
 import { SelectionList } from '../../components/common/SelectionList';
@@ -109,7 +108,7 @@ function gatewaySummaryLabel(gateway: { metrics: Record<string, unknown>; addres
 export function ProjectsPage() {
   const workflow = useWorkflowSelection();
   const [viewMode, setViewMode] = useState<ProjectViewMode>('overview');
-  const [incidentsExpanded, setIncidentsExpanded] = useState(false);
+  const [healthExpanded, setHealthExpanded] = useState(false);
 
   const projectsQuery = useQuery({ queryKey: ['projects'], queryFn: listProjects });
   const systemQuery = useQuery({
@@ -243,150 +242,25 @@ export function ProjectsPage() {
       />
 
       <div className="project-console__section-stack">
-        <div className="grid gap-3 md:grid-cols-3">
-            <MetricCard
-              accent="violet"
-              label="执行队列"
-              value={systemQuery.data?.executor.pending_commands ?? 0}
-              hint={
-                systemQuery.data
-                  ? systemQuery.data.executor.alive
-                    ? '执行器在线'
-                    : '执行器不在线'
-                  : '等待执行器状态'
-              }
-            />
-            <MetricCard
-              accent="teal"
-              label="在线设备"
-              value={devicesWorkspace?.summary.online_device_count ?? 0}
-              hint={`总计 ${systemQuery.data?.totals.gateways ?? 0} 个网关`}
-            />
-            <MetricCard
-              accent="orange"
-              label="运行中采集"
-              value={
-                devicesWorkspace?.summary.running_capture_count ??
-                systemQuery.data?.capture_observability.running_capture_ids.length ??
-                0
-              }
-              hint={latestPlatformCapture ? latestPlatformCapture.capture_id : '暂无采集'}
-            />
-          </div>
-
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_340px]">
-          <Panel
-            eyebrow="平台总览"
-            subtitle="汇总平台健康、资源入口和异常排查线索。"
-            title="全局状态概览"
-            actions={
-              <div className="flex flex-wrap gap-3">
-                  <Link className="horizon-button-secondary" to="/devices" viewTransition>
-                    查看设备中心
-                  </Link>
-                  <Link className="horizon-button-secondary" to="/executions" viewTransition>
-                    查看执行中心
-                  </Link>
-              </div>
-            }
-          >
-            <div className="flex flex-col gap-4">
-              <div className="grid gap-3 md:grid-cols-3">
-                <Link
-                  className="rounded-[18px] border border-border-glass bg-[var(--surface-glass)] px-4 py-4 transition hover:-translate-y-0.5 hover:border-[rgba(var(--accent-rgb),0.32)]"
-                  to={latestPlatformCapture ? `/devices/${latestPlatformCapture.gateway_id}` : '/devices'}
-                  viewTransition
-                >
-                  <span className="block text-xs font-extrabold uppercase tracking-[0.16em] text-text-muted">
-                    最近采集
-                  </span>
-                  <strong className="mt-2 block text-sm text-text">
-                    {latestPlatformCapture?.capture_id ?? '暂无采集任务'}
-                  </strong>
-                  <small className="mt-2 block text-text-muted">
-                    {latestPlatformCapture
-                      ? `${latestPlatformCapture.saved_frames} 帧 / ${latestPlatformCapture.gateway_id}`
-                      : '设备中心会显示新的采集链路。'}
-                  </small>
-                </Link>
-
-                <Link
-                  className="rounded-[18px] border border-border-glass bg-[var(--surface-glass)] px-4 py-4 transition hover:-translate-y-0.5 hover:border-[rgba(var(--accent-rgb),0.32)]"
-                  to={latestPlatformGateway ? `/devices/${latestPlatformGateway.gateway_id}` : '/devices'}
-                  viewTransition
-                >
-                  <span className="block text-xs font-extrabold uppercase tracking-[0.16em] text-text-muted">
-                    最近网关
-                  </span>
-                  <strong className="mt-2 block text-sm text-text">
-                    {latestPlatformGateway?.name ?? '暂无设备'}
-                  </strong>
-                  <small className="mt-2 block text-text-muted">
-                    {latestPlatformGateway
-                      ? gatewaySummaryLabel(latestPlatformGateway)
-                      : '等待网关心跳与链路遥测。'}
-                  </small>
-                </Link>
-
-                <Link
-                  className="rounded-[18px] border border-border-glass bg-[var(--surface-glass)] px-4 py-4 transition hover:-translate-y-0.5 hover:border-[rgba(var(--accent-rgb),0.32)]"
-                  to="/executions"
-                  viewTransition
-                >
-                  <span className="block text-xs font-extrabold uppercase tracking-[0.16em] text-text-muted">
-                    执行器队列
-                  </span>
-                  <strong className="mt-2 block text-sm text-text">
-                    {systemQuery.data?.executor.active_run_id
-                      ? truncateMiddle(systemQuery.data.executor.active_run_id, 8)
-                      : '当前没有活动执行'}
-                  </strong>
-                  <small className="mt-2 block text-text-muted">
-                    最后命令 {systemQuery.data?.executor.last_command_run_id ?? '-'}
-                  </small>
-                </Link>
-              </div>
-            </div>
-          </Panel>
-
-          <Panel
-            eyebrow="最近异常"
-            subtitle="按运行、采集和网关统一排序最近异常。"
-            title="优先排查队列"
-            actions={
-              recentIncidents.length > 3 ? (
-                <button
-                  className="horizon-button-secondary"
-                  onClick={() => setIncidentsExpanded(v => !v)}
-                  type="button"
-                  style={{ minHeight: 28, padding: '0.15rem 0.6rem', fontSize: '0.72rem' }}
-                >
-                  {incidentsExpanded ? '收起' : `全部 ${recentIncidents.length} 条`}
-                </button>
-              ) : undefined
-            }
-          >
-            {recentIncidents.length === 0 ? (
-              <EmptyState
-                description="当前没有近期失败、离线或错误状态。后续有异常时，这里会直接给出去执行台或设备台的入口。"
-                title="异常为空"
-              />
-            ) : (
-              <div className="project-console__table">
-                {(incidentsExpanded ? recentIncidents : recentIncidents.slice(0, 3)).map((incident) => (
-                  <Link className="project-console__table-row" key={`${incident.type}-${incident.id}`} to={incident.to} viewTransition>
-                    <div>
-                      <span>{incident.type}</span>
-                      <strong>{truncateMiddle(incident.id, 10)}</strong>
-                      <small>{incident.message}</small>
-                    </div>
-                    <small>{formatDateTime(incident.updated_at_utc ?? incident.created_at_utc ?? null)}</small>
-                    <StatusPill status={incident.status} />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </Panel>
+        <div className="project-console__status-bar">
+          <span className={`project-console__status-pill${systemQuery.data?.executor.alive ? ' project-console__status-pill--online' : ''}`}>
+            <span className="project-console__status-pill__dot" />
+            API {platformApiStatus}
+          </span>
+          <span className="project-console__status-pill">
+            队列 {systemQuery.data?.executor.pending_commands ?? 0}
+          </span>
+          <span className="project-console__status-pill">
+            在线设备 {devicesWorkspace?.summary.online_device_count ?? 0}
+          </span>
+          <span className="project-console__status-pill">
+            采集中 {devicesWorkspace?.summary.running_capture_count ?? systemQuery.data?.capture_observability.running_capture_ids.length ?? 0}
+          </span>
+          {recentIncidents.length > 0 && (
+            <Link className="project-console__status-pill project-console__status-pill--alert" to="/executions" viewTransition>
+              异常 {recentIncidents.length} ↗
+            </Link>
+          )}
         </div>
 
         {systemQuery.data ? (
