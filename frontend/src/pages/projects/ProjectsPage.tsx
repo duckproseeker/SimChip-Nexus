@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import { LuOctagonAlert, LuFileText, LuLoader, LuMousePointer2 } from 'react-icons/lu';
 import { Link } from 'react-router-dom';
 
 import { getDevicesWorkspace } from '../../api/devices';
@@ -14,6 +15,7 @@ import { PageHeader } from '../../components/common/PageHeader';
 import { Panel } from '../../components/common/Panel';
 import { SelectionList } from '../../components/common/SelectionList';
 import { StatusPill } from '../../components/common/StatusPill';
+import { WorkflowNextStep } from '../../components/common/WorkflowNextStep';
 import { setWorkflowSelection, useWorkflowSelection } from '../../features/workflow/state';
 import { formatDateTime, sortByActivity, truncateMiddle } from '../../lib/format';
 import { findProjectRecord } from '../../lib/platform';
@@ -107,22 +109,26 @@ function gatewaySummaryLabel(gateway: { metrics: Record<string, unknown>; addres
 export function ProjectsPage() {
   const workflow = useWorkflowSelection();
   const [viewMode, setViewMode] = useState<ProjectViewMode>('overview');
+  const [incidentsExpanded, setIncidentsExpanded] = useState(false);
 
   const projectsQuery = useQuery({ queryKey: ['projects'], queryFn: listProjects });
   const systemQuery = useQuery({
     queryKey: ['system-status'],
     queryFn: getSystemStatus,
-    refetchInterval: 3000
+    refetchInterval: 3000,
+    refetchIntervalInBackground: false
   });
   const devicesWorkspaceQuery = useQuery({
     queryKey: ['devices', 'workspace'],
     queryFn: getDevicesWorkspace,
-    refetchInterval: 5000
+    refetchInterval: 5000,
+    refetchIntervalInBackground: false
   });
   const reportsWorkspaceQuery = useQuery({
     queryKey: ['reports', 'workspace'],
     queryFn: getReportsWorkspace,
-    refetchInterval: 5000
+    refetchInterval: 5000,
+    refetchIntervalInBackground: false
   });
 
   const projects = projectsQuery.data ?? [];
@@ -137,7 +143,8 @@ export function ProjectsPage() {
     queryKey: ['reports', workflow.projectId],
     queryFn: () => listReports({ projectId: workflow.projectId ?? '' }),
     enabled: Boolean(workflow.projectId),
-    refetchInterval: 5000
+    refetchInterval: 5000,
+    refetchIntervalInBackground: false
   });
 
   const workspace = workspaceQuery.data;
@@ -236,8 +243,7 @@ export function ProjectsPage() {
       />
 
       <div className="project-console__section-stack">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            <MetricCard accent="blue" label="平台健康" value={platformApiStatus} hint="系统状态监测" />
+        <div className="grid gap-3 md:grid-cols-3">
             <MetricCard
               accent="violet"
               label="执行队列"
@@ -266,15 +272,9 @@ export function ProjectsPage() {
               }
               hint={latestPlatformCapture ? latestPlatformCapture.capture_id : '暂无采集'}
             />
-            <MetricCard
-              accent="rose"
-              label="最近异常"
-              value={recentIncidents.length}
-              hint={recentIncidents[0]?.message ?? '当前无高优先级异常'}
-            />
           </div>
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_360px]">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_340px]">
           <Panel
             eyebrow="平台总览"
             subtitle="汇总平台健康、资源入口和异常排查线索。"
@@ -291,27 +291,6 @@ export function ProjectsPage() {
             }
           >
             <div className="flex flex-col gap-4">
-              <div className="rounded-[24px] border border-border-glass bg-[var(--surface-glass)] px-5 py-5">
-                <div className="flex flex-wrap items-center gap-3">
-                  <StatusPill canonical status={executorHealthStatus} />
-                  <span className="project-console__chip">API {platformApiStatus}</span>
-                  <span className="project-console__chip project-console__chip--muted">
-                    Pi 网关 {normalizeRuntimeStatus(systemQuery.data?.pi_gateway.status)}
-                  </span>
-                </div>
-                <strong className="mt-4 block text-2xl font-extrabold tracking-[-0.04em] text-text">
-                  平台健康、资源入口与异常线索集中呈现
-                </strong>
-                <p className="mt-2 text-sm leading-6 text-text-muted">
-                  当前队列 {systemQuery.data?.executor.pending_commands ?? 0} 条命令，最近采集{' '}
-                  {systemQuery.data?.capture_observability.latest_capture_id ?? '-'}，Pi 网关状态{' '}
-                  {normalizeRuntimeStatus(systemQuery.data?.pi_gateway.status)}。
-                </p>
-                {systemQuery.data?.executor.warning ? (
-                  <p className="mt-3 text-sm text-amber-300">{systemQuery.data.executor.warning}</p>
-                ) : null}
-              </div>
-
               <div className="grid gap-3 md:grid-cols-3">
                 <Link
                   className="rounded-[18px] border border-border-glass bg-[var(--surface-glass)] px-4 py-4 transition hover:-translate-y-0.5 hover:border-[rgba(var(--accent-rgb),0.32)]"
@@ -370,7 +349,23 @@ export function ProjectsPage() {
             </div>
           </Panel>
 
-          <Panel eyebrow="最近异常" subtitle="按运行、采集和网关统一排序最近异常。" title="优先排查队列">
+          <Panel
+            eyebrow="最近异常"
+            subtitle="按运行、采集和网关统一排序最近异常。"
+            title="优先排查队列"
+            actions={
+              recentIncidents.length > 3 ? (
+                <button
+                  className="horizon-button-secondary"
+                  onClick={() => setIncidentsExpanded(v => !v)}
+                  type="button"
+                  style={{ minHeight: 28, padding: '0.15rem 0.6rem', fontSize: '0.72rem' }}
+                >
+                  {incidentsExpanded ? '收起' : `全部 ${recentIncidents.length} 条`}
+                </button>
+              ) : undefined
+            }
+          >
             {recentIncidents.length === 0 ? (
               <EmptyState
                 description="当前没有近期失败、离线或错误状态。后续有异常时，这里会直接给出去执行台或设备台的入口。"
@@ -378,7 +373,7 @@ export function ProjectsPage() {
               />
             ) : (
               <div className="project-console__table">
-                {recentIncidents.map((incident) => (
+                {(incidentsExpanded ? recentIncidents : recentIncidents.slice(0, 3)).map((incident) => (
                   <Link className="project-console__table-row" key={`${incident.type}-${incident.id}`} to={incident.to} viewTransition>
                     <div>
                       <span>{incident.type}</span>
@@ -395,7 +390,7 @@ export function ProjectsPage() {
         </div>
 
         {systemQuery.data ? (
-          <div className="grid gap-5 xl:grid-cols-3">
+          <div className="grid gap-4 xl:grid-cols-3">
             <Panel className="h-full">
                 <DonutStatusChart
                   title="运行状态分布"
@@ -442,6 +437,7 @@ export function ProjectsPage() {
           <Panel>
             <EmptyState
               description={systemQuery.error instanceof Error ? systemQuery.error.message : '系统状态接口暂时不可用。'}
+              icon={<LuOctagonAlert />}
               title="全局状态概览不可用"
             />
           </Panel>
@@ -452,12 +448,13 @@ export function ProjectsPage() {
         <aside className="project-console__rail">
           <Panel eyebrow="项目入口" subtitle="选择项目后查看归档结果、运行状态和下一步操作入口。" title="项目列表">
             {projectsQuery.isLoading ? (
-              <EmptyState description="正在同步项目目录。" title="项目加载中" />
+              <EmptyState description="正在同步项目目录。" icon={<LuLoader />} title="项目加载中" />
             ) : projectsQuery.isError ? (
               <EmptyState
                 description={
                   projectsQuery.error instanceof Error ? projectsQuery.error.message : '项目接口异常。'
                 }
+                icon={<LuOctagonAlert />}
                 title="项目加载失败"
               />
             ) : (
@@ -490,11 +487,11 @@ export function ProjectsPage() {
         <div className="project-console__main">
           {!selectedProject ? (
             <Panel bodyClassName="flex min-h-[320px] items-center">
-              <EmptyState description="先从左侧选择一个项目，再查看该项目的归档结果和运行态。" title="未选择项目" />
+              <EmptyState description="先从左侧选择一个项目，再查看该项目的归档结果和运行态。" icon={<LuMousePointer2 />} title="未选择项目" />
             </Panel>
           ) : workspaceQuery.isLoading ? (
             <Panel bodyClassName="flex min-h-[320px] items-center">
-              <EmptyState description="正在加载项目数据。" title="项目加载中" />
+              <EmptyState description="正在加载项目数据。" icon={<LuLoader />} title="项目加载中" />
             </Panel>
           ) : workspaceQuery.isError || !workspace ? (
             <Panel bodyClassName="flex min-h-[320px] items-center">
@@ -502,6 +499,7 @@ export function ProjectsPage() {
                 description={
                   workspaceQuery.error instanceof Error ? workspaceQuery.error.message : '项目接口异常。'
                 }
+                icon={<LuOctagonAlert />}
                 title="项目加载失败"
               />
             </Panel>
@@ -695,9 +693,9 @@ export function ProjectsPage() {
                       <div>
                         <div className="project-console__table-title">项目报告</div>
                         {reportsQuery.isLoading ? (
-                          <EmptyState description="正在同步当前项目的报告资产。" title="报告加载中" />
+                          <EmptyState description="正在同步当前项目的报告资产。" icon={<LuLoader />} title="报告加载中" />
                         ) : reports.length === 0 ? (
-                          <EmptyState description="执行完成并导出后，当前项目的报告会汇总到这里。" title="暂无报告" />
+                          <EmptyState description="执行完成并导出后，当前项目的报告会汇总到这里。" icon={<LuFileText />} title="暂无报告" />
                         ) : (
                           <div className="project-console__table">
                             {reports.map((report) => (
@@ -835,76 +833,8 @@ export function ProjectsPage() {
             </Panel>
           )}
         </div>
-
-        <aside className="project-console__summary">
-          <Panel eyebrow="当前项目" subtitle="快速确认项目定位、平台对象和测评关注点。" title="项目定位">
-            {workspace ? (
-              <div className="project-console__summary-stack">
-                <p>项目: {workspace.project.name}</p>
-                <p>厂商: {workspace.project.vendor}</p>
-                <p>平台: {workspace.project.processor}</p>
-                <small>完整模板编排和场景配置可从基准任务与场景集继续进入。</small>
-              </div>
-            ) : (
-              <EmptyState description="选择项目后显示项目定位。" title="没有项目定位" />
-            )}
-          </Panel>
-
-          <Panel eyebrow="快速跳转" subtitle="从项目归档直接跳到下一步操作。" title="下一步入口">
-            <div className="project-console__action-grid">
-                <Link className="horizon-button project-console__action-link" to="/benchmarks" viewTransition>
-                  基准任务
-                </Link>
-                <Link className="horizon-button-secondary project-console__action-link" to="/reports" viewTransition>
-                  报告中心
-                </Link>
-                <Link className="horizon-button-secondary project-console__action-link" to="/executions" viewTransition>
-                  执行中心
-                </Link>
-                <Link className="horizon-button-secondary project-console__action-link" to="/scenario-sets" viewTransition>
-                  场景集
-                </Link>
-            </div>
-          </Panel>
-
-          <Panel eyebrow="最近归档" subtitle="优先显示最近导出的报告资产，没有报告时退回显示最近任务。" title="最新资产">
-            {latestReport ? (
-              <div className="project-console__summary-stack">
-                <p>报告: {latestReport.title}</p>
-                <p>状态: {latestReport.status}</p>
-                <p>时间: {formatDateTime(latestReport.updated_at_utc)}</p>
-                <div className="project-console__report-actions">
-                    <a
-                      className="horizon-button-secondary"
-                      href={`/reports/${latestReport.report_id}/download?format=json`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      JSON
-                    </a>
-                    <a
-                      className="horizon-button-secondary"
-                      href={`/reports/${latestReport.report_id}/download?format=markdown`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      Markdown
-                    </a>
-                </div>
-              </div>
-            ) : latestTask ? (
-              <div className="project-console__summary-stack">
-                <p>最近任务: {latestTask.benchmark_name}</p>
-                <p>状态: {latestTask.status}</p>
-                <p>时间: {formatDateTime(latestTask.updated_at_utc)}</p>
-                <small>当前还没有导出报告，可以到报告中心继续归档。</small>
-                </div>
-            ) : (
-              <EmptyState description="当前项目还没有任务或报告资产。" title="没有归档内容" />
-            )}
-          </Panel>
-        </aside>
       </div>
+      <WorkflowNextStep />
     </div>
   );
 }
