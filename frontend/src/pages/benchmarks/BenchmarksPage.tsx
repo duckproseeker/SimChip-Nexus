@@ -9,11 +9,11 @@ import { listProjects } from '../../api/projects';
 import { listEvaluationProfiles, listScenarioCatalog } from '../../api/scenarios';
 import type { BenchmarkDefinition, ScenarioCatalogItem } from '../../api/types';
 import { EmptyState } from '../../components/common/EmptyState';
-import { MetricCard } from '../../components/common/MetricCard';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Panel } from '../../components/common/Panel';
 import { SelectionList } from '../../components/common/SelectionList';
 import { StatusPill } from '../../components/common/StatusPill';
+import { WorkflowNextStep } from '../../components/common/WorkflowNextStep';
 import { setWorkflowSelection, useWorkflowSelection } from '../../features/workflow/state';
 import { formatDateTime } from '../../lib/format';
 import { findBenchmarkDefinition, findProjectRecord } from '../../lib/platform';
@@ -415,13 +415,6 @@ export function BenchmarksPage() {
       );
     }
 
-    const durationLabel =
-      selectedDefinition.supports_duration_seconds && plannedScenarios[0]
-        ? formatDurationLabel(plannedScenarios[0].timeout_seconds)
-        : selectedDefinition.supports_duration_seconds
-          ? `${runDurationMinutes || '0'} min`
-          : '模板默认';
-
     return (
       <Panel
         eyebrow="场景编排"
@@ -435,29 +428,6 @@ export function BenchmarksPage() {
           </div>
         }
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="project-console__summary-item">
-            <span>模板规则</span>
-            <strong>{planningModeLabel(selectedDefinition.planning_mode)}</strong>
-            <small>{selectedDefinition.queue_note ?? planningModeHint(selectedDefinition.planning_mode)}</small>
-          </div>
-          <div className="project-console__summary-item">
-            <span>自动归档</span>
-            <strong>{selectedProject?.name ?? '未自动匹配'}</strong>
-            <small>归档项目由模板固定决定，不再作为主输入。</small>
-          </div>
-          <div className="project-console__summary-item">
-            <span>当前测试场景</span>
-            <strong>{plannedScenarios.length}</strong>
-            <small>增加完成后会直接显示在下方，不再单独做队列预览。</small>
-          </div>
-          <div className="project-console__summary-item">
-            <span>运行时长</span>
-            <strong>{durationLabel}</strong>
-            <small>仅长稳模板支持手动调整。</small>
-          </div>
-        </div>
-
         {selectedDefinition.planning_mode === 'custom_multi_scenario' && (
           <div className="project-console__planner-stack">
             <div className="project-console__queue-toolbar">
@@ -647,35 +617,22 @@ export function BenchmarksPage() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          accent="blue"
-          label="当前模板"
-          value={selectedDefinition?.name ?? '未选择'}
-          hint={selectedDefinition ? planningModeLabel(selectedDefinition.planning_mode) : '先从模板入口选择'}
-        />
-        <MetricCard
-          accent="teal"
-          label="候选场景"
-          value={candidateScenarios.length}
-          hint="当前模板允许加入的场景范围"
-        />
-        <MetricCard
-          accent="orange"
-          label="当前测试场景"
-          value={plannedScenarios.length}
-          hint="这次会进入批量任务的 run 数量"
-        />
-        <MetricCard
-          accent="violet"
-          label="最近任务"
-          value={selectedDefinitionTasks.length}
-          hint={selectedProject?.name ?? '等待模板自动关联归档项目'}
-        />
+      <div className="project-console__status-bar">
+        <span className="project-console__status-pill">
+          模板 {selectedDefinition?.name ?? '未选择'}
+        </span>
+        <span className="project-console__status-pill">
+          候选场景 {candidateScenarios.length}
+        </span>
+        <span className={`project-console__status-pill${plannedScenarios.length > 0 ? ' project-console__status-pill--online' : ''}`}>
+          已选 {plannedScenarios.length}
+        </span>
+        <span className="project-console__status-pill">
+          归档 {selectedProject?.name ?? '等待关联'}
+        </span>
       </div>
 
-      <div className="project-console__layout project-console__layout--benchmark-builder">
-        <div className="project-console__main">
+      <div className="project-console__section-stack">
           <Panel
             eyebrow="模板入口"
             subtitle="模板决定归档项目、候选场景范围、协议和默认编排方式。"
@@ -745,24 +702,6 @@ export function BenchmarksPage() {
             subtitle="这些字段会统一写入这次批量任务的所有运行实例。"
             title="统一附加配置"
           >
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="project-console__summary-item">
-                <span>自动归档</span>
-                <strong>{selectedProject?.name ?? '未自动匹配'}</strong>
-                <small>只作为任务和报告归档字段，不需要手动切项目。</small>
-              </div>
-              <div className="project-console__summary-item">
-                <span>默认协议</span>
-                <strong>{selectedDefinition?.default_evaluation_profile_name ?? '未绑定'}</strong>
-                <small>{selectedDefinition?.cadence ?? '等待模板选择'}</small>
-              </div>
-              <div className="project-console__summary-item">
-                <span>绑定设备</span>
-                <strong>{selectedGatewayId || '未绑定'}</strong>
-                <small>创建批量任务时统一写入所有 run。</small>
-              </div>
-            </div>
-
             <div className="grid gap-4 xl:grid-cols-3">
               <label className="field project-console__inline-field">
                 <span>待测端型号</span>
@@ -847,53 +786,6 @@ export function BenchmarksPage() {
           </Panel>
         </div>
 
-        <aside className="project-console__summary">
-          <Panel
-            eyebrow="当前摘要"
-            subtitle="先选模板，再把场景加入当前测试。"
-            title="批量编排说明"
-            actions={selectedDefinition ? <StatusPill canonical status="READY" /> : undefined}
-          >
-            <div className="project-console__summary-stack">
-              <p>模板: {selectedDefinition?.name ?? '未选择模板'}</p>
-              <p>模式: {selectedDefinition ? planningModeLabel(selectedDefinition.planning_mode) : '未选择'}</p>
-              <p>归档: {selectedProject?.name ?? '等待模板自动关联'}</p>
-              <small>{selectedDefinition?.queue_note ?? '先选模板，再把场景加入当前测试。'}</small>
-            </div>
-
-            {selectedDefinition && selectedDefinition.focus_metrics.length > 0 && (
-              <div className="project-console__chips">
-                {selectedDefinition.focus_metrics.map((metric) => (
-                  <span className="project-console__chip" key={metric}>
-                    {metric}
-                  </span>
-                ))}
-              </div>
-            )}
-          </Panel>
-
-          <Panel eyebrow="自动上下文" subtitle="模板决定默认归档项目和候选场景范围。" title="模板关联结果">
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="project-console__summary-item">
-                <span>项目厂商</span>
-                <strong>{selectedProject?.vendor ?? '--'}</strong>
-                <small>{selectedProject?.processor ?? '等待模板绑定项目'}</small>
-              </div>
-              <div className="project-console__summary-item">
-                <span>候选场景</span>
-                <strong>{candidateScenarios.length}</strong>
-                <small>当前模板允许加入的场景范围。</small>
-              </div>
-              <div className="project-console__summary-item">
-                <span>当前测试场景</span>
-                <strong>{plannedScenarios.length}</strong>
-                <small>这次会进入批量任务的 run 数量。</small>
-              </div>
-            </div>
-          </Panel>
-        </aside>
-      </div>
-
       {scenarioDrawerOpen && selectedDefinition?.planning_mode === 'custom_multi_scenario' && (
         <button
           aria-label="关闭场景选择抽屉"
@@ -970,6 +862,7 @@ export function BenchmarksPage() {
             </div>
         </aside>
       )}
+      <WorkflowNextStep />
     </div>
   );
 }
