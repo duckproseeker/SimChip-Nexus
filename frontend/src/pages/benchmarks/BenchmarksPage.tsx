@@ -94,7 +94,7 @@ function buildPlannedScenarioRows(
     scenario_id: scenario.scenario_id,
     display_name: scenario.display_name,
     execution_backend: scenario.execution_backend ?? scenario.execution_support,
-    map_name: scenario.preset.locked_map_name,
+    map_name: scenario.default_map_name,
     timeout_seconds:
       timeoutSeconds ?? Number(scenario.descriptor_template.termination.timeout_seconds ?? 30)
   });
@@ -941,7 +941,7 @@ export function BenchmarksPage() {
                   id: scenario.scenario_id,
                   title: scenario.display_name,
                   subtitle: scenario.description,
-                  meta: `${scenario.execution_backend ?? scenario.execution_support} / ${scenario.preset.locked_map_name}`,
+                  meta: `${scenario.execution_backend ?? scenario.execution_support} / ${scenario.default_map_name}`,
                   status: 'READY',
                   hint: scenario.scenario_id
                 }))}

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import base64
-import io
 import json
-import zipfile
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -314,10 +312,12 @@ def test_native_run_sensor_capture_start_is_rejected() -> None:
     environment_resp = client.get(f"/runs/{run_id}/environment")
     assert environment_resp.status_code == 200
     environment_payload = environment_resp.json()["data"]["runtime_control"]
-    assert environment_payload["sensor_capture"]["enabled"] is True
+    assert environment_payload["sensor_capture"]["enabled"] is False
     assert environment_payload["sensor_capture"]["auto_start"] is False
-    assert environment_payload["sensor_capture"]["desired_state"] == "STOPPED"
-    assert environment_payload["sensor_capture"]["status"] == "STOPPED"
+    assert environment_payload["sensor_capture"]["desired_state"] == "DISABLED"
+    assert environment_payload["sensor_capture"]["status"] == "DISABLED"
+    assert environment_payload["sensor_capture"]["output_root"] is None
+    assert environment_payload["sensor_capture"]["saved_frames"] == 0
     assert environment_payload["recorder"]["enabled"] is True
     assert environment_payload["recorder"]["status"] == "STOPPED"
 
@@ -325,8 +325,12 @@ def test_native_run_sensor_capture_start_is_rejected() -> None:
     assert start_resp.status_code == 409
     assert start_resp.json()["detail"]["code"] == "RUN_SENSOR_CAPTURE_UNSUPPORTED"
 
+    stop_resp = client.post(f"/runs/{run_id}/sensor-capture/stop")
+    assert stop_resp.status_code == 409
+    assert stop_resp.json()["detail"]["code"] == "RUN_SENSOR_CAPTURE_UNSUPPORTED"
 
-def test_run_environment_includes_sensor_capture_artifacts_and_download() -> None:
+
+def test_run_environment_keeps_sensor_capture_disabled_with_existing_artifacts() -> None:
     client = TestClient(app)
 
     create_resp = client.post(
@@ -389,43 +393,24 @@ def test_run_environment_includes_sensor_capture_artifacts_and_download() -> Non
     assert environment_resp.status_code == 200
     runtime_control = environment_resp.json()["data"]["runtime_control"]
     sensor_capture = runtime_control["sensor_capture"]
-    assert sensor_capture["status"] == "RUNNING"
-    assert sensor_capture["active"] is True
-    assert sensor_capture["saved_frames"] == 2
-    assert sensor_capture["saved_samples"] == 4
-    assert sensor_capture["manifest"]["profile_name"] == "front_rgb"
-    assert sensor_capture["manifest_path"] == str(output_root / "manifest.json")
-    assert sensor_capture["worker_state_path"] == str(output_root / "_worker" / "state.json")
-    assert sensor_capture["worker_log_path"] == str(output_root / "_worker" / "worker.log")
-    assert "ready" in str(sensor_capture["worker_log_tail"])
-    assert sensor_capture["download_url"] == f"/runs/{run_id}/sensor-capture/download"
-    assert len(sensor_capture["sensor_outputs"]) == 2
-    front_rgb_summary = next(
-        item for item in sensor_capture["sensor_outputs"] if item["sensor_id"] == "FrontRGB"
-    )
-    assert front_rgb_summary["frame_file_count"] == 2
-    assert front_rgb_summary["record_count"] == 0
-    assert str(front_rgb_summary["latest_artifact_path"]).startswith("FrontRGB/frame_")
-    front_imu_summary = next(
-        item for item in sensor_capture["sensor_outputs"] if item["sensor_id"] == "FrontIMU"
-    )
-    assert front_imu_summary["frame_file_count"] == 0
-    assert front_imu_summary["record_count"] == 2
+    assert sensor_capture["enabled"] is False
+    assert sensor_capture["status"] == "DISABLED"
+    assert sensor_capture["active"] is False
+    assert sensor_capture["saved_frames"] == 0
+    assert sensor_capture["saved_samples"] == 0
+    assert sensor_capture["manifest"] is None
+    assert sensor_capture["manifest_path"] is None
+    assert sensor_capture["worker_state_path"] is None
+    assert sensor_capture["worker_log_path"] is None
+    assert sensor_capture["worker_log_tail"] is None
+    assert sensor_capture["download_url"] is None
+    assert sensor_capture["sensor_outputs"] == []
     assert runtime_control["recorder"]["status"] == "RUNNING"
     assert runtime_control["recorder"]["output_path"].endswith(f"/{run_id}.log")
 
-    download_resp = client.get(sensor_capture["download_url"])
-    assert download_resp.status_code == 200
-    assert download_resp.headers["content-type"] == "application/zip"
-    archive = zipfile.ZipFile(io.BytesIO(download_resp.content))
-    assert sorted(archive.namelist()) == [
-        "sensors/FrontIMU/records.jsonl",
-        "sensors/FrontRGB/frame_000001.png",
-        "sensors/FrontRGB/frame_000002.png",
-        "sensors/_worker/state.json",
-        "sensors/_worker/worker.log",
-        "sensors/manifest.json",
-    ]
+    download_resp = client.get(f"/runs/{run_id}/sensor-capture/download")
+    assert download_resp.status_code == 409
+    assert download_resp.json()["detail"]["code"] == "RUN_SENSOR_CAPTURE_UNSUPPORTED"
 
 
 def test_run_viewer_info_on_created_run() -> None:

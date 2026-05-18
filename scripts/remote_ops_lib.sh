@@ -12,7 +12,7 @@ REMOTE_HOST="${REMOTE_HOST:-192.168.110.151}"
 REMOTE_USER="${REMOTE_USER:-du}"
 REMOTE_PORT="${REMOTE_PORT:-22}"
 REMOTE_CONTAINER="${REMOTE_CONTAINER:-ros2-dev}"
-REMOTE_PROJECT_ROOT="${REMOTE_PROJECT_ROOT:-/ros2_ws/src/carla_web_platform}"
+REMOTE_PROJECT_ROOT="${REMOTE_PROJECT_ROOT:-/ros2_ws/src/SimChip-Nexus}"
 REMOTE_API_BASE_URL="${REMOTE_API_BASE_URL:-http://${REMOTE_HOST}:8000}"
 REMOTE_PASSWORD="${REMOTE_PASSWORD:-}"
 EXPECT_TIMEOUT="${EXPECT_TIMEOUT:-600}"
@@ -159,7 +159,8 @@ def terminate_patterns(patterns: list[str], timeout_seconds: float) -> dict[str,
     return {
         "api": find_matching_pids(api_patterns[0]) or find_matching_pids(api_patterns[1]),
         "executor": find_matching_pids(executor_patterns[0]) or find_matching_pids(executor_patterns[1]),
-        "workers": find_matching_pids(worker_patterns[0]) or find_matching_pids(worker_patterns[1]),
+        "legacy_sensor_artifact_workers": find_matching_pids(legacy_worker_patterns[0])
+        or find_matching_pids(legacy_worker_patterns[1]),
     }
 
 
@@ -171,14 +172,22 @@ executor_patterns = [
     "".join(["python3 -m", " app.executor.service"]),
     "app.executor.service",
 ]
-worker_patterns = [
-    "".join(["python3 -m", " app.executor.sensor_recorder_worker"]),
-    "app.executor.sensor_recorder_worker",
+# Legacy cleanup only: the platform no longer starts this module, but an older
+# remote process may still exist before the first deploy after the no-capture cutover.
+legacy_worker_module = "app.executor." + "sensor_" + "recorder_worker"
+legacy_worker_patterns = [
+    "python3 -m " + legacy_worker_module,
+    legacy_worker_module,
 ]
 
 print(
     json.dumps(
-        {"remaining": terminate_patterns(api_patterns + executor_patterns + worker_patterns, timeout_seconds=10.0)},
+        {
+            "remaining": terminate_patterns(
+                api_patterns + executor_patterns + legacy_worker_patterns,
+                timeout_seconds=10.0,
+            )
+        },
         ensure_ascii=False,
     )
 )
@@ -297,12 +306,18 @@ api_patterns = [
 executor_patterns = [
     "".join(["python3 -m", " app.executor.service"]),
 ]
-worker_patterns = [
-    "".join(["python3 -m", " app.executor.sensor_recorder_worker"]),
-    "app.executor.sensor_recorder_worker",
+# Legacy cleanup only: the platform no longer starts this module, but an older
+# remote process may still exist before the first deploy after the no-capture cutover.
+legacy_worker_module = "app.executor." + "sensor_" + "recorder_worker"
+legacy_worker_patterns = [
+    "python3 -m " + legacy_worker_module,
+    legacy_worker_module,
 ]
 
-terminate_patterns(api_patterns + executor_patterns + worker_patterns, timeout_seconds=10.0)
+terminate_patterns(
+    api_patterns + executor_patterns + legacy_worker_patterns,
+    timeout_seconds=10.0,
+)
 
 launch_env = load_launch_env(project_root)
 launch_env["PYTHONDONTWRITEBYTECODE"] = "1"

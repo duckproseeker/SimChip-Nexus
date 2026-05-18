@@ -3843,6 +3843,397 @@ body::before {
   font-size: 0.92rem;
 }
 
+.scenario-automation {
+  gap: 0.75rem;
+}
+
+.scenario-automation .horizon-card,
+.scenario-automation .project-console__parameter-card {
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(4, 9, 18, 0.16);
+}
+
+:root[data-theme='light'] .scenario-automation .horizon-card,
+:root[data-theme='light'] .scenario-automation .project-console__parameter-card {
+  box-shadow: 0 12px 28px rgba(103, 120, 146, 0.12);
+}
+
+.scenario-automation__topbar,
+.scenario-automation__intro,
+.scenario-summary,
+.scenario-config,
+.scenario-context__card {
+  border: 1px solid var(--border);
+  background: var(--surface-panel);
+}
+
+.scenario-automation__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 64px;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+}
+
+.scenario-automation__path {
+  color: var(--text-caption);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.scenario-automation__topbar-actions,
+.scenario-automation__intro-actions,
+.scenario-context__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.scenario-automation__primary-action {
+  min-width: 136px;
+}
+
+.scenario-automation__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 296px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.scenario-automation__main,
+.scenario-context,
+.scenario-config__stack,
+.scenario-context__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scenario-context {
+  position: sticky;
+  top: 0.75rem;
+}
+
+.scenario-automation__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem;
+}
+
+.scenario-automation__intro-copy {
+  min-width: 0;
+}
+
+.scenario-automation__title {
+  margin: 0.28rem 0 0;
+  color: var(--text);
+  font-size: 1.55rem;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.scenario-automation__intro p,
+.scenario-config__header p,
+.scenario-config__section-header p,
+.scenario-context__stack p,
+.scenario-config__selector-field p {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.scenario-automation__empty {
+  display: flex;
+  min-height: 260px;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.scenario-automation__status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(var(--neutral-rgb), 0.12);
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.scenario-automation__status-badge--success {
+  border-color: rgba(var(--success-rgb), 0.32);
+  background: rgba(var(--success-rgb), 0.13);
+  color: var(--success);
+}
+
+.scenario-automation__status-badge--warning {
+  border-color: rgba(var(--warning-rgb), 0.36);
+  background: rgba(var(--warning-rgb), 0.13);
+  color: var(--warning);
+}
+
+.scenario-automation__status-badge--error {
+  border-color: rgba(var(--danger-rgb), 0.36);
+  background: rgba(var(--danger-rgb), 0.13);
+  color: var(--danger);
+}
+
+.scenario-automation__status-badge--info {
+  border-color: rgba(var(--accent-rgb), 0.36);
+  background: rgba(var(--accent-rgb), 0.13);
+  color: var(--accent);
+}
+
+.scenario-automation__status-badge--muted {
+  color: var(--text-muted);
+}
+
+.scenario-summary,
+.scenario-config,
+.scenario-context__card {
+  padding: 1rem;
+}
+
+.scenario-summary__header,
+.scenario-config__header,
+.scenario-context__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.scenario-summary__header h2,
+.scenario-config__header h2,
+.scenario-context__header h2 {
+  margin: 0.24rem 0 0;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.scenario-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scenario-summary__item {
+  min-width: 0;
+  padding: 0.85rem;
+  background: var(--surface-subtle);
+}
+
+.scenario-summary__item + .scenario-summary__item {
+  border-left: 1px solid var(--border);
+}
+
+.scenario-summary__item span,
+.scenario-context__row span {
+  display: block;
+  color: var(--text-caption);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.scenario-summary__item strong,
+.scenario-context__row strong,
+.scenario-config__selector-field strong {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.scenario-summary__item small,
+.scenario-context__stack small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.scenario-config__header {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.scenario-config__section {
+  padding-top: 0.25rem;
+}
+
+.scenario-config__section + .scenario-config__section {
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--border);
+}
+
+.scenario-config__section-header {
+  margin-bottom: 0.75rem;
+}
+
+.scenario-config__section-header h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.scenario-config__field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.scenario-config__selector-field,
+.scenario-config__inline-note {
+  min-height: 42px;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-subtle);
+}
+
+.scenario-config__selector-field .project-console__picker-button {
+  margin-top: 0.75rem;
+}
+
+.scenario-config__launch-mode {
+  grid-column: span 3;
+  border-radius: 8px;
+}
+
+.scenario-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.scenario-automation .project-console__parameter-card {
+  background: var(--surface-subtle);
+}
+
+.scenario-automation .project-console__parameter-row {
+  grid-template-columns: minmax(92px, 0.42fr) minmax(0, 1fr);
+  border-top-color: var(--border);
+}
+
+.scenario-config__alerts {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.scenario-alert {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.scenario-alert--warning {
+  border: 1px solid rgba(var(--warning-rgb), 0.34);
+  background: rgba(var(--warning-rgb), 0.11);
+  color: var(--warning);
+}
+
+.scenario-alert--error {
+  border: 1px solid rgba(var(--danger-rgb), 0.34);
+  background: rgba(var(--danger-rgb), 0.11);
+  color: var(--danger);
+}
+
+.scenario-context__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.scenario-context__row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: start;
+  padding-bottom: 0.62rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.scenario-context__row strong {
+  margin-top: 0;
+  word-break: break-word;
+}
+
+.scenario-context__action {
+  width: 100%;
+}
+
+.scenario-validation {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.scenario-validation__item {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 34px;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-subtle);
+}
+
+.scenario-validation__item span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--neutral);
+}
+
+.scenario-validation__item strong {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.scenario-validation__item--success span {
+  background: var(--success);
+}
+
+.scenario-validation__item--warning span {
+  background: var(--warning);
+}
+
+.scenario-validation__item--error span {
+  background: var(--danger);
+}
+
+.scenario-validation__item--info span {
+  background: var(--accent);
+}
+
+.scenario-validation__item--muted span {
+  background: var(--neutral);
+}
+
 @media (max-width: 1480px) {
   .project-console__layout,
   .project-console__kv-grid,
@@ -3920,5 +4311,88 @@ body::before {
     right: 0.55rem;
     left: 0.55rem;
     width: auto;
+  }
+}
+
+@media (max-width: 1340px) {
+  .scenario-summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scenario-summary__item:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .scenario-summary__item:nth-child(4) {
+    border-top: 1px solid var(--border);
+  }
+
+  .scenario-config__field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scenario-config__launch-mode {
+    grid-column: span 2;
+  }
+
+  .scenario-brief-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1260px) {
+  .scenario-automation__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-context {
+    position: static;
+  }
+}
+
+@media (max-width: 820px) {
+  .scenario-automation__topbar,
+  .scenario-automation__intro,
+  .scenario-summary__header,
+  .scenario-config__header,
+  .scenario-context__header {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .scenario-automation__topbar {
+    align-items: stretch;
+  }
+
+  .scenario-automation__topbar-actions,
+  .scenario-automation__intro-actions,
+  .scenario-context__actions {
+    justify-content: stretch;
+  }
+
+  .scenario-automation__topbar-actions > *,
+  .scenario-automation__intro-actions > *,
+  .scenario-context__actions > * {
+    width: 100%;
+  }
+
+  .scenario-summary__grid,
+  .scenario-config__field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-summary__item + .scenario-summary__item {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .scenario-config__launch-mode {
+    grid-column: span 1;
+  }
+
+  .scenario-context__row {
+    grid-template-columns: 1fr;
   }
 }

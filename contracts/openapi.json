@@ -1728,6 +1728,110 @@
         "title": "RecorderRuntimeControlPayload",
         "type": "object"
       },
+      "RecordingReplayRunPayload": {
+        "properties": {
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "duration_seconds": {
+            "title": "Duration Seconds",
+            "type": "number"
+          },
+          "fixed_delta_seconds": {
+            "title": "Fixed Delta Seconds",
+            "type": "number"
+          },
+          "hil_clock_mode": {
+            "title": "Hil Clock Mode",
+            "type": "string"
+          },
+          "output_config_summary": {
+            "additionalProperties": true,
+            "title": "Output Config Summary",
+            "type": "object"
+          },
+          "preview_sensor_id": {
+            "title": "Preview Sensor Id",
+            "type": "string"
+          },
+          "preview_sensor_snapshot": {
+            "additionalProperties": true,
+            "title": "Preview Sensor Snapshot",
+            "type": "object"
+          },
+          "recording_id": {
+            "title": "Recording Id",
+            "type": "string"
+          },
+          "report_config_summary": {
+            "additionalProperties": true,
+            "title": "Report Config Summary",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "sensor_mode": {
+            "title": "Sensor Mode",
+            "type": "string"
+          },
+          "sensor_profile_hash": {
+            "title": "Sensor Profile Hash",
+            "type": "string"
+          },
+          "sensor_profile_id": {
+            "title": "Sensor Profile Id",
+            "type": "string"
+          },
+          "sensor_profile_snapshot": {
+            "additionalProperties": true,
+            "title": "Sensor Profile Snapshot",
+            "type": "object"
+          },
+          "sensor_warmup_seconds": {
+            "title": "Sensor Warmup Seconds",
+            "type": "number"
+          },
+          "start_seconds": {
+            "title": "Start Seconds",
+            "type": "number"
+          },
+          "timebase": {
+            "title": "Timebase",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recording_id",
+          "run_id",
+          "start_seconds",
+          "duration_seconds",
+          "sensor_mode",
+          "sensor_profile_id",
+          "sensor_profile_hash",
+          "sensor_profile_snapshot",
+          "preview_sensor_id",
+          "preview_sensor_snapshot",
+          "fixed_delta_seconds",
+          "sensor_warmup_seconds",
+          "timebase",
+          "hil_clock_mode",
+          "output_config_summary",
+          "report_config_summary",
+          "created_at_utc"
+        ],
+        "title": "RecordingReplayRunPayload",
+        "type": "object"
+      },
       "ReportExportRequest": {
         "properties": {
           "benchmark_task_id": {
@@ -3118,6 +3222,1344 @@
         "title": "ScenarioMetadataPayload",
         "type": "object"
       },
+      "ScenarioRecordingDetailPayload": {
+        "properties": {
+          "recording": {
+            "$ref": "#/components/schemas/ScenarioRecordingPayload"
+          },
+          "replay_runs": {
+            "items": {
+              "$ref": "#/components/schemas/RecordingReplayRunPayload"
+            },
+            "title": "Replay Runs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "recording"
+        ],
+        "title": "ScenarioRecordingDetailPayload",
+        "type": "object"
+      },
+      "ScenarioRecordingDetailResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioRecordingDetailPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioRecordingDetailResponse",
+        "type": "object"
+      },
+      "ScenarioRecordingLaunchPayload": {
+        "properties": {
+          "recording": {
+            "$ref": "#/components/schemas/ScenarioRecordingPayload"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunPayload"
+          }
+        },
+        "required": [
+          "recording",
+          "run"
+        ],
+        "title": "ScenarioRecordingLaunchPayload",
+        "type": "object"
+      },
+      "ScenarioRecordingLaunchRequest": {
+        "properties": {
+          "auto_start": {
+            "default": true,
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "duration_seconds": {
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Seconds",
+            "type": "number"
+          },
+          "fixed_delta_seconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 0.2,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixed Delta Seconds"
+          },
+          "hil_clock_mode": {
+            "default": "fixed_delta",
+            "title": "Hil Clock Mode",
+            "type": "string"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioMetadataPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_config_summary": {
+            "additionalProperties": true,
+            "title": "Output Config Summary",
+            "type": "object"
+          },
+          "preview_sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Sensor Id"
+          },
+          "report_config_summary": {
+            "additionalProperties": true,
+            "title": "Report Config Summary",
+            "type": "object"
+          },
+          "sensor_mode": {
+            "default": "carla_live",
+            "title": "Sensor Mode",
+            "type": "string"
+          },
+          "sensor_profile_id": {
+            "title": "Sensor Profile Id",
+            "type": "string"
+          },
+          "sensor_warmup_seconds": {
+            "default": 2.0,
+            "maximum": 60.0,
+            "minimum": 0.0,
+            "title": "Sensor Warmup Seconds",
+            "type": "number"
+          },
+          "start_seconds": {
+            "default": 0.0,
+            "minimum": 0.0,
+            "title": "Start Seconds",
+            "type": "number"
+          },
+          "timebase": {
+            "default": "synchronous_fixed_delta",
+            "title": "Timebase",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sensor_profile_id",
+          "duration_seconds"
+        ],
+        "title": "ScenarioRecordingLaunchRequest",
+        "type": "object"
+      },
+      "ScenarioRecordingLaunchResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioRecordingLaunchPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioRecordingLaunchResponse",
+        "type": "object"
+      },
+      "ScenarioRecordingListPayload": {
+        "properties": {
+          "recordings": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioRecordingPayload"
+            },
+            "title": "Recordings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "recordings"
+        ],
+        "title": "ScenarioRecordingListPayload",
+        "type": "object"
+      },
+      "ScenarioRecordingListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioRecordingListPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioRecordingListResponse",
+        "type": "object"
+      },
+      "ScenarioRecordingPayload": {
+        "properties": {
+          "carla_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carla Version"
+          },
+          "corner_case_labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Corner Case Labels",
+            "type": "array"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "determinism_level": {
+            "title": "Determinism Level",
+            "type": "string"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "map_name": {
+            "title": "Map Name",
+            "type": "string"
+          },
+          "map_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map Version"
+          },
+          "materialization_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialization Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "recommended_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Duration Seconds"
+          },
+          "recommended_start_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Start Seconds"
+          },
+          "recorder_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorder File Sha256"
+          },
+          "recorder_file_size_bytes": {
+            "title": "Recorder File Size Bytes",
+            "type": "integer"
+          },
+          "recorder_log_path": {
+            "title": "Recorder Log Path",
+            "type": "string"
+          },
+          "recording_id": {
+            "title": "Recording Id",
+            "type": "string"
+          },
+          "scenario_name": {
+            "title": "Scenario Name",
+            "type": "string"
+          },
+          "sensor_profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Name"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "source_provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Provider"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "source_run_id": {
+            "title": "Source Run Id",
+            "type": "string"
+          },
+          "source_run_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Status"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "traffic_density": {
+            "additionalProperties": true,
+            "title": "Traffic Density",
+            "type": "object"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          },
+          "weather": {
+            "additionalProperties": true,
+            "title": "Weather",
+            "type": "object"
+          }
+        },
+        "required": [
+          "recording_id",
+          "name",
+          "source_run_id",
+          "scenario_name",
+          "map_name",
+          "recorder_log_path",
+          "recorder_file_size_bytes",
+          "tags",
+          "corner_case_labels",
+          "weather",
+          "traffic_density",
+          "sensor_profile_name",
+          "determinism_level",
+          "notes",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "title": "ScenarioRecordingPayload",
+        "type": "object"
+      },
+      "ScenarioRecordingPublishRequest": {
+        "properties": {
+          "carla_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carla Version"
+          },
+          "corner_case_labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Corner Case Labels",
+            "type": "array"
+          },
+          "determinism_level": {
+            "default": "world_state_replay_with_carla_live_sensors",
+            "title": "Determinism Level",
+            "type": "string"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "map_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map Version"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "recommended_duration_seconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Duration Seconds"
+          },
+          "recommended_start_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Start Seconds"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "title": "ScenarioRecordingPublishRequest",
+        "type": "object"
+      },
+      "ScenarioRecordingResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioRecordingPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioRecordingResponse",
+        "type": "object"
+      },
+      "ScenarioSourceDetailPayload": {
+        "properties": {
+          "materializations": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioSourceMaterializationPayload"
+            },
+            "title": "Materializations",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ScenarioSourcePayload"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "title": "ScenarioSourceDetailPayload",
+        "type": "object"
+      },
+      "ScenarioSourceDetailResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioSourceDetailPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioSourceDetailResponse",
+        "type": "object"
+      },
+      "ScenarioSourceLaunchRecordingPayload": {
+        "properties": {
+          "materialization": {
+            "$ref": "#/components/schemas/ScenarioSourceMaterializationPayload"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunPayload"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ScenarioSourcePayload"
+          }
+        },
+        "required": [
+          "source",
+          "materialization",
+          "run"
+        ],
+        "title": "ScenarioSourceLaunchRecordingPayload",
+        "type": "object"
+      },
+      "ScenarioSourceLaunchRecordingRequest": {
+        "properties": {
+          "auto_start": {
+            "default": true,
+            "title": "Auto Start",
+            "type": "boolean"
+          },
+          "fixed_delta_seconds": {
+            "default": 0.05,
+            "exclusiveMinimum": 0.0,
+            "maximum": 0.2,
+            "title": "Fixed Delta Seconds",
+            "type": "number"
+          },
+          "materialization_agent_type": {
+            "default": "route_follower",
+            "title": "Materialization Agent Type",
+            "type": "string"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioMetadataPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sensor_profile_name": {
+            "default": "front_rgb",
+            "title": "Sensor Profile Name",
+            "type": "string"
+          }
+        },
+        "title": "ScenarioSourceLaunchRecordingRequest",
+        "type": "object"
+      },
+      "ScenarioSourceLaunchRecordingResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioSourceLaunchRecordingPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioSourceLaunchRecordingResponse",
+        "type": "object"
+      },
+      "ScenarioSourceListPayload": {
+        "properties": {
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioSourcePayload"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "sources"
+        ],
+        "title": "ScenarioSourceListPayload",
+        "type": "object"
+      },
+      "ScenarioSourceListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioSourceListPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioSourceListResponse",
+        "type": "object"
+      },
+      "ScenarioSourceMaterializationListResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ScenarioSourceMaterializationPayload"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据",
+            "title": "Data"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioSourceMaterializationListResponse",
+        "type": "object"
+      },
+      "ScenarioSourceMaterializationPayload": {
+        "properties": {
+          "completed_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At Utc"
+          },
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "fixed_delta_seconds": {
+            "title": "Fixed Delta Seconds",
+            "type": "number"
+          },
+          "materialization_agent_hash": {
+            "title": "Materialization Agent Hash",
+            "type": "string"
+          },
+          "materialization_agent_type": {
+            "title": "Materialization Agent Type",
+            "type": "string"
+          },
+          "materialization_id": {
+            "title": "Materialization Id",
+            "type": "string"
+          },
+          "recorder_file_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorder File Sha256"
+          },
+          "recording_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recording Id"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "sensor_profile_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Hash"
+          },
+          "sensor_profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Id"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "started_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At Utc"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          }
+        },
+        "required": [
+          "materialization_id",
+          "source_id",
+          "run_id",
+          "recording_id",
+          "status",
+          "sensor_profile_id",
+          "sensor_profile_hash",
+          "fixed_delta_seconds",
+          "materialization_agent_type",
+          "materialization_agent_hash",
+          "recorder_file_sha256",
+          "started_at_utc",
+          "completed_at_utc",
+          "error_message",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "title": "ScenarioSourceMaterializationPayload",
+        "type": "object"
+      },
+      "ScenarioSourceMaterializationSummaryPayload": {
+        "properties": {
+          "fixed_delta_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixed Delta Seconds"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "last_materialized_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Materialized At Utc"
+          },
+          "last_recording_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Recording Id"
+          },
+          "last_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run Id"
+          },
+          "sensor_profile_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Hash"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ScenarioSourceMaterializationSummaryPayload",
+        "type": "object"
+      },
+      "ScenarioSourcePayload": {
+        "properties": {
+          "compatibility_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compatibility Message"
+          },
+          "compatibility_status": {
+            "title": "Compatibility Status",
+            "type": "string"
+          },
+          "corner_case_labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Corner Case Labels",
+            "type": "array"
+          },
+          "discovered_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered At Utc"
+          },
+          "map_name": {
+            "title": "Map Name",
+            "type": "string"
+          },
+          "materialization": {
+            "$ref": "#/components/schemas/ScenarioSourceMaterializationSummaryPayload"
+          },
+          "parsed_metadata": {
+            "additionalProperties": true,
+            "title": "Parsed Metadata",
+            "type": "object"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "provider_version": {
+            "additionalProperties": true,
+            "title": "Provider Version",
+            "type": "object"
+          },
+          "recommended_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Duration Seconds"
+          },
+          "route_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Route Id"
+          },
+          "scenario_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Type"
+          },
+          "source_hash": {
+            "title": "Source Hash",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_path": {
+            "title": "Source Path",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
+          },
+          "weather": {
+            "additionalProperties": true,
+            "title": "Weather",
+            "type": "object"
+          }
+        },
+        "required": [
+          "source_id",
+          "provider",
+          "provider_version",
+          "source_path",
+          "source_hash",
+          "route_id",
+          "scenario_type",
+          "map_name",
+          "weather",
+          "recommended_duration_seconds",
+          "corner_case_labels",
+          "compatibility_status",
+          "compatibility_message",
+          "parsed_metadata",
+          "materialization",
+          "discovered_at_utc",
+          "updated_at_utc"
+        ],
+        "title": "ScenarioSourcePayload",
+        "type": "object"
+      },
+      "ScenarioSourceRescanPayload": {
+        "properties": {
+          "source_count": {
+            "title": "Source Count",
+            "type": "integer"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioSourcePayload"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "sources",
+          "source_count"
+        ],
+        "title": "ScenarioSourceRescanPayload",
+        "type": "object"
+      },
+      "ScenarioSourceRescanResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioSourceRescanPayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "业务数据"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "错误信息"
+          },
+          "success": {
+            "default": true,
+            "description": "请求是否成功",
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "ScenarioSourceRescanResponse",
+        "type": "object"
+      },
       "SensorCaptureOutputPayload": {
         "properties": {
           "file_count": {
@@ -3337,6 +4779,30 @@
         "title": "SensorCaptureRuntimeControlPayload",
         "type": "object"
       },
+      "SensorProfileCopyRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "sensor_profile_id": {
+            "title": "Sensor Profile Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sensor_profile_id"
+        ],
+        "title": "SensorProfileCopyRequest",
+        "type": "object"
+      },
       "SensorProfileListPayload": {
         "properties": {
           "items": {
@@ -3389,6 +4855,17 @@
       },
       "SensorProfilePayload": {
         "properties": {
+          "created_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At Utc"
+          },
           "description": {
             "title": "Description",
             "type": "string"
@@ -3397,10 +4874,34 @@
             "title": "Display Name",
             "type": "string"
           },
+          "expected_fps": {
+            "title": "Expected Fps",
+            "type": "number"
+          },
+          "fixed_delta_seconds": {
+            "title": "Fixed Delta Seconds",
+            "type": "number"
+          },
+          "hil_output_mode": {
+            "title": "Hil Output Mode",
+            "type": "string"
+          },
           "metadata": {
             "additionalProperties": true,
             "title": "Metadata",
             "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "output_mode": {
+            "title": "Output Mode",
+            "type": "string"
+          },
+          "profile_hash": {
+            "title": "Profile Hash",
+            "type": "string"
           },
           "profile_name": {
             "title": "Profile Name",
@@ -3408,6 +4909,10 @@
           },
           "raw_yaml": {
             "title": "Raw Yaml",
+            "type": "string"
+          },
+          "sensor_profile_id": {
+            "title": "Sensor Profile Id",
             "type": "string"
           },
           "sensors": {
@@ -3420,6 +4925,17 @@
           "source_path": {
             "title": "Source Path",
             "type": "string"
+          },
+          "updated_at_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At Utc"
           },
           "vehicle_model": {
             "anyOf": [
@@ -3434,6 +4950,13 @@
           }
         },
         "required": [
+          "sensor_profile_id",
+          "name",
+          "profile_hash",
+          "fixed_delta_seconds",
+          "expected_fps",
+          "output_mode",
+          "hil_output_mode",
           "profile_name",
           "display_name",
           "description",
@@ -3486,7 +5009,39 @@
             "type": "string"
           },
           "display_name": {
-            "title": "Display Name",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "expected_fps": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 240.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Fps"
+          },
+          "fixed_delta_seconds": {
+            "default": 0.05,
+            "exclusiveMinimum": 0.0,
+            "maximum": 0.2,
+            "title": "Fixed Delta Seconds",
+            "type": "number"
+          },
+          "hil_output_mode": {
+            "default": "camera_open_loop",
+            "title": "Hil Output Mode",
             "type": "string"
           },
           "metadata": {
@@ -3494,9 +5049,43 @@
             "title": "Metadata",
             "type": "object"
           },
-          "profile_name": {
-            "title": "Profile Name",
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "output_mode": {
+            "default": "carla_live",
+            "title": "Output Mode",
             "type": "string"
+          },
+          "profile_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Name"
+          },
+          "sensor_profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Profile Id"
           },
           "sensors": {
             "items": {
@@ -3518,8 +5107,6 @@
           }
         },
         "required": [
-          "profile_name",
-          "display_name",
           "sensors"
         ],
         "title": "SensorProfileSaveRequest",
@@ -5536,92 +7123,6 @@
         ]
       }
     },
-    "/runs/{run_id}/sensor-capture/start": {
-      "post": {
-        "description": "仅改变传感器采集状态，不影响场景运行本身。适合在需要保留真实传感器数据时手动开始采集。",
-        "operationId": "start_run_sensor_capture_runs__run_id__sensor_capture_start_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "run_id",
-            "required": true,
-            "schema": {
-              "title": "Run Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunEnvironmentStateResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "开始运行中的传感器采集",
-        "tags": [
-          "运行管理"
-        ]
-      }
-    },
-    "/runs/{run_id}/sensor-capture/stop": {
-      "post": {
-        "description": "停止真实传感器数据落盘，但不会停止当前场景。",
-        "operationId": "stop_run_sensor_capture_runs__run_id__sensor_capture_stop_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "run_id",
-            "required": true,
-            "schema": {
-              "title": "Run Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunEnvironmentStateResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "停止运行中的传感器采集",
-        "tags": [
-          "运行管理"
-        ]
-      }
-    },
     "/runs/{run_id}/start": {
       "post": {
         "description": "将 run 放入执行队列，状态从 CREATED 变为 QUEUED。",
@@ -5748,6 +7249,508 @@
         "summary": "查询运行时 viewer 状态",
         "tags": [
           "运行管理"
+        ]
+      }
+    },
+    "/scenario-recordings": {
+      "get": {
+        "operationId": "list_scenario_recordings_scenario_recordings_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "map_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Map Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tag",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag"
+            }
+          },
+          {
+            "in": "query",
+            "name": "corner_case_label",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Corner Case Label"
+            }
+          },
+          {
+            "in": "query",
+            "name": "determinism_level",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Determinism Level"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioRecordingListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "列出场景资产库 recorder 资产",
+        "tags": [
+          "场景资产库"
+        ]
+      }
+    },
+    "/scenario-recordings/from-run": {
+      "post": {
+        "operationId": "publish_scenario_recording_from_run_scenario_recordings_from_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioRecordingPublishRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioRecordingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "从已有 recorder run 发布场景资产",
+        "tags": [
+          "场景资产库"
+        ]
+      }
+    },
+    "/scenario-recordings/{recording_id}": {
+      "get": {
+        "operationId": "get_scenario_recording_scenario_recordings__recording_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recording_id",
+            "required": true,
+            "schema": {
+              "title": "Recording Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioRecordingDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取场景资产详情",
+        "tags": [
+          "场景资产库"
+        ]
+      }
+    },
+    "/scenario-recordings/{recording_id}/launch": {
+      "post": {
+        "operationId": "launch_scenario_recording_scenario_recordings__recording_id__launch_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recording_id",
+            "required": true,
+            "schema": {
+              "title": "Recording Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioRecordingLaunchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioRecordingLaunchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "从场景资产创建 recorder replay run",
+        "tags": [
+          "场景资产库"
+        ]
+      }
+    },
+    "/scenario-sources": {
+      "get": {
+        "operationId": "list_scenario_sources_scenario_sources_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Provider"
+            }
+          },
+          {
+            "in": "query",
+            "name": "map_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Map Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scenario_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scenario Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "corner_case_label",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Corner Case Label"
+            }
+          },
+          {
+            "in": "query",
+            "name": "compatibility_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Compatibility Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSourceListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "列出公共 corner case 场景源",
+        "tags": [
+          "公共场景源"
+        ]
+      }
+    },
+    "/scenario-sources/rescan": {
+      "post": {
+        "operationId": "rescan_scenario_sources_scenario_sources_rescan_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSourceRescanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "重新扫描公共场景源目录",
+        "tags": [
+          "公共场景源"
+        ]
+      }
+    },
+    "/scenario-sources/{source_id}": {
+      "get": {
+        "operationId": "get_scenario_source_scenario_sources__source_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "title": "Source Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSourceDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取公共场景源详情",
+        "tags": [
+          "公共场景源"
+        ]
+      }
+    },
+    "/scenario-sources/{source_id}/launch-recording": {
+      "post": {
+        "operationId": "launch_source_recording_scenario_sources__source_id__launch_recording_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "title": "Source Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioSourceLaunchRecordingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSourceLaunchRecordingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "从公共场景源创建 recorder materialization run",
+        "tags": [
+          "公共场景源"
+        ]
+      }
+    },
+    "/scenario-sources/{source_id}/materializations": {
+      "get": {
+        "operationId": "list_source_materializations_scenario_sources__source_id__materializations_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "title": "Source Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSourceMaterializationListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "列出场景源 materialization 历史",
+        "tags": [
+          "公共场景源"
         ]
       }
     },
@@ -5934,6 +7937,210 @@
         ]
       }
     },
+    "/sensor-profiles": {
+      "get": {
+        "operationId": "list_sensor_profiles_sensor_profiles_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "列出 SQLite 传感器库配置",
+        "tags": [
+          "传感器库"
+        ]
+      },
+      "post": {
+        "operationId": "create_sensor_profile_sensor_profiles_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensorProfileSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "创建传感器配置",
+        "tags": [
+          "传感器库"
+        ]
+      }
+    },
+    "/sensor-profiles/{sensor_profile_id}": {
+      "get": {
+        "operationId": "get_sensor_profile_sensor_profiles__sensor_profile_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sensor_profile_id",
+            "required": true,
+            "schema": {
+              "title": "Sensor Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "读取传感器配置详情",
+        "tags": [
+          "传感器库"
+        ]
+      },
+      "put": {
+        "operationId": "update_sensor_profile_sensor_profiles__sensor_profile_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sensor_profile_id",
+            "required": true,
+            "schema": {
+              "title": "Sensor Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensorProfileSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "更新传感器配置",
+        "tags": [
+          "传感器库"
+        ]
+      }
+    },
+    "/sensor-profiles/{sensor_profile_id}/copy": {
+      "post": {
+        "operationId": "copy_sensor_profile_sensor_profiles__sensor_profile_id__copy_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sensor_profile_id",
+            "required": true,
+            "schema": {
+              "title": "Sensor Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensorProfileCopyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensorProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "复制传感器配置",
+        "tags": [
+          "传感器库"
+        ]
+      }
+    },
     "/system/carla/weather": {
       "put": {
         "operationId": "update_carla_weather_system_carla_weather_put",
@@ -5972,6 +8179,69 @@
         "summary": "动态修改全局天气",
         "tags": [
           "全局仿真控制"
+        ]
+      }
+    },
+    "/system/pi-gateway": {
+      "get": {
+        "operationId": "get_pi_gateway_status_system_pi_gateway_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "查询树莓派网关运行态",
+        "tags": [
+          "系统"
+        ]
+      }
+    },
+    "/system/pi-gateway/start": {
+      "post": {
+        "operationId": "start_pi_gateway_system_pi_gateway_start_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "手动启动树莓派网关链路",
+        "tags": [
+          "系统"
+        ]
+      }
+    },
+    "/system/pi-gateway/stop": {
+      "post": {
+        "operationId": "stop_pi_gateway_system_pi_gateway_stop_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "手动停止树莓派网关链路",
+        "tags": [
+          "系统"
         ]
       }
     },

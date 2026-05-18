@@ -137,7 +137,7 @@ class CarlaClient:
                     text=True,
                     timeout=min(max(self._timeout_seconds, 1.0), remaining + 1.0),
                 )
-            except subprocess.TimeoutExpired as exc:
+            except subprocess.TimeoutExpired:
                 last_failure = (
                     "traffic manager probe timed out while waiting for readiness"
                 )
@@ -604,6 +604,25 @@ class CarlaClient:
                 return actor
         return None
 
+    def find_vehicle_actor_for_sensor_attachment(self, preferred_role_name: str = "hero") -> Any | None:
+        if self._world is None:
+            raise CarlaClientError("CARLA world is not ready")
+
+        preferred_role_name = preferred_role_name.strip()
+        vehicles = list(self._world.get_actors().filter("vehicle.*"))
+        fallback_candidates: list[Any] = []
+        for actor in vehicles:
+            actor_role_name = str(actor.attributes.get("role_name") or "").strip()
+            if preferred_role_name and actor_role_name == preferred_role_name:
+                return actor
+            if actor_role_name and actor_role_name.startswith("scenario_"):
+                continue
+            fallback_candidates.append(actor)
+        if not fallback_candidates:
+            return None
+        fallback_candidates.sort(key=lambda actor: int(actor.id))
+        return fallback_candidates[0]
+
     def actor_transform_to_dict(self, actor: Any) -> dict[str, float]:
         return self._transform_to_dict(actor.get_transform())
 
@@ -947,6 +966,33 @@ class CarlaClient:
         if self._client is None:
             return
         self._client.stop_recorder()
+
+    def replay_file(
+        self,
+        recorder_path: Path,
+        *,
+        start_seconds: float,
+        duration_seconds: float,
+        follow_id: int = 0,
+        replay_sensors: bool = False,
+    ) -> str | None:
+        if self._client is None:
+            raise CarlaClientError("CARLA client is not connected")
+        try:
+            return self._client.replay_file(
+                str(recorder_path),
+                float(start_seconds),
+                float(duration_seconds),
+                int(follow_id),
+                bool(replay_sensors),
+            )
+        except TypeError:
+            return self._client.replay_file(
+                str(recorder_path),
+                float(start_seconds),
+                float(duration_seconds),
+                int(follow_id),
+            )
 
     def cleanup(self) -> None:
         self._destroy_spawned_actors()

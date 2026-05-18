@@ -25,6 +25,7 @@ except ImportError as exc:  # pragma: no cover - runtime guard
 @dataclass(frozen=True)
 class SensorSpec:
     sensor_id: str
+    display_name: str
     x: float
     y: float
     z: float
@@ -35,6 +36,14 @@ class SensorSpec:
     height: int
     fov: float
     sensor_tick: float
+
+
+@dataclass(frozen=True)
+class MosaicLayout:
+    rows: int
+    cols: int
+    output_width: int
+    output_height: int
 
 
 SRC_ROOT = Path(__file__).resolve().parents[3]
@@ -54,7 +63,7 @@ DEFAULT_SPAWN_POINT = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Attach a front RGB sensor to hero/ego and show a fullscreen preview."
+        description="Attach RGB sensors to hero/ego and show a fullscreen preview."
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=2000)
@@ -62,7 +71,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeout-seconds", type=float, default=10.0)
     parser.add_argument("--map-name", default="")
     parser.add_argument("--sensor-config", default=str(DEFAULT_SENSOR_CONFIG))
-    parser.add_argument("--sensor-id", default="FrontRGB")
+    parser.add_argument(
+        "--sensor-id",
+        default="",
+        help="Optional single sensor id to preview. Empty means all RGB camera entries.",
+    )
     parser.add_argument("--role-name", default="hero")
     parser.add_argument("--blueprint", default="vehicle.lincoln.mkz_2017")
     parser.add_argument("--window-name", default="DuckPark Front RGB Preview")
@@ -74,6 +87,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sensor-tick", type=float, default=1.0 / 30.0)
     parser.add_argument("--fixed-delta-seconds", type=float, default=1.0 / 30.0)
     parser.add_argument("--follow-rate-hz", type=float, default=60.0)
+    parser.add_argument(
+        "--mosaic-layout",
+        choices=("auto", "1x1", "1x2", "2x2"),
+        default="auto",
+        help="Sensor preview mosaic layout.",
+    )
+    parser.add_argument("--mosaic-width", type=int, default=1920)
+    parser.add_argument("--mosaic-height", type=int, default=1080)
+    parser.add_argument(
+        "--label-overlay",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Draw camera labels on the mosaic cells.",
+    )
     parser.add_argument("--wait-for-role-seconds", type=float, default=0.0)
     parser.add_argument("--weather-preset", default="ClearNoon")
     parser.add_argument("--traffic-vehicles", type=int, default=12)
@@ -117,28 +144,48 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_sensor_spec(config_path: Path, sensor_id: str, sensor_tick: float) -> SensorSpec:
+def _sensor_spec_from_yaml(item: dict[str, Any], sensor_tick: float) -> SensorSpec:
+    sensor_id = str(item.get("id") or "").strip()
+    if not sensor_id:
+        raise RuntimeError("sensor.camera.rgb entry is missing id")
+    return SensorSpec(
+        sensor_id=sensor_id,
+        display_name=str(item.get("display_name") or sensor_id).strip() or sensor_id,
+        x=float(item.get("x", 1.5)),
+        y=float(item.get("y", 0.0)),
+        z=float(item.get("z", 1.7)),
+        roll=float(item.get("roll", 0.0)),
+        pitch=float(item.get("pitch", 0.0)),
+        yaw=float(item.get("yaw", 0.0)),
+        width=int(item.get("width", 1920)),
+        height=int(item.get("height", 1080)),
+        fov=float(item.get("fov", 90.0)),
+        sensor_tick=float(item.get("sensor_tick", sensor_tick)),
+    )
+
+
+def load_sensor_specs(config_path: Path, sensor_id: str, sensor_tick: float) -> list[SensorSpec]:
     payload = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
     sensors = payload.get("sensors") or []
+    requested_sensor_id = str(sensor_id or "").strip()
+    specs: list[SensorSpec] = []
     for item in sensors:
-        if str(item.get("id") or "").strip() != sensor_id:
-            continue
         if str(item.get("type") or "").strip() != "sensor.camera.rgb":
-            raise RuntimeError(f"sensor '{sensor_id}' is not a sensor.camera.rgb entry")
-        return SensorSpec(
-            sensor_id=sensor_id,
-            x=float(item.get("x", 1.5)),
-            y=float(item.get("y", 0.0)),
-            z=float(item.get("z", 1.7)),
-            roll=float(item.get("roll", 0.0)),
-            pitch=float(item.get("pitch", 0.0)),
-            yaw=float(item.get("yaw", 0.0)),
-            width=int(item.get("width", 1920)),
-            height=int(item.get("height", 1080)),
-            fov=float(item.get("fov", 90.0)),
-            sensor_tick=float(sensor_tick),
-        )
-    raise RuntimeError(f"sensor '{sensor_id}' not found in {config_path}")
+            continue
+        item_sensor_id = str(item.get("id") or "").strip()
+        if requested_sensor_id and item_sensor_id != requested_sensor_id:
+            continue
+        specs.append(_sensor_spec_from_yaml(item, sensor_tick))
+
+    if specs:
+        return specs
+    if requested_sensor_id:
+        raise RuntimeError(f"sensor '{requested_sensor_id}' not found in {config_path}")
+    raise RuntimeError(f"no sensor.camera.rgb entries found in {config_path}")
+
+
+def load_sensor_spec(config_path: Path, sensor_id: str, sensor_tick: float) -> SensorSpec:
+    return load_sensor_specs(config_path, sensor_id, sensor_tick)[0]
 
 
 def normalize_map_name(map_name: str) -> str:
@@ -288,6 +335,8 @@ def spawn_rgb_sensor(
     blueprint.set_attribute("fov", str(spec.fov))
     if blueprint.has_attribute("sensor_tick"):
         blueprint.set_attribute("sensor_tick", str(spec.sensor_tick))
+    if blueprint.has_attribute("role_name"):
+        blueprint.set_attribute("role_name", spec.sensor_id)
 
     transform = carla.Transform(
         carla.Location(x=spec.x, y=spec.y, z=spec.z),
@@ -350,6 +399,142 @@ def decode_bgr(image: Any) -> np.ndarray:
     return frame[:, :, :3]
 
 
+def resolve_mosaic_layout(
+    sensor_count: int,
+    layout_name: str,
+    output_width: int,
+    output_height: int,
+) -> MosaicLayout:
+    if sensor_count <= 0:
+        raise RuntimeError("sensor preview requires at least one RGB camera")
+    if layout_name == "1x1":
+        rows, cols = 1, 1
+    elif layout_name == "1x2":
+        rows, cols = 1, 2
+    elif layout_name == "2x2":
+        rows, cols = 2, 2
+    elif sensor_count == 1:
+        rows, cols = 1, 1
+    elif sensor_count == 2:
+        rows, cols = 1, 2
+    else:
+        rows, cols = 2, 2
+    if sensor_count > rows * cols:
+        raise RuntimeError(
+            f"mosaic layout {rows}x{cols} cannot fit {sensor_count} sensors"
+        )
+    return MosaicLayout(
+        rows=rows,
+        cols=cols,
+        output_width=max(1, int(output_width)),
+        output_height=max(1, int(output_height)),
+    )
+
+
+def fit_frame_to_cell(frame: np.ndarray, cell_width: int, cell_height: int) -> np.ndarray:
+    canvas = np.zeros((cell_height, cell_width, 3), dtype=np.uint8)
+    frame_height, frame_width = frame.shape[:2]
+    if frame_width <= 0 or frame_height <= 0:
+        return canvas
+
+    scale = min(cell_width / frame_width, cell_height / frame_height)
+    resized_width = max(1, int(frame_width * scale))
+    resized_height = max(1, int(frame_height * scale))
+    resized = cv2.resize(frame, (resized_width, resized_height), interpolation=cv2.INTER_AREA)
+    x_offset = (cell_width - resized_width) // 2
+    y_offset = (cell_height - resized_height) // 2
+    canvas[
+        y_offset : y_offset + resized_height,
+        x_offset : x_offset + resized_width,
+    ] = resized
+    return canvas
+
+
+def draw_cell_label(cell: np.ndarray, label: str) -> None:
+    label_text = str(label or "").strip()
+    if not label_text:
+        return
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.72
+    thickness = 2
+    padding_x = 14
+    padding_y = 12
+    text_size, baseline = cv2.getTextSize(label_text, font, font_scale, thickness)
+    box_width = text_size[0] + padding_x * 2
+    box_height = text_size[1] + padding_y * 2 + baseline
+    overlay = cell.copy()
+    cv2.rectangle(
+        overlay,
+        (16, 16),
+        (min(cell.shape[1] - 1, 16 + box_width), min(cell.shape[0] - 1, 16 + box_height)),
+        (6, 18, 26),
+        -1,
+    )
+    cv2.addWeighted(overlay, 0.62, cell, 0.38, 0, cell)
+    cv2.rectangle(
+        cell,
+        (16, 16),
+        (min(cell.shape[1] - 1, 16 + box_width), min(cell.shape[0] - 1, 16 + box_height)),
+        (80, 220, 255),
+        1,
+    )
+    cv2.putText(
+        cell,
+        label_text,
+        (16 + padding_x, 16 + padding_y + text_size[1]),
+        font,
+        font_scale,
+        (210, 250, 255),
+        thickness,
+        cv2.LINE_AA,
+    )
+
+
+def build_mosaic_frame(
+    specs: list[SensorSpec],
+    latest_frames: dict[str, np.ndarray],
+    layout: MosaicLayout,
+    *,
+    label_overlay: bool,
+) -> np.ndarray:
+    output = np.zeros((layout.output_height, layout.output_width, 3), dtype=np.uint8)
+    cell_width = layout.output_width // layout.cols
+    cell_height = layout.output_height // layout.rows
+    for index, spec in enumerate(specs):
+        row = index // layout.cols
+        col = index % layout.cols
+        x0 = col * cell_width
+        y0 = row * cell_height
+        x1 = layout.output_width if col == layout.cols - 1 else x0 + cell_width
+        y1 = layout.output_height if row == layout.rows - 1 else y0 + cell_height
+        frame = latest_frames.get(spec.sensor_id)
+        if frame is None:
+            cell = np.zeros((y1 - y0, x1 - x0, 3), dtype=np.uint8)
+            cv2.putText(
+                cell,
+                "waiting for frame",
+                (24, max(48, (y1 - y0) // 2)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.72,
+                (120, 150, 160),
+                2,
+                cv2.LINE_AA,
+            )
+        else:
+            cell = fit_frame_to_cell(frame, x1 - x0, y1 - y0)
+        if label_overlay:
+            draw_cell_label(cell, spec.display_name)
+        output[y0:y1, x0:x1] = cell
+
+    for col in range(1, layout.cols):
+        x = col * cell_width
+        cv2.line(output, (x, 0), (x, layout.output_height), (34, 150, 180), 1)
+    for row in range(1, layout.rows):
+        y = row * cell_height
+        cv2.line(output, (0, y), (layout.output_width, y), (34, 150, 180), 1)
+    return output
+
+
 def _rotate_local_offset(base_rotation: carla.Rotation, spec: SensorSpec) -> carla.Location:
     pitch = math.radians(float(base_rotation.pitch))
     yaw = math.radians(float(base_rotation.yaw))
@@ -398,11 +583,18 @@ def main() -> int:
     if not sensor_config.is_file():
         raise SystemExit(f"sensor config not found: {sensor_config}")
 
-    sensor_spec = load_sensor_spec(
+    sensor_specs = load_sensor_specs(
         sensor_config,
         sensor_id=args.sensor_id,
         sensor_tick=args.sensor_tick,
     )
+    sensor_spec = sensor_specs[0]
+    if args.display_mode == "native_follow" and len(sensor_specs) > 1:
+        print(
+            "native_follow uses the first RGB sensor from the config: "
+            f"{sensor_spec.sensor_id}",
+            flush=True,
+        )
 
     client = carla.Client(args.host, args.port)
     client.set_timeout(args.timeout_seconds)
@@ -507,34 +699,50 @@ def main() -> int:
         "preview ready "
         f"map={normalize_map_name(world.get_map().name)} "
         f"display_mode={args.display_mode} "
-        f"sensor={sensor_spec.sensor_id} "
-        f"resolution={sensor_spec.width}x{sensor_spec.height} "
+        f"sensors={','.join(spec.sensor_id for spec in sensor_specs)} "
         f"traffic={len(traffic_actors)}",
         flush=True,
     )
 
     processed_frames = 0
     started_at = time.monotonic()
-    sensor = None
-    image_queue: queue.Queue[Any] | None = None
+    sensors: list[Any] = []
+    image_queues: dict[str, queue.Queue[Any]] = {}
+    latest_frames: dict[str, np.ndarray] = {}
     spectator = world.get_spectator() if (args.follow_spectator or args.display_mode == "native_follow") else None
 
     if args.display_mode == "sensor_preview":
-        image_queue = queue.Queue(maxsize=2)
+        for spec in sensor_specs:
+            image_queue: queue.Queue[Any] = queue.Queue(maxsize=1)
+            image_queues[spec.sensor_id] = image_queue
 
-        def on_image(image: Any) -> None:
-            try:
-                assert image_queue is not None
-                if image_queue.full():
-                    _ = image_queue.get_nowait()
-                image_queue.put_nowait(image)
-            except queue.Empty:
-                pass
-            except queue.Full:
-                pass
+            def on_image(image: Any, sensor_id: str = spec.sensor_id) -> None:
+                target_queue = image_queues[sensor_id]
+                try:
+                    while not target_queue.empty():
+                        _ = target_queue.get_nowait()
+                    target_queue.put_nowait(image)
+                except queue.Empty:
+                    pass
+                except queue.Full:
+                    pass
 
-        sensor = spawn_rgb_sensor(world, ego_vehicle, sensor_spec)
-        sensor.listen(on_image)
+            sensor = spawn_rgb_sensor(world, ego_vehicle, spec)
+            sensor.listen(on_image)
+            sensors.append(sensor)
+
+        mosaic_layout = resolve_mosaic_layout(
+            len(sensor_specs),
+            args.mosaic_layout,
+            args.mosaic_width,
+            args.mosaic_height,
+        )
+        print(
+            "sensor preview mosaic "
+            f"layout={mosaic_layout.rows}x{mosaic_layout.cols} "
+            f"output={mosaic_layout.output_width}x{mosaic_layout.output_height}",
+            flush=True,
+        )
 
         cv2.namedWindow(args.window_name, cv2.WINDOW_NORMAL)
         if args.fullscreen:
@@ -544,33 +752,69 @@ def main() -> int:
                 cv2.WINDOW_FULLSCREEN,
             )
         else:
-            cv2.resizeWindow(args.window_name, sensor_spec.width, sensor_spec.height)
+            cv2.resizeWindow(
+                args.window_name,
+                mosaic_layout.output_width,
+                mosaic_layout.output_height,
+            )
 
     try:
         while not should_stop:
             if args.display_mode == "sensor_preview":
-                assert image_queue is not None
-                assert sensor is not None
-                try:
-                    image = image_queue.get(timeout=2.0)
-                except queue.Empty as exc:
-                    raise RuntimeError("timed out waiting for camera frames") from exc
+                if not sensors:
+                    raise RuntimeError("sensor_preview did not create any RGB sensors")
+                received_any_frame = False
+                for spec in sensor_specs:
+                    sensor_queue = image_queues[spec.sensor_id]
+                    while True:
+                        try:
+                            image = sensor_queue.get_nowait()
+                        except queue.Empty:
+                            break
+                        latest_frames[spec.sensor_id] = decode_bgr(image)
+                        received_any_frame = True
 
-                frame = decode_bgr(image)
+                if not latest_frames:
+                    deadline = time.monotonic() + 2.0
+                    while time.monotonic() < deadline and not latest_frames:
+                        for spec in sensor_specs:
+                            sensor_queue = image_queues[spec.sensor_id]
+                            try:
+                                image = sensor_queue.get(timeout=0.1)
+                            except queue.Empty:
+                                continue
+                            latest_frames[spec.sensor_id] = decode_bgr(image)
+                            received_any_frame = True
+                        if received_any_frame:
+                            break
+                    if not latest_frames:
+                        raise RuntimeError("timed out waiting for camera frames")
+
+                frame = build_mosaic_frame(
+                    sensor_specs,
+                    latest_frames,
+                    mosaic_layout,
+                    label_overlay=bool(args.label_overlay),
+                )
+                try:
+                    if spectator is not None:
+                        spectator.set_transform(sensors[0].get_transform())
+                except RuntimeError as exc:
+                    print(f"warning: failed to update spectator from sensor: {exc}", flush=True)
+
                 cv2.imshow(args.window_name, frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key in (27, ord("q")):
                     break
-
-                if spectator is not None:
-                    spectator.set_transform(sensor.get_transform())
 
                 processed_frames += 1
                 if processed_frames % 90 == 0:
                     elapsed = max(time.monotonic() - started_at, 1e-6)
                     preview_fps = processed_frames / elapsed
                     print(
-                        f"preview fps={preview_fps:.2f} frames={processed_frames}",
+                        "mosaic preview "
+                        f"fps={preview_fps:.2f} frames={processed_frames} "
+                        f"ready_sensors={len(latest_frames)}/{len(sensor_specs)}",
                         flush=True,
                     )
                 continue
@@ -602,16 +846,16 @@ def main() -> int:
                 )
             time.sleep(max(0.0, 1.0 / max(1.0, float(args.follow_rate_hz))))
     finally:
-        try:
-            if sensor is not None:
+        for sensor in sensors:
+            try:
                 sensor.stop()
-        except Exception:
-            pass
-        try:
-            if sensor is not None:
+            except Exception:
+                pass
+        for sensor in sensors:
+            try:
                 sensor.destroy()
-        except Exception:
-            pass
+            except Exception:
+                pass
         for actor in traffic_actors:
             try:
                 actor.destroy()

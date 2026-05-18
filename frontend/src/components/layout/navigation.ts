@@ -2,10 +2,12 @@ import type { IconType } from 'react-icons';
 import {
   HiOutlineBookOpen,
   HiOutlineChartBarSquare,
+  HiOutlineCircleStack,
   HiOutlineDocumentChartBar,
   HiOutlinePlayCircle,
   HiOutlineRadio,
-  HiOutlineSquares2X2
+  HiOutlineSquares2X2,
+  HiOutlineAdjustmentsHorizontal
 } from 'react-icons/hi2';
 
 export interface NavigationItem {
@@ -45,10 +47,24 @@ export const navigation: NavigationItem[] = [
     icon: HiOutlineBookOpen
   },
   {
+    to: '/scenario-recordings',
+    label: '场景资产库',
+    caption: '可复现回放',
+    keywords: ['scenario recordings', 'recorder', 'replay', 'asset', '场景资产', '回放'],
+    icon: HiOutlineCircleStack
+  },
+  {
+    to: '/sensor-profiles',
+    label: '传感器库',
+    caption: 'Profile 与 hash',
+    keywords: ['sensor profiles', 'sensor', 'profile', '传感器库', '传感器'],
+    icon: HiOutlineAdjustmentsHorizontal
+  },
+  {
     to: '/executions',
-    label: '执行台',
-    caption: '运行监控',
-    keywords: ['execution', 'run', 'monitor', '执行台', '执行', '运行'],
+    label: '回放执行',
+    caption: 'Replay runs',
+    keywords: ['execution', 'run', 'monitor', 'replay', '执行台', '执行', '运行', '回放'],
     icon: HiOutlinePlayCircle
   },
   {
@@ -78,12 +94,12 @@ export const navigationGroups: NavigationGroup[] = [
   {
     id: 'workflow',
     label: '流程',
-    items: navigation.slice(0, 4)
+    items: navigation.slice(0, 6)
   },
   {
     id: 'operations',
     label: '运维',
-    items: navigation.slice(4)
+    items: navigation.slice(6)
   }
 ];
 
@@ -91,6 +107,8 @@ export const workflowSteps = [
   { to: '/projects', label: '项目', caption: '选择业务项目' },
   { to: '/benchmarks', label: '基准任务', caption: '选择评测模板' },
   { to: '/scenario-sets', label: '场景集', caption: '选择执行预设' },
-  { to: '/executions', label: '执行台', caption: '启动并监控运行' },
+  { to: '/scenario-recordings', label: '资产库', caption: '选择回放资产' },
+  { to: '/sensor-profiles', label: '传感器库', caption: '选择 profile' },
+  { to: '/executions', label: '回放执行', caption: '启动并监控运行' },
   { to: '/reports', label: '报告', caption: '复盘并导出结果' }
 ];

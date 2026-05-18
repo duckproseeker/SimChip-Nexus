@@ -27,7 +27,22 @@ def list_scenario_catalog(*, include_hidden: bool = False) -> list[dict[str, Any
         existing_capabilities = enriched.get("launch_capabilities")
         if not isinstance(existing_capabilities, dict):
             existing_capabilities = default_launch_capabilities(map_editable=False)
+        map_selection_mode = str(enriched.get("map_selection_mode") or "").strip()
+        if map_selection_mode not in {"fixed", "subset", "all"}:
+            map_selection_mode = (
+                "all" if bool(existing_capabilities.get("map_editable", False)) else "fixed"
+            )
+        allowed_map_names = enriched.get("allowed_map_names")
+        if not isinstance(allowed_map_names, list):
+            default_map_name = str(enriched.get("default_map_name") or "").strip()
+            allowed_map_names = (
+                [default_map_name] if map_selection_mode == "fixed" and default_map_name else []
+            )
         enriched["launch_capabilities"] = existing_capabilities
+        enriched["map_selection_mode"] = map_selection_mode
+        enriched["allowed_map_names"] = [
+            str(item).strip() for item in allowed_map_names if str(item).strip()
+        ]
         enriched["category"] = get_template_category(enriched["scenario_id"])
         enriched["parameter_schema"] = build_template_parameter_schema(
             enriched["scenario_id"],

@@ -4,13 +4,10 @@ import asyncio
 import base64
 import json
 import sys
-import zipfile
 from functools import lru_cache
-from pathlib import Path
 from typing import Any, NoReturn
 
 from fastapi import APIRouter, HTTPException, Query, Response, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
 
 from app.api.carla_worker_runner import CarlaWorkerError, run_carla_worker
 from app.api.schemas import (
@@ -30,7 +27,7 @@ from app.api.schemas import (
 )
 from app.core.config import get_settings
 from app.core.errors import AppError, ConflictError, NotFoundError, ValidationError
-from app.core.models import EventLevel, RunEvent, RunRecord, RunStatus
+from app.core.models import RunRecord, RunStatus
 from app.orchestrator.queue import FileCommandQueue
 from app.orchestrator.run_manager import RunManager
 from app.storage.artifact_store import ArtifactStore
@@ -39,15 +36,11 @@ from app.storage.benchmark_task_store import BenchmarkTaskStore
 from app.storage.gateway_store import GatewayStore
 from app.storage.project_store import ProjectStore
 from app.storage.run_control_store import (
-    SENSOR_CAPTURE_STATUS_RUNNING,
-    SENSOR_CAPTURE_STATUS_STARTING,
-    SENSOR_CAPTURE_STATUS_STOPPED,
-    SENSOR_CAPTURE_STATUS_STOPPING,
     RunControlStore,
     build_resolved_runtime_control,
 )
 from app.storage.run_store import RunStore
-from app.utils.time_utils import now_utc, to_iso8601
+from app.utils.time_utils import to_iso8601
 from app.viewer.ego_snapshot import list_viewer_views
 
 router = APIRouter(tags=["运行管理"])
@@ -244,67 +237,12 @@ def _resolved_runtime_control_state(run: RunRecord) -> dict[str, Any]:
     )
 
 
-def _write_zip_archive(source_dir: Path, archive_path: Path) -> Path:
-    archive_path.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(
-        archive_path,
-        mode="w",
-        compression=zipfile.ZIP_DEFLATED,
-    ) as archive:
-        for path in sorted(source_dir.rglob("*")):
-            if not path.is_file():
-                continue
-            archive.write(path, arcname=path.relative_to(source_dir.parent).as_posix())
-    return archive_path
-
-
-def _append_run_control_event(
-    run_id: str,
-    event_type: str,
-    message: str,
-    *,
-    payload: dict[str, Any] | None = None,
-    level: EventLevel = EventLevel.INFO,
-) -> None:
-    artifact_store = get_artifact_store()
-    event = RunEvent(
-        timestamp=now_utc(),
-        run_id=run_id,
-        level=level,
-        event_type=event_type,
-        message=message,
-        payload=payload or {},
-    )
-    artifact_store.append_event(event)
-    artifact_store.append_run_log(
-        run_id,
-        f"[{event.timestamp.isoformat()}] {event.level.value} {event.event_type} {event.message}",
-    )
-
-
-def _assert_sensor_capture_control_allowed(run: RunRecord) -> None:
-    if run.status not in ACTIVE_VIEWER_STATUSES:
-        raise HTTPException(
-            status_code=409,
-            detail={
-                "code": "RUN_SENSOR_CAPTURE_NOT_ACTIVE",
-                "message": "只有运行中的场景才允许开始或停止传感器采集",
-            },
-        )
-    sensors = run.descriptor.get("sensors", {})
-    if not isinstance(sensors, dict) or not bool(sensors.get("enabled")):
-        raise HTTPException(
-            status_code=409,
-            detail={
-                "code": "RUN_SENSOR_CAPTURE_DISABLED",
-                "message": "当前 run 没有启用可采集的传感器模板",
-            },
-        )
+def _assert_sensor_capture_control_allowed() -> NoReturn:
     raise HTTPException(
         status_code=409,
         detail={
             "code": "RUN_SENSOR_CAPTURE_UNSUPPORTED",
-            "message": "当前平台未开放运行中手动开始或停止平台侧传感器采集",
+            "message": "当前版本不提供平台侧传感器帧落盘采集",
         },
     )
 
@@ -918,159 +856,48 @@ def update_run_environment(
 @router.post(
     "/runs/{run_id}/sensor-capture/start",
     response_model=RunEnvironmentStateResponse,
-    summary="开始运行中的传感器采集",
-    description="仅改变传感器采集状态，不影响场景运行本身。适合在需要保留真实传感器数据时手动开始采集。",
+    include_in_schema=False,
+    summary="传感器采集已禁用",
+    description="当前版本不提供平台侧传感器帧落盘采集。",
 )
 def start_run_sensor_capture(run_id: str) -> RunEnvironmentStateResponse:
     manager = get_run_manager()
-    control_store = get_control_store()
     try:
-        run = manager.get_run(run_id)
+        manager.get_run(run_id)
     except AppError as exc:
         raise_http_error(exc)
 
-    _assert_sensor_capture_control_allowed(run)
-    current_state = _resolved_runtime_control_state(run)
-    current_sensor_capture = (
-        current_state.get("sensor_capture", {})
-        if isinstance(current_state.get("sensor_capture"), dict)
-        else {}
-    )
-    already_active = bool(current_sensor_capture.get("active"))
-    control_state = control_store.update(
-        run_id,
-        {
-            "sensor_capture": {
-                "desired_state": "RUNNING",
-                "status": (
-                    SENSOR_CAPTURE_STATUS_RUNNING
-                    if already_active
-                    else SENSOR_CAPTURE_STATUS_STARTING
-                ),
-                "active": already_active,
-                "last_error": None,
-            }
-        },
-    )
-    _append_run_control_event(
-        run_id,
-        "SENSOR_CAPTURE_START_REQUESTED",
-        "已请求开始传感器采集",
-    )
-    resolved = build_resolved_runtime_control(
-        run_id,
-        run.descriptor,
-        control_state,
-        artifact_run_dir=get_artifact_store().run_dir(run_id),
-    )
-    return RunEnvironmentStateResponse(
-        success=True,
-        data=RunEnvironmentStatePayload(
-            run_id=run_id,
-            descriptor_weather=run.descriptor.get("weather", {}),
-            descriptor_debug=run.descriptor.get("debug", {}),
-            weather=resolved.get("weather"),
-            runtime_control=resolved,
-        ),
-    )
+    _assert_sensor_capture_control_allowed()
 
 
 @router.post(
     "/runs/{run_id}/sensor-capture/stop",
     response_model=RunEnvironmentStateResponse,
-    summary="停止运行中的传感器采集",
-    description="停止真实传感器数据落盘，但不会停止当前场景。",
+    include_in_schema=False,
+    summary="传感器采集已禁用",
+    description="当前版本不提供平台侧传感器帧落盘采集。",
 )
 def stop_run_sensor_capture(run_id: str) -> RunEnvironmentStateResponse:
     manager = get_run_manager()
-    control_store = get_control_store()
     try:
-        run = manager.get_run(run_id)
+        manager.get_run(run_id)
     except AppError as exc:
         raise_http_error(exc)
 
-    _assert_sensor_capture_control_allowed(run)
-    current_state = _resolved_runtime_control_state(run)
-    current_sensor_capture = (
-        current_state.get("sensor_capture", {})
-        if isinstance(current_state.get("sensor_capture"), dict)
-        else {}
-    )
-    currently_active = bool(current_sensor_capture.get("active"))
-    control_state = control_store.update(
-        run_id,
-        {
-            "sensor_capture": {
-                "desired_state": "STOPPED",
-                "status": (
-                    SENSOR_CAPTURE_STATUS_STOPPING
-                    if currently_active
-                    else SENSOR_CAPTURE_STATUS_STOPPED
-                ),
-                "active": currently_active,
-            }
-        },
-    )
-    _append_run_control_event(
-        run_id,
-        "SENSOR_CAPTURE_STOP_REQUESTED",
-        "已请求停止传感器采集",
-    )
-    resolved = build_resolved_runtime_control(
-        run_id,
-        run.descriptor,
-        control_state,
-        artifact_run_dir=get_artifact_store().run_dir(run_id),
-    )
-    return RunEnvironmentStateResponse(
-        success=True,
-        data=RunEnvironmentStatePayload(
-            run_id=run_id,
-            descriptor_weather=run.descriptor.get("weather", {}),
-            descriptor_debug=run.descriptor.get("debug", {}),
-            weather=resolved.get("weather"),
-            runtime_control=resolved,
-        ),
-    )
+    _assert_sensor_capture_control_allowed()
 
 
 @router.get(
     "/runs/{run_id}/sensor-capture/download",
     include_in_schema=False,
-    summary="下载传感器采集产物",
+    summary="传感器采集已禁用",
+    description="当前版本不提供平台侧传感器帧落盘下载。",
 )
-def download_run_sensor_capture(run_id: str) -> FileResponse:
+def download_run_sensor_capture(run_id: str) -> Response:
     manager = get_run_manager()
     try:
-        run = manager.get_run(run_id)
+        manager.get_run(run_id)
     except AppError as exc:
         raise_http_error(exc)
 
-    resolved = _resolved_runtime_control_state(run)
-    sensor_capture = (
-        resolved.get("sensor_capture", {})
-        if isinstance(resolved.get("sensor_capture"), dict)
-        else {}
-    )
-    output_root = Path(
-        str(
-            sensor_capture.get("output_root")
-            or (get_artifact_store().run_dir(run_id) / "outputs" / "sensors")
-        )
-    ).expanduser()
-    if not output_root.exists() or not output_root.is_dir():
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "code": "RUN_SENSOR_CAPTURE_OUTPUT_MISSING",
-                "message": "当前 run 还没有可下载的传感器采集目录",
-            },
-        )
-
-    archive_path = get_artifact_store().run_dir(run_id) / f"{run_id}_sensor_capture.zip"
-    _write_zip_archive(output_root, archive_path)
-    return FileResponse(
-        path=archive_path,
-        filename=f"{run_id}_sensor_capture.zip",
-        media_type="application/zip",
-    )
+    _assert_sensor_capture_control_allowed()

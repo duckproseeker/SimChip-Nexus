@@ -7,6 +7,11 @@ from fastapi import APIRouter, HTTPException
 
 from app.api.carla_worker_runner import CarlaWorkerError, run_carla_worker
 from app.api.routes_runs import get_run_manager, raise_http_error, run_to_payload
+from app.api.routes_sensor_profiles import (
+    get_sensor_profile_store,
+    sensor_profile_to_descriptor_config,
+    sensor_profile_to_payload,
+)
 from app.api.schemas import (
     ApiResponse,
     RunResponse,
@@ -25,14 +30,10 @@ from app.scenario.launch_builder import (
     write_launch_artifacts,
 )
 from app.scenario.library import get_scenario_catalog_item, list_scenario_catalog
-from app.scenario.maps import fallback_runtime_map_options
-from app.scenario.sensor_profiles import (
-    build_sensor_config_from_profile,
-    get_sensor_profile,
-    load_sensor_profiles,
-    save_sensor_profile,
-)
+from app.scenario.maps import fallback_runtime_map_options, map_family_key
+from app.scenario.sensor_profiles import save_sensor_profile
 from app.scenario.template_registry import normalize_template_params
+from app.storage.sensor_profile_store import normalize_sensor_profile_payload
 
 router = APIRouter(tags=["场景管理"])
 
@@ -65,6 +66,43 @@ def _default_hil_config_for_launch(catalog_item: dict[str, object]) -> dict[str,
     }
 
 
+def _resolve_launch_map_name(
+    catalog_item: dict[str, object], requested_map_name: str | None
+) -> str | None:
+    default_map_name = str(catalog_item.get("default_map_name") or "").strip() or None
+    mode = str(catalog_item.get("map_selection_mode") or "fixed").strip()
+    if mode == "fixed":
+        return default_map_name
+    if mode == "all":
+        return requested_map_name or default_map_name
+    if mode != "subset":
+        launch_capabilities = catalog_item.get("launch_capabilities", {})
+        if isinstance(launch_capabilities, dict) and launch_capabilities.get("map_editable", False):
+            return requested_map_name or default_map_name
+        return default_map_name
+
+    selected_map_name = requested_map_name or default_map_name
+    allowed_map_names = [
+        str(item).strip() for item in catalog_item.get("allowed_map_names", []) if str(item).strip()
+    ]
+    if not selected_map_name:
+        return default_map_name
+    allowed_family_keys = {map_family_key(map_name) for map_name in allowed_map_names}
+    selected_family_key = map_family_key(selected_map_name)
+    if selected_family_key not in allowed_family_keys:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "VALIDATION_ERROR",
+                "message": (
+                    f"场景 '{catalog_item.get('scenario_id')}' 不支持地图 "
+                    f"'{selected_map_name}'。可选地图: {allowed_map_names}"
+                ),
+            },
+        )
+    return selected_map_name
+
+
 def fetch_available_maps() -> list[dict[str, str]]:
     settings = get_settings()
     try:
@@ -90,8 +128,11 @@ def fetch_available_maps() -> list[dict[str, str]]:
     return fallback_runtime_map_options()
 
 
-def _sensor_profile_list_payload(settings_root) -> SensorProfileListPayload:
-    return SensorProfileListPayload(items=load_sensor_profiles(settings_root))
+def _sensor_profile_list_payload() -> SensorProfileListPayload:
+    profiles = get_sensor_profile_store().list()
+    return SensorProfileListPayload(
+        items=[sensor_profile_to_payload(profile) for profile in profiles]
+    )
 
 
 @router.get(
@@ -108,7 +149,7 @@ def list_scenarios() -> ApiResponse:
         data={
             "catalog": list_scenario_catalog(),
             "environment_presets": list_environment_presets(),
-            "sensor_profiles": load_sensor_profiles(get_settings().sensor_profiles_root),
+            "sensor_profiles": _sensor_profile_list_payload().items,
             "sample_descriptors": [str(path) for path in sample_files],
         },
     )
@@ -141,10 +182,9 @@ def get_environment_presets() -> ApiResponse:
     description="返回 YAML 传感器模板，格式参考 CARLA official agent sensors() 配置。",
 )
 def get_sensor_profiles() -> SensorProfileListResponse:
-    settings = get_settings()
     return SensorProfileListResponse(
         success=True,
-        data=_sensor_profile_list_payload(settings.sensor_profiles_root),
+        data=_sensor_profile_list_payload(),
     )
 
 
@@ -174,10 +214,10 @@ def save_sensor_profile_endpoint(
 
     settings = get_settings()
     try:
-        profile = save_sensor_profile(
+        legacy_profile = save_sensor_profile(
             settings.sensor_profiles_root,
-            profile_name=request.profile_name,
-            display_name=request.display_name,
+            profile_name=request.profile_name or request.sensor_profile_id or normalized_path_name,
+            display_name=request.display_name or request.name or normalized_path_name,
             description=request.description,
             sensors=[
                 sensor.model_dump(mode="json", exclude_none=True) for sensor in request.sensors
@@ -185,13 +225,35 @@ def save_sensor_profile_endpoint(
             metadata=request.metadata,
             vehicle_model=request.vehicle_model,
         )
+        profile = get_sensor_profile_store().upsert(
+            normalize_sensor_profile_payload(
+                sensor_profile_id=str(legacy_profile.get("profile_name") or normalized_path_name),
+                name=str(legacy_profile.get("display_name") or normalized_path_name),
+                description=str(legacy_profile.get("description") or ""),
+                vehicle_model=legacy_profile.get("vehicle_model"),
+                metadata=(
+                    legacy_profile.get("metadata")
+                    if isinstance(legacy_profile.get("metadata"), dict)
+                    else {}
+                ),
+                sensors=legacy_profile.get("sensors") or [],
+                fixed_delta_seconds=request.fixed_delta_seconds,
+                expected_fps=request.expected_fps,
+                output_mode=request.output_mode,
+                hil_output_mode=request.hil_output_mode,
+                source_path=legacy_profile.get("source_path"),
+                raw_yaml=str(legacy_profile.get("raw_yaml") or ""),
+            )
+        )
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
             detail={"code": "VALIDATION_ERROR", "message": str(exc)},
         ) from exc
+    except AppError as exc:
+        raise_http_error(exc)
 
-    return SensorProfileResponse(success=True, data=profile)
+    return SensorProfileResponse(success=True, data=sensor_profile_to_payload(profile))
 
 
 @router.get(
@@ -232,11 +294,9 @@ def launch_scenario(request: ScenarioLaunchRequest) -> RunResponse:
     else:
         launch_request["traffic"] = explicit_traffic
     launch_capabilities = catalog_item.get("launch_capabilities", {})
-    resolved_map_name = (
-        request.map_name
-        if launch_capabilities.get("map_editable", False)
-        else str(catalog_item.get("default_map_name") or "").strip() or None
-    )
+    resolved_map_name = _resolve_launch_map_name(catalog_item, request.map_name)
+    if resolved_map_name:
+        launch_request["map_name"] = resolved_map_name
     try:
         resolved_template_params = normalize_template_params(
             catalog_item.get("parameter_schema", []),
@@ -262,18 +322,17 @@ def launch_scenario(request: ScenarioLaunchRequest) -> RunResponse:
     resolved_sensor_profile_name = requested_sensor_profile_name or template_sensor_profile_name
     resolved_sensors = None
     if resolved_sensor_profile_name is not None:
-        if get_sensor_profile(settings.sensor_profiles_root, resolved_sensor_profile_name) is None:
+        try:
+            profile = get_sensor_profile_store().get(resolved_sensor_profile_name)
+        except AppError as exc:
             raise HTTPException(
                 status_code=422,
                 detail={
                     "code": "VALIDATION_ERROR",
                     "message": f"未知传感器模板: '{resolved_sensor_profile_name}'",
                 },
-            )
-        resolved_sensors = build_sensor_config_from_profile(
-            settings.sensor_profiles_root,
-            resolved_sensor_profile_name,
-        )
+            ) from exc
+        resolved_sensors = sensor_profile_to_descriptor_config(profile, auto_start=False)
 
     descriptor = build_launch_descriptor(
         catalog_item,

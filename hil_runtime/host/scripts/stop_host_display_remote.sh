@@ -13,6 +13,6 @@ duckpark_host_ssh \
 set -euo pipefail
 
 docker exec "${HOST_PREVIEW_CONTAINER_NAME_VALUE}" \
-  pkill -f 'python3 hil_runtime/host/scripts/carla_front_rgb_preview.py' \
+  pkill -f 'carla_front_rgb_preview.py' \
   >/dev/null 2>&1 || true
 EOF

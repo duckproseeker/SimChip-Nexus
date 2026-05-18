@@ -15,6 +15,9 @@ from app.api.routes_runs import (
     get_project_store,
     get_run_manager,
 )
+from app.api.routes_scenario_recordings import get_scenario_recording_store
+from app.api.routes_scenario_sources import get_scenario_source_store
+from app.api.routes_sensor_profiles import get_sensor_profile_store
 from app.core.config import get_settings
 
 
@@ -35,6 +38,9 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     )
     (project_root / "run_data" / "reports").mkdir(parents=True, exist_ok=True)
     (project_root / "run_data" / "scenario_builds").mkdir(
+        parents=True, exist_ok=True
+    )
+    (project_root / "run_data" / "scenario_recordings").mkdir(
         parents=True, exist_ok=True
     )
     (project_root / "configs" / "sensors").mkdir(parents=True, exist_ok=True)
@@ -66,6 +72,10 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
         "SCENARIO_BUILDS_ROOT",
         str(project_root / "run_data" / "scenario_builds"),
     )
+    monkeypatch.setenv(
+        "SCENARIO_RECORDINGS_ROOT",
+        str(project_root / "run_data" / "scenario_recordings"),
+    )
     monkeypatch.setenv("ARTIFACTS_ROOT", str(project_root / "artifacts"))
     monkeypatch.setenv(
         "CAPTURE_ARTIFACTS_ROOT", str(project_root / "artifacts" / "captures")
@@ -86,6 +96,9 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     get_gateway_registry.cache_clear()
     get_capture_manager.cache_clear()
     get_platform_service.cache_clear()
+    get_scenario_recording_store.cache_clear()
+    get_scenario_source_store.cache_clear()
+    get_sensor_profile_store.cache_clear()
 
     yield
 
@@ -99,3 +112,6 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     get_gateway_registry.cache_clear()
     get_capture_manager.cache_clear()
     get_platform_service.cache_clear()
+    get_scenario_recording_store.cache_clear()
+    get_scenario_source_store.cache_clear()
+    get_sensor_profile_store.cache_clear()

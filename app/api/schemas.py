@@ -437,6 +437,13 @@ class RecorderConfigPayload(BaseModel):
 
 
 class SensorProfilePayload(BaseModel):
+    sensor_profile_id: str
+    name: str
+    profile_hash: str
+    fixed_delta_seconds: float
+    expected_fps: float
+    output_mode: str
+    hil_output_mode: str
     profile_name: str
     display_name: str
     description: str
@@ -445,19 +452,49 @@ class SensorProfilePayload(BaseModel):
     raw_yaml: str
     source_path: str
     metadata: dict[str, Any] = Field(default_factory=dict)
+    created_at_utc: str | None = None
+    updated_at_utc: str | None = None
 
 
 class SensorProfileSaveRequest(BaseModel):
-    profile_name: str
-    display_name: str
+    sensor_profile_id: str | None = None
+    name: str | None = None
+    profile_name: str | None = None
+    display_name: str | None = None
     description: str = ""
     vehicle_model: str | None = None
     sensors: list[SensorSpecPayload]
     metadata: dict[str, Any] = Field(default_factory=dict)
+    fixed_delta_seconds: float = Field(default=0.05, gt=0.0, le=0.2)
+    expected_fps: float | None = Field(default=None, gt=0.0, le=240.0)
+    output_mode: str = Field(default="carla_live")
+    hil_output_mode: str = Field(default="camera_open_loop")
 
-    @field_validator("profile_name", "display_name")
+    @field_validator("sensor_profile_id", "name", "profile_name", "display_name")
     @classmethod
-    def validate_sensor_profile_text(cls, value: str) -> str:
+    def validate_sensor_profile_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+    @model_validator(mode="after")
+    def validate_sensor_profile_identity(self) -> SensorProfileSaveRequest:
+        sensor_profile_id = self.sensor_profile_id or self.profile_name
+        name = self.name or self.display_name
+        if not sensor_profile_id:
+            raise ValueError("sensor_profile_id or profile_name must not be empty")
+        if not name:
+            raise ValueError("name or display_name must not be empty")
+        self.sensor_profile_id = sensor_profile_id
+        self.profile_name = sensor_profile_id
+        self.name = name
+        self.display_name = name
+        return self
+
+    @field_validator("output_mode", "hil_output_mode")
+    @classmethod
+    def validate_output_mode(cls, value: str) -> str:
         normalized = value.strip()
         if not normalized:
             raise ValueError("field must not be empty")
@@ -481,6 +518,19 @@ class SensorProfileSaveRequest(BaseModel):
 
 class SensorProfileListPayload(BaseModel):
     items: list[SensorProfilePayload]
+
+
+class SensorProfileCopyRequest(BaseModel):
+    sensor_profile_id: str
+    name: str | None = None
+
+    @field_validator("sensor_profile_id", "name")
+    @classmethod
+    def validate_optional_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
 
 
 class RunRuntimeCapabilitiesPayload(BaseModel):
@@ -587,6 +637,263 @@ class RecorderRuntimeControlPayload(BaseModel):
     output_path: str | None
     last_error: str | None
     updated_at_utc: str | None
+
+
+class ScenarioRecordingPublishRequest(BaseModel):
+    run_id: str
+    name: str | None = None
+    duration_seconds: float | None = Field(default=None, gt=0.0)
+    source_type: str | None = None
+    source_ref: str | None = None
+    carla_version: str | None = None
+    map_version: str | None = None
+    recommended_start_seconds: float | None = Field(default=None, ge=0.0)
+    recommended_duration_seconds: float | None = Field(default=None, gt=0.0)
+    tags: list[str] = Field(default_factory=list)
+    corner_case_labels: list[str] = Field(default_factory=list)
+    determinism_level: str = Field(default="world_state_replay_with_carla_live_sensors")
+    notes: str | None = None
+
+    @field_validator("run_id", "determinism_level")
+    @classmethod
+    def validate_required_text(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("field must not be empty")
+        return normalized
+
+    @field_validator("tags", "corner_case_labels")
+    @classmethod
+    def validate_label_list(cls, value: list[str]) -> list[str]:
+        normalized: list[str] = []
+        seen: set[str] = set()
+        for item in value:
+            candidate = str(item).strip()
+            if not candidate or candidate in seen:
+                continue
+            normalized.append(candidate)
+            seen.add(candidate)
+        return normalized
+
+    @field_validator("notes")
+    @classmethod
+    def validate_optional_notes(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+    @field_validator(
+        "name",
+        "source_type",
+        "source_ref",
+        "carla_version",
+        "map_version",
+    )
+    @classmethod
+    def validate_optional_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+
+class ScenarioRecordingLaunchRequest(BaseModel):
+    sensor_profile_id: str
+    preview_sensor_id: str | None = None
+    start_seconds: float = Field(default=0.0, ge=0.0)
+    duration_seconds: float = Field(gt=0.0)
+    sensor_mode: str = Field(default="carla_live")
+    fixed_delta_seconds: float | None = Field(default=None, gt=0.0, le=0.2)
+    sensor_warmup_seconds: float = Field(default=2.0, ge=0.0, le=60.0)
+    timebase: str = Field(default="synchronous_fixed_delta")
+    hil_clock_mode: str = Field(default="fixed_delta")
+    output_config_summary: dict[str, Any] = Field(default_factory=dict)
+    report_config_summary: dict[str, Any] = Field(default_factory=dict)
+    auto_start: bool = True
+    metadata: ScenarioMetadataPayload | None = None
+
+    @field_validator("sensor_profile_id", "timebase", "hil_clock_mode")
+    @classmethod
+    def validate_required_text(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("field must not be empty")
+        return normalized
+
+    @field_validator("preview_sensor_id")
+    @classmethod
+    def validate_optional_preview_sensor_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+    @field_validator("sensor_mode")
+    @classmethod
+    def validate_sensor_mode(cls, value: str) -> str:
+        normalized = value.strip()
+        if normalized != "carla_live":
+            raise ValueError("sensor_mode must be carla_live in v1")
+        return normalized
+
+
+class ScenarioSourceLaunchRecordingRequest(BaseModel):
+    sensor_profile_name: str = Field(default="front_rgb")
+    fixed_delta_seconds: float = Field(default=0.05, gt=0.0, le=0.2)
+    auto_start: bool = True
+    materialization_agent_type: str = Field(default="route_follower")
+    metadata: ScenarioMetadataPayload | None = None
+
+    @field_validator("sensor_profile_name", "materialization_agent_type")
+    @classmethod
+    def validate_required_text(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("field must not be empty")
+        return normalized
+
+    @field_validator("materialization_agent_type")
+    @classmethod
+    def validate_materialization_agent_type(cls, value: str) -> str:
+        normalized = value.strip()
+        if normalized != "route_follower":
+            raise ValueError("materialization_agent_type must be route_follower in v1")
+        return normalized
+
+
+class ScenarioSourceMaterializationPayload(BaseModel):
+    materialization_id: str
+    source_id: str
+    run_id: str
+    recording_id: str | None
+    status: str
+    sensor_profile_id: str | None
+    sensor_profile_hash: str | None
+    fixed_delta_seconds: float
+    materialization_agent_type: str
+    materialization_agent_hash: str
+    recorder_file_sha256: str | None
+    started_at_utc: str | None
+    completed_at_utc: str | None
+    error_message: str | None
+    created_at_utc: str | None
+    updated_at_utc: str | None
+
+
+class ScenarioSourceMaterializationSummaryPayload(BaseModel):
+    status: str
+    last_run_id: str | None = None
+    last_recording_id: str | None = None
+    last_error: str | None = None
+    last_materialized_at_utc: str | None = None
+    sensor_profile_hash: str | None = None
+    fixed_delta_seconds: float | None = None
+
+
+class ScenarioSourcePayload(BaseModel):
+    source_id: str
+    provider: str
+    provider_version: dict[str, Any]
+    source_path: str
+    source_hash: str
+    route_id: str | None
+    scenario_type: str | None
+    map_name: str
+    weather: dict[str, Any]
+    recommended_duration_seconds: float | None
+    corner_case_labels: list[str]
+    compatibility_status: str
+    compatibility_message: str | None
+    parsed_metadata: dict[str, Any]
+    materialization: ScenarioSourceMaterializationSummaryPayload
+    discovered_at_utc: str | None
+    updated_at_utc: str | None
+
+
+class ScenarioSourceListPayload(BaseModel):
+    sources: list[ScenarioSourcePayload]
+
+
+class ScenarioSourceDetailPayload(BaseModel):
+    source: ScenarioSourcePayload
+    materializations: list[ScenarioSourceMaterializationPayload] = Field(default_factory=list)
+
+
+class ScenarioSourceLaunchRecordingPayload(BaseModel):
+    source: ScenarioSourcePayload
+    materialization: ScenarioSourceMaterializationPayload
+    run: RunPayload
+
+
+class ScenarioSourceRescanPayload(BaseModel):
+    sources: list[ScenarioSourcePayload]
+    source_count: int
+
+
+class ScenarioRecordingPayload(BaseModel):
+    recording_id: str
+    name: str | None
+    source_run_id: str
+    source_run_status: str | None = None
+    source_id: str | None = None
+    source_provider: str | None = None
+    materialization_id: str | None = None
+    source_type: str | None = None
+    source_ref: str | None = None
+    scenario_name: str
+    map_name: str
+    carla_version: str | None = None
+    map_version: str | None = None
+    recorder_log_path: str
+    recorder_file_size_bytes: int
+    recorder_file_sha256: str | None = None
+    duration_seconds: float | None = None
+    recommended_start_seconds: float | None = None
+    recommended_duration_seconds: float | None = None
+    tags: list[str]
+    corner_case_labels: list[str]
+    weather: dict[str, Any]
+    traffic_density: dict[str, Any]
+    sensor_profile_name: str | None
+    determinism_level: str
+    notes: str | None
+    created_at_utc: str | None
+    updated_at_utc: str | None
+
+
+class RecordingReplayRunPayload(BaseModel):
+    recording_id: str
+    run_id: str
+    start_seconds: float
+    duration_seconds: float
+    sensor_mode: str
+    sensor_profile_id: str
+    sensor_profile_hash: str
+    sensor_profile_snapshot: dict[str, Any]
+    preview_sensor_id: str
+    preview_sensor_snapshot: dict[str, Any]
+    fixed_delta_seconds: float
+    sensor_warmup_seconds: float
+    timebase: str
+    hil_clock_mode: str
+    output_config_summary: dict[str, Any]
+    report_config_summary: dict[str, Any]
+    created_at_utc: str | None
+
+
+class ScenarioRecordingDetailPayload(BaseModel):
+    recording: ScenarioRecordingPayload
+    replay_runs: list[RecordingReplayRunPayload] = Field(default_factory=list)
+
+
+class ScenarioRecordingListPayload(BaseModel):
+    recordings: list[ScenarioRecordingPayload]
+
+
+class ScenarioRecordingLaunchPayload(BaseModel):
+    recording: ScenarioRecordingPayload
+    run: RunPayload
 
 
 class RunRuntimeControlPayload(BaseModel):
@@ -826,6 +1133,44 @@ class RunEnvironmentStateResponse(ApiResponse[RunEnvironmentStatePayload]):
 
 
 class RunViewerInfoResponse(ApiResponse[RunViewerInfoPayload]):
+    pass
+
+
+class ScenarioRecordingResponse(ApiResponse[ScenarioRecordingPayload]):
+    pass
+
+
+class ScenarioRecordingDetailResponse(ApiResponse[ScenarioRecordingDetailPayload]):
+    pass
+
+
+class ScenarioRecordingListResponse(ApiResponse[ScenarioRecordingListPayload]):
+    pass
+
+
+class ScenarioRecordingLaunchResponse(ApiResponse[ScenarioRecordingLaunchPayload]):
+    pass
+
+
+class ScenarioSourceListResponse(ApiResponse[ScenarioSourceListPayload]):
+    pass
+
+
+class ScenarioSourceDetailResponse(ApiResponse[ScenarioSourceDetailPayload]):
+    pass
+
+
+class ScenarioSourceMaterializationListResponse(
+    ApiResponse[list[ScenarioSourceMaterializationPayload]]
+):
+    pass
+
+
+class ScenarioSourceLaunchRecordingResponse(ApiResponse[ScenarioSourceLaunchRecordingPayload]):
+    pass
+
+
+class ScenarioSourceRescanResponse(ApiResponse[ScenarioSourceRescanPayload]):
     pass
 
 

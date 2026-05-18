@@ -115,6 +115,113 @@ class RunRecord(BaseModel):
     scenario_source: dict[str, Any] | None = None
 
 
+class ScenarioRecordingRecord(BaseModel):
+    recording_id: str
+    name: str | None = None
+    source_run_id: str
+    source_run_status: str | None = None
+    source_id: str | None = None
+    source_provider: str | None = None
+    materialization_id: str | None = None
+    source_type: str | None = None
+    source_ref: str | None = None
+    scenario_name: str
+    map_name: str
+    carla_version: str | None = None
+    map_version: str | None = None
+    recorder_log_path: str
+    recorder_file_size_bytes: int = 0
+    recorder_file_sha256: str | None = None
+    duration_seconds: float | None = None
+    recommended_start_seconds: float | None = None
+    recommended_duration_seconds: float | None = None
+    tags: list[str] = Field(default_factory=list)
+    corner_case_labels: list[str] = Field(default_factory=list)
+    weather: dict[str, Any] = Field(default_factory=dict)
+    traffic_density: dict[str, Any] = Field(default_factory=dict)
+    sensor_profile_name: str | None = None
+    determinism_level: str = "world_state_replay_with_carla_live_sensors"
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class RecordingReplayRunRecord(BaseModel):
+    recording_id: str
+    run_id: str
+    start_seconds: float
+    duration_seconds: float
+    sensor_mode: str = "carla_live"
+    sensor_profile_id: str
+    sensor_profile_hash: str
+    sensor_profile_snapshot: dict[str, Any] = Field(default_factory=dict)
+    preview_sensor_id: str
+    preview_sensor_snapshot: dict[str, Any] = Field(default_factory=dict)
+    fixed_delta_seconds: float
+    sensor_warmup_seconds: float = 0.0
+    timebase: str = "synchronous_fixed_delta"
+    hil_clock_mode: str = "fixed_delta"
+    output_config_summary: dict[str, Any] = Field(default_factory=dict)
+    report_config_summary: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
+
+
+class SensorProfileRecord(BaseModel):
+    sensor_profile_id: str
+    name: str
+    sensors: list[dict[str, Any]]
+    profile_hash: str
+    fixed_delta_seconds: float = 0.05
+    expected_fps: float = 20.0
+    output_mode: str = "carla_live"
+    hil_output_mode: str = "camera_open_loop"
+    description: str = ""
+    vehicle_model: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    source_path: str | None = None
+    raw_yaml: str = ""
+    created_at: datetime
+    updated_at: datetime
+
+
+class ScenarioSourceRecord(BaseModel):
+    source_id: str
+    provider: str
+    provider_version: dict[str, Any] = Field(default_factory=dict)
+    source_path: str
+    source_hash: str
+    route_id: str | None = None
+    scenario_type: str | None = None
+    map_name: str
+    weather: dict[str, Any] = Field(default_factory=dict)
+    recommended_duration_seconds: float | None = None
+    corner_case_labels: list[str] = Field(default_factory=list)
+    compatibility_status: str = "ok"
+    compatibility_message: str | None = None
+    parsed_metadata: dict[str, Any] = Field(default_factory=dict)
+    discovered_at: datetime
+    updated_at: datetime
+
+
+class ScenarioSourceMaterializationRecord(BaseModel):
+    materialization_id: str
+    source_id: str
+    run_id: str
+    recording_id: str | None = None
+    status: str
+    sensor_profile_id: str | None = None
+    sensor_profile_hash: str | None = None
+    fixed_delta_seconds: float
+    materialization_agent_type: str
+    materialization_agent_hash: str
+    recorder_file_sha256: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error_message: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
 class GatewayRecord(BaseModel):
     gateway_id: str
     name: str

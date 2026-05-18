@@ -1,4 +1,5 @@
 import { apiRequest, postJson } from './client';
+import { listSensorProfiles as listSensorProfilesFromLibrary, updateSensorProfile } from './sensorProfiles';
 import type {
   EnvironmentPreset,
   EvaluationProfile,
@@ -31,11 +32,12 @@ export function listEnvironmentPresets() {
 }
 
 export function listSensorProfiles() {
-  return apiRequest<{ items: SensorProfile[] }>('/scenarios/sensor-profiles').then((data) => data.items);
+  return listSensorProfilesFromLibrary();
 }
 
 export function saveSensorProfile(payload: SensorProfileSavePayload) {
-  return postJson<SensorProfile>(`/scenarios/sensor-profiles/${payload.profile_name}`, payload, 'PUT');
+  const sensorProfileId = payload.sensor_profile_id ?? payload.profile_name ?? '';
+  return updateSensorProfile(sensorProfileId, payload);
 }
 
 export function listMaps() {

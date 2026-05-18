@@ -6,11 +6,11 @@ IMAGE="${CARLA_HEADED_IMAGE:-carlasim/carla:0.9.16}"
 DISPLAY_VALUE="${CARLA_HEADED_DISPLAY:-${DISPLAY:-:1}}"
 XAUTHORITY_PATH="${CARLA_HEADED_XAUTHORITY:-/run/user/1000/gdm/Xauthority}"
 RPC_PORT="${CARLA_HEADED_RPC_PORT:-2000}"
-QUALITY_LEVEL="${CARLA_HEADED_QUALITY_LEVEL:-High}"
+QUALITY_LEVEL="${CARLA_HEADED_QUALITY_LEVEL:-Medium}"
 RENDERER="${CARLA_HEADED_RENDERER:-vulkan}"
 RES_X="${CARLA_HEADED_RES_X:-1920}"
 RES_Y="${CARLA_HEADED_RES_Y:-1080}"
-WINDOW_MODE="${CARLA_HEADED_WINDOW_MODE:-windowed}"
+WINDOW_MODE="${CARLA_HEADED_WINDOW_MODE:-fullscreen}"
 EXTRA_ARGS="${CARLA_HEADED_EXTRA_ARGS:-}"
 WAIT_FOR_RPC="${CARLA_HEADED_WAIT_FOR_RPC:-1}"
 WAIT_TIMEOUT_SECONDS="${CARLA_HEADED_WAIT_TIMEOUT_SECONDS:-45}"
@@ -35,11 +35,11 @@ Options:
   --display <display>       X11 display, default :1
   --xauthority <path>       Xauthority file path
   --rpc-port <port>         CARLA RPC port, default 2000
-  --quality-level <level>   CARLA quality level, default High
+  --quality-level <level>   CARLA quality level, default Medium
   --renderer <name>         vulkan | opengl, default vulkan
   --res-x <pixels>          Window width, default 1920
   --res-y <pixels>          Window height, default 1080
-  --window-mode <mode>      fullscreen | windowed, default windowed
+  --window-mode <mode>      fullscreen | windowed, default fullscreen
   --help                    Show this help
 
 Environment overrides:

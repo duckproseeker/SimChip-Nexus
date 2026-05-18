@@ -228,6 +228,8 @@ export interface ScenarioCatalogItem {
   description: string;
   category: string;
   default_map_name: string;
+  map_selection_mode: 'fixed' | 'subset' | 'all';
+  allowed_map_names: string[];
   execution_support: 'native' | 'scenario_runner';
   execution_backend: 'native' | 'scenario_runner';
   launch_capabilities: ScenarioLaunchCapabilities;
@@ -295,6 +297,13 @@ export interface EnvironmentPreset {
 }
 
 export interface SensorProfile {
+  sensor_profile_id: string;
+  name: string;
+  profile_hash: string;
+  fixed_delta_seconds: number;
+  expected_fps: number;
+  output_mode: string;
+  hil_output_mode: string;
   profile_name: string;
   display_name: string;
   description: string;
@@ -303,15 +312,28 @@ export interface SensorProfile {
   raw_yaml: string;
   source_path: string;
   metadata: Record<string, unknown>;
+  created_at_utc: string | null;
+  updated_at_utc: string | null;
 }
 
 export interface SensorProfileSavePayload {
-  profile_name: string;
-  display_name: string;
+  sensor_profile_id?: string | null;
+  name?: string | null;
+  profile_name?: string | null;
+  display_name?: string | null;
   description: string;
   vehicle_model?: string | null;
   sensors: SensorSpec[];
   metadata: Record<string, unknown>;
+  fixed_delta_seconds?: number;
+  expected_fps?: number | null;
+  output_mode?: string;
+  hil_output_mode?: string;
+}
+
+export interface SensorProfileCopyPayload {
+  sensor_profile_id: string;
+  name?: string | null;
 }
 
 export interface MapOption {
@@ -354,6 +376,172 @@ export interface ScenarioLaunchPayload {
   timeout_seconds?: number;
   auto_start?: boolean;
   metadata?: RunMetadata;
+}
+
+export interface ScenarioRecording {
+  recording_id: string;
+  name: string | null;
+  source_run_id: string;
+  source_run_status: string | null;
+  source_id: string | null;
+  source_provider: string | null;
+  materialization_id: string | null;
+  source_type: string | null;
+  source_ref: string | null;
+  scenario_name: string;
+  map_name: string;
+  carla_version: string | null;
+  map_version: string | null;
+  recorder_log_path: string;
+  recorder_file_size_bytes: number;
+  recorder_file_sha256: string | null;
+  duration_seconds: number | null;
+  recommended_start_seconds: number | null;
+  recommended_duration_seconds: number | null;
+  tags: string[];
+  corner_case_labels: string[];
+  weather: Record<string, unknown>;
+  traffic_density: Record<string, unknown>;
+  sensor_profile_name: string | null;
+  determinism_level: string;
+  notes: string | null;
+  created_at_utc: string | null;
+  updated_at_utc: string | null;
+}
+
+export interface RecordingReplayRun {
+  recording_id: string;
+  run_id: string;
+  start_seconds: number;
+  duration_seconds: number;
+  sensor_mode: 'carla_live';
+  sensor_profile_id: string;
+  sensor_profile_hash: string;
+  sensor_profile_snapshot: Record<string, unknown>;
+  preview_sensor_id: string;
+  preview_sensor_snapshot: Record<string, unknown>;
+  fixed_delta_seconds: number;
+  sensor_warmup_seconds: number;
+  timebase: string;
+  hil_clock_mode: string;
+  output_config_summary: Record<string, unknown>;
+  report_config_summary: Record<string, unknown>;
+  created_at_utc: string | null;
+}
+
+export interface ScenarioRecordingList {
+  recordings: ScenarioRecording[];
+}
+
+export interface ScenarioRecordingDetail {
+  recording: ScenarioRecording;
+  replay_runs: RecordingReplayRun[];
+}
+
+export interface ScenarioRecordingPublishPayload {
+  run_id: string;
+  tags?: string[];
+  corner_case_labels?: string[];
+  determinism_level?: string;
+  notes?: string | null;
+}
+
+export interface ScenarioRecordingLaunchPayload {
+  sensor_profile_id: string;
+  preview_sensor_id?: string | null;
+  start_seconds: number;
+  duration_seconds: number;
+  sensor_mode: 'carla_live';
+  fixed_delta_seconds?: number | null;
+  sensor_warmup_seconds: number;
+  timebase: string;
+  hil_clock_mode: string;
+  output_config_summary?: Record<string, unknown>;
+  report_config_summary?: Record<string, unknown>;
+  auto_start: boolean;
+  metadata?: RunMetadata;
+}
+
+export interface ScenarioRecordingLaunchResult {
+  recording: ScenarioRecording;
+  run: RunRecord;
+}
+
+export interface ScenarioSourceMaterializationSummary {
+  status: string;
+  last_run_id: string | null;
+  last_recording_id: string | null;
+  last_error: string | null;
+  last_materialized_at_utc: string | null;
+  sensor_profile_hash: string | null;
+  fixed_delta_seconds: number | null;
+}
+
+export interface ScenarioSource {
+  source_id: string;
+  provider: string;
+  provider_version: Record<string, unknown>;
+  source_path: string;
+  source_hash: string;
+  route_id: string | null;
+  scenario_type: string | null;
+  map_name: string;
+  weather: Record<string, unknown>;
+  recommended_duration_seconds: number | null;
+  corner_case_labels: string[];
+  compatibility_status: string;
+  compatibility_message: string | null;
+  parsed_metadata: Record<string, unknown>;
+  materialization: ScenarioSourceMaterializationSummary;
+  discovered_at_utc: string | null;
+  updated_at_utc: string | null;
+}
+
+export interface ScenarioSourceMaterialization {
+  materialization_id: string;
+  source_id: string;
+  run_id: string;
+  recording_id: string | null;
+  status: string;
+  sensor_profile_id: string | null;
+  sensor_profile_hash: string | null;
+  fixed_delta_seconds: number;
+  materialization_agent_type: string;
+  materialization_agent_hash: string;
+  recorder_file_sha256: string | null;
+  started_at_utc: string | null;
+  completed_at_utc: string | null;
+  error_message: string | null;
+  created_at_utc: string | null;
+  updated_at_utc: string | null;
+}
+
+export interface ScenarioSourceList {
+  sources: ScenarioSource[];
+}
+
+export interface ScenarioSourceDetail {
+  source: ScenarioSource;
+  materializations: ScenarioSourceMaterialization[];
+}
+
+export interface ScenarioSourceLaunchRecordingPayload {
+  sensor_profile_name: string;
+  fixed_delta_seconds: number;
+  auto_start: boolean;
+  materialization_agent_type: 'route_follower';
+  metadata?: RunMetadata;
+}
+
+export interface ScenarioSourceLaunchRecordingResult {
+  source: ScenarioSource;
+  materialization: ScenarioSourceMaterialization;
+  run: RunRecord;
+}
+
+export interface ScenarioSourceRescanResult {
+  sources: ScenarioSource[];
+  source_count: number;
 }
 
 export interface ProjectRecord {

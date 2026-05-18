@@ -8,7 +8,10 @@ import { ExecutionDetailPage } from '../pages/executions/ExecutionDetailPage';
 import { ExecutionsPage } from '../pages/executions/ExecutionsPage';
 import { ProjectsPage } from '../pages/projects/ProjectsPage';
 import { ReportsPage } from '../pages/reports/ReportsPage';
+import { ScenarioRecordingsPage } from '../pages/scenario-recordings/ScenarioRecordingsPage';
+import { ScenarioSourcesPage } from '../pages/scenario-sources/ScenarioSourcesPage';
 import { ScenarioSetsPage } from '../pages/scenario-sets/ScenarioSetsPage';
+import { SensorProfilesPage } from '../pages/sensor-profiles/SensorProfilesPage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { StudioPage } from '../pages/studio/StudioPage';
 
@@ -33,6 +36,9 @@ const router = createBrowserRouter(
         { path: 'projects', element: <ProjectsPage /> },
         { path: 'benchmarks', element: <BenchmarksPage /> },
         { path: 'scenario-sets', element: <ScenarioSetsPage /> },
+        { path: 'scenario-sources', element: <ScenarioSourcesPage /> },
+        { path: 'scenario-recordings', element: <ScenarioRecordingsPage /> },
+        { path: 'sensor-profiles', element: <SensorProfilesPage /> },
         { path: 'runs', element: <Navigate to="/executions" replace /> },
         { path: 'runs/:runId', element: <LegacyRunRedirect /> },
         { path: 'executions', element: <ExecutionsPage /> },

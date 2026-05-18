@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -99,6 +100,74 @@ def test_stop_pipeline_preserves_host_carla_for_manual_stop_demo(tmp_path: Path)
     ]
 
 
+def test_command_env_includes_recorder_replay_context(tmp_path: Path) -> None:
+    orchestrator = HilRuntimeOrchestrator(build_settings(tmp_path))
+    run = SimpleNamespace(
+        hil_config={"mode": "camera_open_loop", "gateway_id": "pi-gateway-1"},
+        scenario_name="town10_autonomous_demo",
+        map_name="Town10HD_Opt",
+        scenario_source={
+            "launch_mode": "carla_recorder_replay",
+            "recording_id": "rec_001",
+            "source_run_id": "run_source",
+            "recorder_log_path": "/tmp/source.log",
+            "replay_start_seconds": 3.0,
+            "replay_duration_seconds": 12.0,
+            "replay_fixed_delta_seconds": 0.05,
+            "replay_sensor_mode": "carla_live",
+            "sensor_profile_id": "front_rgb",
+            "sensor_profile_hash": "hash-front-rgb",
+            "sensor_profile_name": "front_rgb",
+            "preview_sensor_id": "FrontRGB",
+            "preview_sensor_snapshot": {
+                "id": "FrontRGB",
+                "type": "sensor.camera.rgb",
+                "x": 1.5,
+                "z": 1.7,
+                "width": 1920,
+                "height": 1080,
+                "fov": 90.0,
+            },
+            "sensor_warmup_seconds": 1.5,
+            "timebase": "synchronous_fixed_delta",
+            "hil_clock_mode": "fixed_delta",
+        },
+    )
+    descriptor = SimpleNamespace(
+        termination=SimpleNamespace(timeout_seconds=12, success_condition="timeout"),
+        sync=SimpleNamespace(fixed_delta_seconds=0.05),
+        weather=SimpleNamespace(preset="ClearNoon"),
+        sensors=SimpleNamespace(profile_name="fallback_profile"),
+    )
+
+    env = orchestrator._build_command_env("run_replay", run, descriptor)
+
+    assert env["DUCKPARK_HIL_REPLAY_MODE"] == "carla_recorder_replay"
+    assert env["DUCKPARK_HIL_RECORDING_ID"] == "rec_001"
+    assert env["DUCKPARK_HIL_RECORDING_SOURCE_RUN_ID"] == "run_source"
+    assert env["DUCKPARK_HIL_REPLAY_LOG_PATH"] == "/tmp/source.log"
+    assert env["DUCKPARK_HIL_REPLAY_START_SECONDS"] == "3.0"
+    assert env["DUCKPARK_HIL_REPLAY_DURATION_SECONDS"] == "12.0"
+    assert env["DUCKPARK_HIL_REPLAY_FIXED_DELTA_SECONDS"] == "0.05"
+    assert env["DUCKPARK_HIL_REPLAY_SENSOR_MODE"] == "carla_live"
+    assert env["DUCKPARK_HIL_SENSOR_PROFILE_ID"] == "front_rgb"
+    assert env["DUCKPARK_HIL_SENSOR_PROFILE_HASH"] == "hash-front-rgb"
+    assert env["DUCKPARK_HIL_PREVIEW_SENSOR_ID"] == "FrontRGB"
+    assert json.loads(env["DUCKPARK_HIL_PREVIEW_SENSOR_JSON"]) == {
+        "id": "FrontRGB",
+        "type": "sensor.camera.rgb",
+        "x": 1.5,
+        "z": 1.7,
+        "width": 1920,
+        "height": 1080,
+        "fov": 90.0,
+    }
+    assert env["DUCKPARK_HIL_REPLAY_WARMUP_SECONDS"] == "1.5"
+    assert env["DUCKPARK_HIL_REPLAY_TIMEBASE"] == "synchronous_fixed_delta"
+    assert env["DUCKPARK_HIL_CLOCK_MODE"] == "fixed_delta"
+    assert env["DUCKPARK_HIL_SENSOR_PROFILE_NAME"] == "front_rgb"
+
+
 def test_start_pipeline_skips_all_sidecars_when_gateway_not_selected(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -129,7 +198,7 @@ def test_start_pipeline_skips_all_sidecars_when_gateway_not_selected(
             HilRuntimeStep("host_carla", "Host CARLA", "echo start-host", "echo stop-host"),
             HilRuntimeStep(
                 "host_display",
-                "Host Native Follow Display",
+                "Host OpenCV Sensor Preview",
                 "echo start-display",
                 "echo stop-display",
             ),
@@ -165,7 +234,7 @@ def test_start_pipeline_skips_all_sidecars_when_gateway_not_selected(
     assert recorded_events[0] == (
         "run_test",
         "HIL_RUNTIME_DEGRADED",
-        "当前 run 未选择树莓派网关，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角",
+        "当前 run 未选择树莓派网关，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览",
         {
             "gateway_id": None,
             "hil_mode": "camera_open_loop",
@@ -182,6 +251,73 @@ def test_start_pipeline_skips_all_sidecars_when_gateway_not_selected(
             "gateway_id": None,
             "hil_mode": "camera_open_loop",
             "reason_code": "gateway_not_selected",
+        },
+        EventLevel.INFO,
+    ) in recorded_events
+
+
+def test_start_pipeline_skips_host_carla_for_recorder_replay(monkeypatch, tmp_path: Path) -> None:
+    recorded_events: list[tuple[str, str, str, dict[str, object], EventLevel]] = []
+    recorded_commands: list[tuple[str, str, str]] = []
+
+    orchestrator = HilRuntimeOrchestrator(
+        build_settings(tmp_path),
+        event_callback=lambda run_id, event_type, message, **kwargs: recorded_events.append(
+            (
+                run_id,
+                event_type,
+                message,
+                kwargs.get("payload", {}),
+                kwargs.get("level", EventLevel.INFO),
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "_resolve_steps",
+        lambda: [
+            HilRuntimeStep("host_carla", "Host CARLA", "echo start-host", "echo stop-host"),
+            HilRuntimeStep(
+                "host_display",
+                "Host OpenCV Sensor Preview",
+                "echo start-display",
+                "echo stop-display",
+            ),
+        ],
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "_run_shell_command",
+        lambda run_id, step, command, env, phase: recorded_commands.append(
+            (step.step_id, command, phase)
+        ),
+    )
+    run = SimpleNamespace(
+        hil_config={"mode": "camera_open_loop"},
+        scenario_name="free_drive_sensor_collection",
+        map_name="Town10HD_Opt",
+        scenario_source={"launch_mode": "carla_recorder_replay", "sensor_profile_id": "front_rgb"},
+    )
+    descriptor = SimpleNamespace(
+        termination=SimpleNamespace(timeout_seconds=10, success_condition="timeout"),
+        sync=SimpleNamespace(fixed_delta_seconds=0.05),
+        weather=SimpleNamespace(preset="ClearNoon"),
+    )
+
+    started_steps = orchestrator.start_pipeline("run_replay", run, descriptor)
+
+    assert [step.step_id for step in started_steps] == ["host_display"]
+    assert recorded_commands == [("host_display", "echo start-display", "start")]
+    assert (
+        "run_replay",
+        "HIL_RUNTIME_STEP_SKIPPED",
+        "Recorder replay 已由 native runtime 管理 CARLA，已跳过 Host CARLA 自动拉起",
+        {
+            "step_id": "host_carla",
+            "gateway_id": None,
+            "hil_mode": "camera_open_loop",
+            "reason_code": "gateway_not_selected",
+            "carla_host_managed_by_replay": True,
         },
         EventLevel.INFO,
     ) in recorded_events
@@ -230,7 +366,7 @@ def test_start_pipeline_skips_all_sidecars_when_gateway_unreachable(
             HilRuntimeStep("host_carla", "Host CARLA", "echo start-host", "echo stop-host"),
             HilRuntimeStep(
                 "host_display",
-                "Host Native Follow Display",
+                "Host OpenCV Sensor Preview",
                 "echo start-display",
                 "echo stop-display",
             ),
@@ -266,7 +402,7 @@ def test_start_pipeline_skips_all_sidecars_when_gateway_unreachable(
     run_id, event_type, message, payload, level = recorded_events[0]
     assert run_id == "run_test"
     assert event_type == "HIL_RUNTIME_DEGRADED"
-    assert message == "树莓派网关当前不可达，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角"
+    assert message == "树莓派网关当前不可达，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览"
     assert level == EventLevel.WARNING
     assert payload["gateway_id"] == "pi-gateway-1"
     assert payload["gateway_record_status"] == "READY"
@@ -286,9 +422,7 @@ def test_start_pipeline_skips_all_sidecars_when_gateway_unreachable(
     ) in recorded_events
 
 
-def test_start_pipeline_starts_sidecars_when_gateway_ready(
-    monkeypatch, tmp_path: Path
-) -> None:
+def test_start_pipeline_starts_sidecars_when_gateway_ready(monkeypatch, tmp_path: Path) -> None:
     settings = build_settings(tmp_path)
     save_gateway(settings, gateway_id="pi-gateway-1")
     recorded_commands: list[tuple[str, str, str]] = []
@@ -316,7 +450,7 @@ def test_start_pipeline_starts_sidecars_when_gateway_ready(
             HilRuntimeStep("host_carla", "Host CARLA", "echo start-host", "echo stop-host"),
             HilRuntimeStep(
                 "host_display",
-                "Host Native Follow Display",
+                "Host OpenCV Sensor Preview",
                 "echo start-display",
                 "echo stop-display",
             ),

@@ -7,14 +7,17 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes_benchmarks import router as benchmarks_router
 from app.api.routes_captures import router as captures_router
+from app.api.routes_carla import router as carla_router
 from app.api.routes_devices import router as devices_router
 from app.api.routes_gateways import router as gateways_router
 from app.api.routes_projects import router as projects_router
 from app.api.routes_reports import router as reports_router
 from app.api.routes_runs import router as runs_router
+from app.api.routes_scenario_recordings import router as scenario_recordings_router
+from app.api.routes_scenario_sources import router as scenario_sources_router
 from app.api.routes_scenarios import router as scenarios_router
+from app.api.routes_sensor_profiles import router as sensor_profiles_router
 from app.api.routes_system import router as system_router
-from app.api.routes_carla import router as carla_router
 from app.api.routes_ui import router as ui_router
 from app.core.logging import setup_logging
 
@@ -51,6 +54,9 @@ app.include_router(runs_router)
 app.include_router(projects_router)
 app.include_router(benchmarks_router)
 app.include_router(scenarios_router)
+app.include_router(sensor_profiles_router)
+app.include_router(scenario_recordings_router)
+app.include_router(scenario_sources_router)
 app.include_router(gateways_router)
 app.include_router(devices_router)
 app.include_router(captures_router)

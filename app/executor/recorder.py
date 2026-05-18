@@ -28,6 +28,8 @@ class RecorderManager:
             return
 
         recorder_path = run_dir / "recorder" / f"{run_id}.log"
+        recorder_path.parent.mkdir(parents=True, exist_ok=True)
+        recorder_path.parent.chmod(0o777)
         carla_client.start_recorder(recorder_path)
         self._output_path = recorder_path
         self._active = True

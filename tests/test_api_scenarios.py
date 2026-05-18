@@ -12,6 +12,34 @@ from app.orchestrator.queue import FileCommandQueue
 from app.scenario.library import get_scenario_catalog_item
 
 
+def write_front_rgb_profile() -> None:
+    sensor_root = get_settings().sensor_profiles_root
+    sensor_root.mkdir(parents=True, exist_ok=True)
+    for profile_name, display_name in [
+        ("front_rgb", "Front RGB"),
+        ("quad_rgb_mosaic", "Quad RGB Mosaic"),
+    ]:
+        (sensor_root / f"{profile_name}.yaml").write_text(
+            "\n".join(
+                [
+                    f"profile_name: {profile_name}",
+                    f"display_name: {display_name}",
+                    "description: test rgb sensors",
+                    "sensors:",
+                    "  - id: FrontRGB",
+                    "    type: sensor.camera.rgb",
+                    "    x: 1.5",
+                    "    y: 0.0",
+                    "    z: 1.7",
+                    "    width: 1280",
+                    "    height: 720",
+                    "    fov: 90.0",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+
 def test_scenario_catalog_and_environment_endpoints() -> None:
     client = TestClient(app)
 
@@ -26,9 +54,23 @@ def test_scenario_catalog_and_environment_endpoints() -> None:
     assert any(item["scenario_id"] == "free_drive_sensor_collection" for item in items)
     assert any(item["scenario_id"] == "town01_urban_loop" for item in items)
     assert any(item["scenario_id"] == "town10_dense_flow" for item in items)
-    assert not any(item["scenario_id"] == "town06_long_route" for item in items)
-    assert not any(item["scenario_id"] == "town07_hillside_patrol" for item in items)
+    assert any(item["scenario_id"] == "town06_long_route" for item in items)
+    assert any(item["scenario_id"] == "town07_hillside_patrol" for item in items)
     assert not any(item["scenario_id"] == "osc_follow_leading_vehicle" for item in items)
+    assert all(item["map_selection_mode"] in {"fixed", "subset", "all"} for item in items)
+    assert all(isinstance(item["allowed_map_names"], list) for item in items)
+    demo_item = next(item for item in items if item["scenario_id"] == "town10_autonomous_demo")
+    suburb_item = next(item for item in items if item["scenario_id"] == "town02_suburb_cruise")
+    night_item = next(item for item in items if item["scenario_id"] == "town04_night_cruise")
+    assert demo_item["display_name"] == "自动驾驶演示"
+    assert demo_item["map_selection_mode"] == "fixed"
+    assert demo_item["allowed_map_names"] == ["Town10HD_Opt"]
+    assert suburb_item["display_name"] == "郊区巡航"
+    assert suburb_item["map_selection_mode"] == "subset"
+    assert suburb_item["allowed_map_names"] == ["Town02", "Town07"]
+    assert night_item["display_name"] == "夜间巡航"
+    assert night_item["map_selection_mode"] == "all"
+    assert night_item["allowed_map_names"] == []
 
     env_resp = client.get("/scenarios/environment-presets")
     assert env_resp.status_code == 200
@@ -171,15 +213,11 @@ def test_scenario_catalog_marks_official_runner_items_when_environment_present(
     assert catalog_resp.status_code == 200
     items = catalog_resp.json()["data"]["items"]
     assert not any(item["scenario_id"] == "osc_follow_leading_vehicle" for item in items)
-    demo_item = next(
-        item for item in items if item["scenario_id"] == "town10_autonomous_demo"
-    )
+    demo_item = next(item for item in items if item["scenario_id"] == "town10_autonomous_demo")
     free_drive_item = next(
         item for item in items if item["scenario_id"] == "free_drive_sensor_collection"
     )
-    town03_item = next(
-        item for item in items if item["scenario_id"] == "town03_intersection_sweep"
-    )
+    town03_item = next(item for item in items if item["scenario_id"] == "town03_intersection_sweep")
     hidden_official_item = get_scenario_catalog_item("osc_follow_leading_vehicle")
     assert hidden_official_item is not None
     assert hidden_official_item["web_hidden"] is True
@@ -192,26 +230,34 @@ def test_scenario_catalog_marks_official_runner_items_when_environment_present(
     assert hidden_official_item["parameter_schema"][0]["type"] == "number"
     assert hidden_official_item["parameter_schema"][0]["default"] == 2.0
     assert hidden_official_item["launch_capabilities"]["map_editable"] is False
+    assert hidden_official_item["map_selection_mode"] == "fixed"
+    assert hidden_official_item["allowed_map_names"] == ["Town01"]
     assert demo_item["default_map_name"] == "Town10HD_Opt"
     assert demo_item["descriptor_template"]["map_name"] == "Town10HD_Opt"
     assert demo_item["preset"]["map_locked"] is True
     assert demo_item["launch_capabilities"]["map_editable"] is False
     assert demo_item["launch_capabilities"]["timeout_editable"] is False
+    assert demo_item["launch_capabilities"]["sensor_profile_editable"] is True
+    assert demo_item["descriptor_template"]["sensors"]["profile_name"] == "quad_rgb_mosaic"
     assert demo_item["parameter_schema"][0]["field"] == "targetSpeedMps"
     assert demo_item["parameter_schema"][0]["default"] == 8.0
     assert demo_item["descriptor_template"]["termination"]["timeout_seconds"] == 86400
     assert demo_item["descriptor_template"]["termination"]["success_condition"] == "manual_stop"
     assert demo_item["descriptor_template"]["sync"]["enabled"] is False
     assert free_drive_item["launch_capabilities"]["map_editable"] is True
+    assert free_drive_item["map_selection_mode"] == "all"
     assert free_drive_item["launch_capabilities"]["sensor_profile_editable"] is True
     assert free_drive_item["default_map_name"] == "Town10HD_Opt"
     assert free_drive_item["descriptor_template"]["map_name"] == "Town10HD_Opt"
     assert free_drive_item["descriptor_template"]["sync"]["enabled"] is False
     assert free_drive_item["descriptor_template"]["sync"]["fixed_delta_seconds"] == 1.0 / 30.0
     assert free_drive_item["parameter_schema"][0]["field"] == "targetSpeedMps"
+    assert free_drive_item["descriptor_template"]["sensors"]["profile_name"] == "quad_rgb_mosaic"
     assert free_drive_item["descriptor_template"]["sensors"]["auto_start"] is False
     assert free_drive_item["descriptor_template"]["recorder"]["enabled"] is True
     assert town03_item["default_map_name"] == "Town03"
+    assert town03_item["map_selection_mode"] == "subset"
+    assert town03_item["allowed_map_names"] == ["Town03", "Town05", "Town10HD_Opt"]
     assert town03_item["descriptor_template"]["traffic"]["num_vehicles"] == 22
     assert town03_item["parameter_schema"][0]["field"] == "targetSpeedMps"
     assert town03_item["parameter_schema"][0]["default"] == 7.5
@@ -446,28 +492,7 @@ def test_launch_endpoint_generates_python_scenario_config_and_sensor_descriptor(
     monkeypatch.setenv("SENSOR_PROFILES_ROOT", str(tmp_path / "sensors"))
     get_settings.cache_clear()
 
-    settings = get_settings()
-    sensor_root = settings.sensor_profiles_root
-    sensor_root.mkdir(parents=True, exist_ok=True)
-    (sensor_root / "front_rgb.yaml").write_text(
-        "\n".join(
-            [
-                "profile_name: front_rgb",
-                "display_name: Front RGB",
-                "description: front rgb",
-                "sensors:",
-                "  - id: FrontRGB",
-                "    type: sensor.camera.rgb",
-                "    x: 1.5",
-                "    y: 0.0",
-                "    z: 1.7",
-                "    width: 1280",
-                "    height: 720",
-                "    fov: 90.0",
-            ]
-        ),
-        encoding="utf-8",
-    )
+    write_front_rgb_profile()
 
     client = TestClient(app)
     resp = client.post(
@@ -518,6 +543,95 @@ def test_launch_endpoint_generates_python_scenario_config_and_sensor_descriptor(
     assert spec_payload["resolved_template_params"] == {"targetSpeedMps": 7.5}
 
 
+def test_launch_endpoint_allows_subset_scene_allowed_map() -> None:
+    write_front_rgb_profile()
+
+    client = TestClient(app)
+    resp = client.post(
+        "/scenarios/launch",
+        json={
+            "scenario_id": "town02_suburb_cruise",
+            "map_name": "Town07",
+            "auto_start": False,
+        },
+    )
+
+    assert resp.status_code == 200, resp.text
+    payload = resp.json()["data"]
+    assert payload["map_name"] == "Town07"
+
+    spec_path = Path(payload["scenario_source"]["generated_spec_path"])
+    spec_payload = json.loads(spec_path.read_text(encoding="utf-8"))
+    assert spec_payload["descriptor"]["map_name"] == "Town07"
+    assert spec_payload["launch_request"]["map_name"] == "Town07"
+
+
+def test_launch_endpoint_rejects_subset_scene_disallowed_map() -> None:
+    write_front_rgb_profile()
+
+    client = TestClient(app)
+    resp = client.post(
+        "/scenarios/launch",
+        json={
+            "scenario_id": "town02_suburb_cruise",
+            "map_name": "Town03",
+            "auto_start": False,
+        },
+    )
+
+    assert resp.status_code == 422
+    assert resp.json()["detail"]["code"] == "VALIDATION_ERROR"
+    assert "不支持地图" in resp.json()["detail"]["message"]
+    assert "Town02" in resp.json()["detail"]["message"]
+    assert "Town07" in resp.json()["detail"]["message"]
+
+
+def test_launch_endpoint_fixed_scene_ignores_requested_map() -> None:
+    write_front_rgb_profile()
+
+    client = TestClient(app)
+    resp = client.post(
+        "/scenarios/launch",
+        json={
+            "scenario_id": "town10_autonomous_demo",
+            "map_name": "Town03",
+            "auto_start": False,
+        },
+    )
+
+    assert resp.status_code == 200, resp.text
+    payload = resp.json()["data"]
+    assert payload["map_name"] == "Town10HD_Opt"
+
+    spec_path = Path(payload["scenario_source"]["generated_spec_path"])
+    spec_payload = json.loads(spec_path.read_text(encoding="utf-8"))
+    assert spec_payload["descriptor"]["map_name"] == "Town10HD_Opt"
+    assert spec_payload["launch_request"]["map_name"] == "Town10HD_Opt"
+
+
+def test_launch_endpoint_all_scene_accepts_requested_map() -> None:
+    write_front_rgb_profile()
+
+    client = TestClient(app)
+    resp = client.post(
+        "/scenarios/launch",
+        json={
+            "scenario_id": "town04_night_cruise",
+            "map_name": "Town99",
+            "auto_start": False,
+        },
+    )
+
+    assert resp.status_code == 200, resp.text
+    payload = resp.json()["data"]
+    assert payload["map_name"] == "Town99"
+
+    spec_path = Path(payload["scenario_source"]["generated_spec_path"])
+    spec_payload = json.loads(spec_path.read_text(encoding="utf-8"))
+    assert spec_payload["descriptor"]["map_name"] == "Town99"
+    assert spec_payload["launch_request"]["map_name"] == "Town99"
+
+
 def test_launch_endpoint_assigns_default_hil_config_to_scenario_launch(
     tmp_path: Path, monkeypatch
 ) -> None:
@@ -530,28 +644,7 @@ def test_launch_endpoint_assigns_default_hil_config_to_scenario_launch(
     monkeypatch.setenv("SENSOR_PROFILES_ROOT", str(tmp_path / "sensors"))
     get_settings.cache_clear()
 
-    settings = get_settings()
-    sensor_root = settings.sensor_profiles_root
-    sensor_root.mkdir(parents=True, exist_ok=True)
-    (sensor_root / "front_rgb.yaml").write_text(
-        "\n".join(
-            [
-                "profile_name: front_rgb",
-                "display_name: Front RGB",
-                "description: front rgb",
-                "sensors:",
-                "  - id: FrontRGB",
-                "    type: sensor.camera.rgb",
-                "    x: 1.5",
-                "    y: 0.0",
-                "    z: 1.7",
-                "    width: 1280",
-                "    height: 720",
-                "    fov: 90.0",
-            ]
-        ),
-        encoding="utf-8",
-    )
+    write_front_rgb_profile()
 
     client = TestClient(app)
     resp = client.post(
@@ -590,28 +683,7 @@ def test_launch_endpoint_uses_template_traffic_defaults_when_request_omits_traff
     monkeypatch.setenv("SENSOR_PROFILES_ROOT", str(tmp_path / "sensors"))
     get_settings.cache_clear()
 
-    settings = get_settings()
-    sensor_root = settings.sensor_profiles_root
-    sensor_root.mkdir(parents=True, exist_ok=True)
-    (sensor_root / "front_rgb.yaml").write_text(
-        "\n".join(
-            [
-                "profile_name: front_rgb",
-                "display_name: Front RGB",
-                "description: front rgb",
-                "sensors:",
-                "  - id: FrontRGB",
-                "    type: sensor.camera.rgb",
-                "    x: 1.5",
-                "    y: 0.0",
-                "    z: 1.7",
-                "    width: 1280",
-                "    height: 720",
-                "    fov: 90.0",
-            ]
-        ),
-        encoding="utf-8",
-    )
+    write_front_rgb_profile()
 
     client = TestClient(app)
     resp = client.post(
@@ -633,7 +705,7 @@ def test_launch_endpoint_uses_template_traffic_defaults_when_request_omits_traff
     assert payload["traffic"]["num_walkers"] == 16
     assert isinstance(payload["traffic"]["seed"], int)
     assert payload["traffic"]["seed"] >= 0
-    assert payload["sensors"]["profile_name"] == "front_rgb"
+    assert payload["sensors"]["profile_name"] == "quad_rgb_mosaic"
     assert payload["scenario_source"]["launch_mode"] == "native_descriptor"
 
     spec_path = Path(payload["scenario_source"]["generated_spec_path"])
@@ -661,28 +733,7 @@ def test_launch_endpoint_uses_template_weather_defaults_when_request_omits_weath
     monkeypatch.setenv("SENSOR_PROFILES_ROOT", str(tmp_path / "sensors"))
     get_settings.cache_clear()
 
-    settings = get_settings()
-    sensor_root = settings.sensor_profiles_root
-    sensor_root.mkdir(parents=True, exist_ok=True)
-    (sensor_root / "front_rgb.yaml").write_text(
-        "\n".join(
-            [
-                "profile_name: front_rgb",
-                "display_name: Front RGB",
-                "description: front rgb",
-                "sensors:",
-                "  - id: FrontRGB",
-                "    type: sensor.camera.rgb",
-                "    x: 1.5",
-                "    y: 0.0",
-                "    z: 1.7",
-                "    width: 1280",
-                "    height: 720",
-                "    fov: 90.0",
-            ]
-        ),
-        encoding="utf-8",
-    )
+    write_front_rgb_profile()
 
     client = TestClient(app)
     resp = client.post(

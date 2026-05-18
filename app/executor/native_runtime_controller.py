@@ -12,13 +12,10 @@ from app.core.models import EventLevel, RunEvent, RunStatus
 from app.executor.carla_client import CarlaClient, CarlaTickResult
 from app.executor.hil_runtime_orchestrator import HilRuntimeOrchestrator, HilRuntimeStep
 from app.executor.recorder import RecorderManager
-from app.executor.sensor_recorder import SensorRecorderProcess, SensorRecorderResult
 from app.executor.telemetry import TelemetryCollector
 from app.scenario.native_xosc import (
     NativeCondition,
     NativeEntityAction,
-    NativeScenarioEntity,
-    NativeScenarioEvent,
     NativeScenarioPlan,
     NativeTrigger,
     build_native_descriptor_plan,
@@ -31,10 +28,6 @@ from app.storage.run_control_store import (
     RECORDER_STATUS_RUNNING,
     RECORDER_STATUS_STARTING,
     RECORDER_STATUS_STOPPED,
-    SENSOR_CAPTURE_STATUS_ERROR,
-    SENSOR_CAPTURE_STATUS_RUNNING,
-    SENSOR_CAPTURE_STATUS_STARTING,
-    SENSOR_CAPTURE_STATUS_STOPPED,
     RunControlStore,
     build_default_recorder_control,
     build_default_sensor_capture_control,
@@ -81,12 +74,13 @@ class NativeRuntimeController:
             self._emit_event(run_id, "SCENARIO_COMPLETED", "运行在执行前被取消")
             return
 
+        if self._is_recorder_replay_run(run):
+            self._execute_recorder_replay_run(run_id, run, descriptor)
+            return
+
         telemetry = TelemetryCollector(run_id, descriptor.scenario_name, descriptor.map_name)
         client: CarlaClient | None = None
-        sensor_recorder: SensorRecorderProcess | None = None
-        sensor_recording_result: SensorRecorderResult | None = None
         recorder_manager: RecorderManager | None = None
-        recorder_client: CarlaClient | None = None
         hil_started_steps: list[HilRuntimeStep] = []
         background_actor_count = 0
         spawned_actor_count = 0
@@ -173,7 +167,9 @@ class NativeRuntimeController:
                 "正在应用 world 同步配置",
                 payload={"sync_enabled": descriptor.sync.enabled},
             )
-            client.configure_world_sync(descriptor.sync.enabled, descriptor.sync.fixed_delta_seconds)
+            client.configure_world_sync(
+                descriptor.sync.enabled, descriptor.sync.fixed_delta_seconds
+            )
             if descriptor.sync.enabled:
                 client.configure_tm_sync(True)
                 self._emit_event(
@@ -211,13 +207,10 @@ class NativeRuntimeController:
                 hero_actor,
             )
 
-            recorder_manager, recorder_client = self._start_simulation_recorder(
+            recorder_manager = self._start_simulation_recorder(
                 run_id,
                 descriptor,
-            )
-            sensor_recorder, sensor_recording_result = self._start_sensor_recording_if_requested(
-                run_id,
-                descriptor,
+                client,
             )
 
             self._transition(run_id, RunStatus.RUNNING, set_started_at=True)
@@ -229,7 +222,7 @@ class NativeRuntimeController:
                     "launch_mode": str((run.scenario_source or {}).get("launch_mode") or ""),
                     "execution_backend": run.execution_backend,
                     "background_actor_count": background_actor_count,
-                    "sensor_recording_started": sensor_recording_result is not None,
+                    "sensor_recording_started": False,
                 },
             )
 
@@ -311,9 +304,7 @@ class NativeRuntimeController:
         finally:
             self._emit_event(run_id, "CLEANUP_STARTED", "native runtime 开始清理资源")
 
-            if sensor_recorder is not None:
-                self._stop_sensor_recording(run_id, sensor_recorder)
-            self._stop_simulation_recorder(run_id, recorder_manager, recorder_client)
+            self._stop_simulation_recorder(run_id, recorder_manager, client)
 
             if client is not None:
                 try:
@@ -358,6 +349,320 @@ class NativeRuntimeController:
                 )
             else:
                 self._transition(run_id, final_status, set_ended_at=True)
+
+    @staticmethod
+    def _is_recorder_replay_run(run: Any) -> bool:
+        scenario_source = run.scenario_source or {}
+        return str(scenario_source.get("launch_mode") or "").strip() == "carla_recorder_replay"
+
+    def _execute_recorder_replay_run(self, run_id: str, run: Any, descriptor: Any) -> None:
+        scenario_source = run.scenario_source or {}
+        recorder_path = Path(str(scenario_source.get("recorder_log_path") or "").strip())
+        start_seconds = float(scenario_source.get("replay_start_seconds") or 0.0)
+        duration_seconds = float(scenario_source.get("replay_duration_seconds") or 0.0)
+        fixed_delta_seconds = float(
+            scenario_source.get("replay_fixed_delta_seconds")
+            or scenario_source.get("fixed_delta_seconds")
+            or descriptor.sync.fixed_delta_seconds
+        )
+        sensor_warmup_seconds = max(0.0, float(scenario_source.get("sensor_warmup_seconds") or 0.0))
+        replay_start_seconds = max(0.0, start_seconds - sensor_warmup_seconds)
+        effective_warmup_seconds = max(0.0, start_seconds - replay_start_seconds)
+        replay_duration_seconds = duration_seconds + effective_warmup_seconds
+        replay_sensors = bool(scenario_source.get("replay_sensors", False))
+
+        telemetry = TelemetryCollector(run_id, descriptor.scenario_name, descriptor.map_name)
+        client: CarlaClient | None = None
+        hil_started_steps: list[HilRuntimeStep] = []
+        spawned_actor_count = 0
+        failure_reason: str | None = None
+        final_status = RunStatus.COMPLETED
+        last_environment_signature: dict[str, Any] | None = None
+        scenario_start_sim_time: float | None = None
+
+        try:
+            if duration_seconds <= 0:
+                raise RuntimeError("recorder replay duration_seconds must be > 0")
+            if not recorder_path.is_file():
+                raise RuntimeError(f"recorder replay log not found: {recorder_path}")
+
+            self._transition(run_id, RunStatus.STARTING)
+            self._emit_event(
+                run_id,
+                "RUN_STARTING",
+                "native runtime 开始启动 CARLA recorder replay",
+                payload={
+                    "recording_id": scenario_source.get("recording_id"),
+                    "source_run_id": scenario_source.get("source_run_id"),
+                    "recorder_log_path": str(recorder_path),
+                    "start_seconds": start_seconds,
+                    "duration_seconds": duration_seconds,
+                    "fixed_delta_seconds": fixed_delta_seconds,
+                    "sensor_profile_id": scenario_source.get("sensor_profile_id"),
+                    "sensor_profile_hash": scenario_source.get("sensor_profile_hash"),
+                    "sensor_warmup_seconds": effective_warmup_seconds,
+                    "timebase": scenario_source.get("timebase"),
+                    "hil_clock_mode": scenario_source.get("hil_clock_mode"),
+                    "sensor_mode": scenario_source.get("replay_sensor_mode") or "carla_live",
+                },
+            )
+            self._initialize_runtime_control(run_id, descriptor)
+
+            client = self._client_factory(
+                self._settings.carla_host,
+                self._settings.carla_port,
+                self._settings.carla_timeout_seconds,
+                self._settings.traffic_manager_port,
+            )
+            self._emit_event(run_id, "CARLA_CONNECTING", "正在建立 CARLA client 连接")
+            client.connect(connect_traffic_manager=False)
+            self._emit_event(run_id, "CARLA_CONNECTED", "已连接 CARLA")
+
+            self._emit_event(
+                run_id,
+                "MAP_LOADING",
+                "正在加载 recorder 来源地图",
+                payload={"requested_map_name": descriptor.map_name},
+            )
+            resolved_map_name = client.load_map(descriptor.map_name)
+            self._emit_event(
+                run_id,
+                "MAP_LOADED",
+                "地图加载完成",
+                payload={
+                    "requested_map_name": descriptor.map_name,
+                    "resolved_map_name": resolved_map_name,
+                },
+            )
+
+            self._emit_event(
+                run_id,
+                "WEATHER_APPLYING",
+                "正在应用 replay run 天气参数",
+                payload={"preset": descriptor.weather.preset},
+            )
+            client.set_weather(
+                descriptor.weather.preset,
+                overrides=descriptor.weather.to_runtime_payload(),
+            )
+            client.configure_world_sync(True, fixed_delta_seconds)
+            self._emit_event(
+                run_id,
+                "WORLD_SYNC_ENABLED",
+                "Recorder replay 强制使用同步 fixed-delta",
+                payload={"fixed_delta_seconds": fixed_delta_seconds},
+            )
+
+            replay_result = client.replay_file(
+                recorder_path,
+                start_seconds=replay_start_seconds,
+                duration_seconds=replay_duration_seconds,
+                follow_id=0,
+                replay_sensors=replay_sensors,
+            )
+            self._emit_event(
+                run_id,
+                "RECORDER_REPLAY_STARTED",
+                "CARLA recorder replay 已启动",
+                payload={
+                    "recording_id": scenario_source.get("recording_id"),
+                    "source_run_id": scenario_source.get("source_run_id"),
+                    "recorder_log_path": str(recorder_path),
+                    "start_seconds": start_seconds,
+                    "duration_seconds": duration_seconds,
+                    "replay_file_start_seconds": replay_start_seconds,
+                    "replay_file_duration_seconds": replay_duration_seconds,
+                    "sensor_warmup_seconds": effective_warmup_seconds,
+                    "replay_sensors": replay_sensors,
+                    "carla_result": replay_result,
+                },
+            )
+
+            self._wait_for_recorder_replay_ego_ready(
+                run_id,
+                client,
+                telemetry,
+                preferred_role_name="hero",
+                timeout_seconds=max(5.0, min(30.0, effective_warmup_seconds + 10.0)),
+            )
+            if effective_warmup_seconds > 0:
+                self._emit_event(
+                    run_id,
+                    "RECORDER_REPLAY_WARMUP_STARTED",
+                    "Recorder replay 进入传感器预热窗口",
+                    payload={
+                        "sensor_warmup_seconds": effective_warmup_seconds,
+                        "target_start_seconds": start_seconds,
+                    },
+                )
+                warmup_start_sim_time: float | None = None
+                while True:
+                    tick_result = client.tick()
+                    telemetry.on_tick(tick_result.frame, tick_result.sim_time)
+                    if warmup_start_sim_time is None:
+                        warmup_start_sim_time = tick_result.sim_time
+                    elapsed = max(
+                        0.0,
+                        float(tick_result.sim_time) - float(warmup_start_sim_time),
+                    )
+                    if elapsed >= effective_warmup_seconds:
+                        break
+                self._emit_event(
+                    run_id,
+                    "RECORDER_REPLAY_WARMUP_COMPLETED",
+                    "Recorder replay 传感器预热完成，开始对 HIL/viewer/report 输出目标窗口",
+                    payload={"sensor_warmup_seconds": effective_warmup_seconds},
+                )
+
+            hil_started_steps = self._hil_runtime_orchestrator.start_pipeline(
+                run_id,
+                run,
+                descriptor,
+            )
+
+            self._transition(run_id, RunStatus.RUNNING, set_started_at=True)
+            self._emit_event(
+                run_id,
+                "SCENARIO_STARTED",
+                "native runtime recorder replay 执行开始",
+                payload={
+                    "launch_mode": "carla_recorder_replay",
+                    "execution_backend": run.execution_backend,
+                    "sensor_mode": scenario_source.get("replay_sensor_mode") or "carla_live",
+                    "sensor_recording_started": False,
+                },
+            )
+
+            viewer_friendly_sleep = (
+                max(0.0, min(fixed_delta_seconds * 0.5, 0.05))
+                if bool(descriptor.debug.viewer_friendly)
+                else 0.0
+            )
+
+            while True:
+                latest = self._run_store.get(run_id)
+                if latest.stop_requested or latest.cancel_requested:
+                    self._transition(run_id, RunStatus.STOPPING)
+                    self._emit_event(run_id, "RUN_STOPPING", "recorder replay 收到停止请求")
+                    break
+
+                control_state = self._control_store.get(run_id)
+                if control_state and control_state != last_environment_signature:
+                    self._apply_environment_update(run_id, client, control_state)
+                    last_environment_signature = control_state
+
+                tick_result = client.tick()
+                telemetry.on_tick(tick_result.frame, tick_result.sim_time)
+                if scenario_start_sim_time is None:
+                    scenario_start_sim_time = tick_result.sim_time
+                scenario_elapsed_sim_time = max(
+                    0.0,
+                    float(tick_result.sim_time) - float(scenario_start_sim_time),
+                )
+                self._notify_running_heartbeat(run_id)
+
+                if scenario_elapsed_sim_time >= duration_seconds:
+                    self._emit_event(
+                        run_id,
+                        "SCENARIO_COMPLETED",
+                        "recorder replay 达到指定回放时长，正常结束",
+                        payload={"sim_elapsed_seconds": scenario_elapsed_sim_time},
+                    )
+                    break
+
+                if viewer_friendly_sleep > 0.0:
+                    time.sleep(viewer_friendly_sleep)
+
+            latest = self._run_store.get(run_id)
+            final_status = RunStatus.CANCELED if latest.cancel_requested else RunStatus.COMPLETED
+        except Exception as exc:  # noqa: BLE001
+            failure_reason = str(exc)
+            final_status = RunStatus.FAILED
+            logger.error("Recorder replay run %s failed:\n%s", run_id, traceback.format_exc())
+            self._emit_event(
+                run_id,
+                "RUN_FAILED",
+                "native runtime recorder replay 因异常失败",
+                payload={"error": failure_reason},
+                level=EventLevel.ERROR,
+            )
+        finally:
+            self._emit_event(run_id, "CLEANUP_STARTED", "native runtime 开始清理 replay 资源")
+
+            if client is not None:
+                try:
+                    spawned_actor_count = client.spawned_actor_count()
+                    client.cleanup()
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("CARLA cleanup failed for replay run %s: %s", run_id, exc)
+
+            try:
+                latest_run = self._run_store.get(run_id)
+                self._hil_runtime_orchestrator.stop_pipeline(
+                    run_id,
+                    latest_run,
+                    descriptor,
+                    hil_started_steps,
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("HIL pipeline cleanup failed for replay run %s: %s", run_id, exc)
+
+            self._emit_event(run_id, "CLEANUP_FINISHED", "native runtime replay 资源清理完成")
+
+            metrics = telemetry.finalize(
+                final_status=final_status,
+                failure_reason=failure_reason,
+                spawned_actors_count=spawned_actor_count,
+            )
+            self._artifact_store.write_metrics(metrics)
+
+            run_after = self._run_store.get(run_id)
+            if run_after.status in {
+                RunStatus.COMPLETED,
+                RunStatus.CANCELED,
+                RunStatus.FAILED,
+            }:
+                self._artifact_store.write_status(run_after)
+            elif final_status == RunStatus.FAILED:
+                self._transition(
+                    run_id,
+                    RunStatus.FAILED,
+                    error_reason=failure_reason,
+                    set_ended_at=True,
+                )
+            else:
+                self._transition(run_id, final_status, set_ended_at=True)
+
+    def _wait_for_recorder_replay_ego_ready(
+        self,
+        run_id: str,
+        client: CarlaClient,
+        telemetry: TelemetryCollector,
+        *,
+        preferred_role_name: str,
+        timeout_seconds: float,
+    ) -> None:
+        deadline = time.monotonic() + max(0.1, timeout_seconds)
+        while time.monotonic() < deadline:
+            actor = client.find_vehicle_actor_for_sensor_attachment(preferred_role_name)
+            if actor is not None:
+                role_name = str(getattr(actor, "attributes", {}).get("role_name") or "")
+                self._emit_event(
+                    run_id,
+                    "RECORDER_REPLAY_EGO_READY",
+                    "Recorder replay ego 车辆已恢复，可挂载 live sensors",
+                    payload={
+                        "actor_id": int(getattr(actor, "id", 0) or 0),
+                        "role_name": role_name,
+                    },
+                )
+                return
+            tick_result = client.tick()
+            telemetry.on_tick(tick_result.frame, tick_result.sim_time)
+
+        raise RuntimeError(
+            "recorder replay ego actor did not become ready before sensor attachment"
+        )
 
     def _resolve_plan(self, run: Any, descriptor: Any) -> NativeScenarioPlan:
         scenario_source = run.scenario_source or {}
@@ -763,114 +1068,14 @@ class NativeRuntimeController:
             },
         )
 
-    def _start_sensor_recording_if_requested(
-        self,
-        run_id: str,
-        descriptor: Any,
-    ) -> tuple[SensorRecorderProcess | None, SensorRecorderResult | None]:
-        if not getattr(descriptor.sensors, "enabled", False) or not descriptor.sensors.sensors:
-            return None, None
-        if not bool(getattr(descriptor.sensors, "auto_start", False)):
-            return None, None
-
-        self._control_store.update(
-            run_id,
-            {
-                "sensor_capture": {
-                    "status": SENSOR_CAPTURE_STATUS_STARTING,
-                    "active": False,
-                    "last_error": None,
-                }
-            },
-        )
-        recorder = SensorRecorderProcess(
-            host=self._settings.carla_host,
-            port=self._settings.carla_port,
-            timeout_seconds=self._settings.carla_timeout_seconds,
-            output_root=self._artifact_store.run_dir(run_id) / "outputs" / "sensors",
-        )
-        try:
-            result = recorder.start(descriptor)
-        except Exception as exc:  # noqa: BLE001
-            self._control_store.update(
-                run_id,
-                {
-                    "sensor_capture": {
-                        "status": SENSOR_CAPTURE_STATUS_ERROR,
-                        "active": False,
-                        "last_error": str(exc),
-                    }
-                },
-            )
-            self._emit_event(
-                run_id,
-                "SENSOR_RECORDING_FAILED",
-                "native runtime 传感器采集启动失败",
-                payload={"error": str(exc)},
-                level=EventLevel.WARNING,
-            )
-            return None, None
-
-        self._control_store.update(
-            run_id,
-            {
-                "sensor_capture": {
-                    "status": SENSOR_CAPTURE_STATUS_RUNNING,
-                    "active": True,
-                    "last_error": None,
-                }
-            },
-        )
-        self._emit_event(
-            run_id,
-            "SENSOR_RECORDING_READY",
-            "native runtime 传感器采集已开始",
-            payload={
-                "profile_name": result.profile_name,
-                "sensor_count": result.sensor_count,
-                "output_root": str(result.output_root),
-            },
-        )
-        return recorder, result
-
-    def _stop_sensor_recording(
-        self,
-        run_id: str,
-        sensor_recorder: SensorRecorderProcess,
-    ) -> None:
-        try:
-            sensor_recorder.stop()
-        except Exception as exc:  # noqa: BLE001
-            self._control_store.update(
-                run_id,
-                {
-                    "sensor_capture": {
-                        "status": SENSOR_CAPTURE_STATUS_ERROR,
-                        "active": False,
-                        "last_error": str(exc),
-                    }
-                },
-            )
-            return
-
-        self._control_store.update(
-            run_id,
-            {
-                "sensor_capture": {
-                    "status": SENSOR_CAPTURE_STATUS_STOPPED,
-                    "active": False,
-                    "last_error": None,
-                }
-            },
-        )
-
     def _start_simulation_recorder(
         self,
         run_id: str,
         descriptor: Any,
-    ) -> tuple[RecorderManager | None, CarlaClient | None]:
+        client: CarlaClient,
+    ) -> RecorderManager | None:
         if not getattr(descriptor.recorder, "enabled", False):
-            return None, None
+            return None
 
         self._control_store.update(
             run_id,
@@ -882,19 +1087,12 @@ class NativeRuntimeController:
                 }
             },
         )
-        recorder_client = self._client_factory(
-            self._settings.carla_host,
-            self._settings.carla_port,
-            self._settings.carla_timeout_seconds,
-            self._settings.traffic_manager_port,
-        )
         recorder = RecorderManager()
         try:
-            recorder_client.connect(connect_traffic_manager=False)
             recorder.start(
                 run_id,
                 descriptor,
-                recorder_client,
+                client,
                 self._artifact_store.run_dir(run_id),
             )
         except Exception as exc:  # noqa: BLE001
@@ -915,8 +1113,7 @@ class NativeRuntimeController:
                 payload={"error": str(exc)},
                 level=EventLevel.WARNING,
             )
-            recorder_client.cleanup()
-            return None, None
+            return None
 
         self._control_store.update(
             run_id,
@@ -931,18 +1128,28 @@ class NativeRuntimeController:
                 }
             },
         )
-        return recorder, recorder_client
+        self._emit_event(
+            run_id,
+            "SIMULATION_RECORDER_STARTED",
+            "CARLA recorder 已启动",
+            payload={
+                "output_path": (
+                    str(recorder.output_path) if recorder.output_path is not None else None
+                )
+            },
+        )
+        return recorder
 
     def _stop_simulation_recorder(
         self,
         run_id: str,
         recorder: RecorderManager | None,
-        recorder_client: CarlaClient | None,
+        client: CarlaClient | None,
     ) -> None:
-        if recorder is None or recorder_client is None:
+        if recorder is None or client is None:
             return
         try:
-            recorder.stop(recorder_client)
+            recorder.stop(client)
             self._control_store.update(
                 run_id,
                 {
@@ -952,6 +1159,11 @@ class NativeRuntimeController:
                         "last_error": None,
                     }
                 },
+            )
+            self._emit_event(
+                run_id,
+                "SIMULATION_RECORDER_STOPPED",
+                "CARLA recorder 已停止",
             )
         except Exception as exc:  # noqa: BLE001
             self._control_store.update(
@@ -964,8 +1176,6 @@ class NativeRuntimeController:
                     }
                 },
             )
-        finally:
-            recorder_client.cleanup()
 
     def _entity_role_name(self, plan: NativeScenarioPlan, entity_ref: str) -> str:
         for entity in plan.entities:

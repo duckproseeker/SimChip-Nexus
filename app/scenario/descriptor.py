@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class SpawnPoint(BaseModel):
@@ -144,6 +144,8 @@ class DebugConfig(BaseModel):
 
 
 class MetadataConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     author: str = "unknown"
     tags: list[str] = Field(default_factory=list)
     description: str = ""

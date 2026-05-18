@@ -99,8 +99,12 @@ class Settings:
     reports_root: Path
     report_artifacts_root: Path
     scenario_builds_root: Path
+    scenario_recordings_root: Path
+    public_scenario_sources_root: Path
     sensor_profiles_root: Path
     scenario_runner_root: Path | None
+    bench2drive_root: Path | None
+    leaderboard_root: Path | None
     hil_runtime_root: Path
     hil_runtime_workdir: Path
     hil_orchestration_enabled: bool
@@ -179,6 +183,16 @@ def get_settings() -> Settings:
         project_root / "run_data" / "scenario_builds",
         base_dir=project_root,
     )
+    scenario_recordings_root = _path_from_env(
+        "SCENARIO_RECORDINGS_ROOT",
+        project_root / "run_data" / "scenario_recordings",
+        base_dir=project_root,
+    )
+    public_scenario_sources_root = _path_from_env(
+        "PUBLIC_SCENARIO_SOURCES_ROOT",
+        project_root / "run_data" / "public_scenario_sources",
+        base_dir=project_root,
+    )
     sensor_profiles_root = _path_from_env(
         "SENSOR_PROFILES_ROOT", project_root / "configs" / "sensors", base_dir=project_root
     )
@@ -189,24 +203,30 @@ def get_settings() -> Settings:
         Path("/ros2_ws/carla_workspace/scenario_runner"),
         Path("/workspace/scenario_runner"),
     )
-    default_hil_runtime_root = (
-        project_root / "hil_runtime"
-        if (project_root / "hil_runtime").exists()
-        else project_root.parent / "hil_runtime"
+    bench2drive_root = _existing_path(
+        os.getenv("BENCH2DRIVE_ROOT"), base_dir=project_root
+    ) or _first_existing_path(
+        public_scenario_sources_root / "Bench2Drive",
+        public_scenario_sources_root / "bench2drive",
+        project_root / "external" / "Bench2Drive",
+        project_root / "external" / "bench2drive",
     )
-    default_hil_runtime_workdir = (
-        project_root
-        if default_hil_runtime_root == project_root / "hil_runtime"
-        else project_root.parent
+    leaderboard_root = _existing_path(
+        os.getenv("LEADERBOARD_ROOT"), base_dir=project_root
+    ) or _first_existing_path(
+        public_scenario_sources_root / "leaderboard",
+        project_root / "external" / "leaderboard",
+        Path("/ros2_ws/carla_workspace/leaderboard"),
+        Path("/workspace/leaderboard"),
     )
     hil_runtime_root = _path_from_env(
         "HIL_RUNTIME_ROOT",
-        default_hil_runtime_root,
+        project_root.parent / "hil_runtime",
         base_dir=project_root,
     )
     hil_runtime_workdir = _path_from_env(
         "HIL_RUNTIME_WORKDIR",
-        default_hil_runtime_workdir,
+        project_root.parent,
         base_dir=project_root,
     )
     hil_platform_base_url = os.getenv("HIL_PLATFORM_BASE_URL")
@@ -239,8 +259,12 @@ def get_settings() -> Settings:
         reports_root=reports_root,
         report_artifacts_root=report_artifacts_root,
         scenario_builds_root=scenario_builds_root,
+        scenario_recordings_root=scenario_recordings_root,
+        public_scenario_sources_root=public_scenario_sources_root,
         sensor_profiles_root=sensor_profiles_root,
         scenario_runner_root=scenario_runner_root,
+        bench2drive_root=bench2drive_root,
+        leaderboard_root=leaderboard_root,
         hil_runtime_root=hil_runtime_root,
         hil_runtime_workdir=hil_runtime_workdir,
         hil_orchestration_enabled=_bool_from_env("HIL_ORCHESTRATION_ENABLED", True),

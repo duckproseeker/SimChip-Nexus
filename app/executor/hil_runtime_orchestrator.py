@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from app.core.errors import NotFoundError
 from app.core.models import EventLevel
@@ -80,7 +82,10 @@ class HilRuntimeOrchestrator:
         if not self._settings.hil_orchestration_enabled:
             return False
         hil_config = run.hil_config or {}
-        return bool(hil_config) and str(hil_config.get("mode") or "").strip().lower() == "camera_open_loop"
+        return (
+            bool(hil_config)
+            and str(hil_config.get("mode") or "").strip().lower() == "camera_open_loop"
+        )
 
     def start_pipeline(
         self,
@@ -105,7 +110,11 @@ class HilRuntimeOrchestrator:
         if start_decision.has_restrictions() and start_decision.message:
             self._emit_event(
                 run_id,
-                "HIL_RUNTIME_DEGRADED" if start_decision.allows_any_steps() else "HIL_RUNTIME_SKIPPED",
+                (
+                    "HIL_RUNTIME_DEGRADED"
+                    if start_decision.allows_any_steps()
+                    else "HIL_RUNTIME_SKIPPED"
+                ),
                 start_decision.message,
                 payload=start_decision.payload,
                 level=start_decision.level,
@@ -169,17 +178,33 @@ class HilRuntimeOrchestrator:
     def _resolve_start_decision(self, run_id: str, run: Any) -> HilRuntimeStartDecision:
         hil_config = run.hil_config or {}
         gateway_id = str(hil_config.get("gateway_id") or "").strip()
+        scenario_source = getattr(run, "scenario_source", None) or {}
+        recorder_replay_manages_carla = (
+            str(scenario_source.get("launch_mode") or "").strip() == "carla_recorder_replay"
+        )
+        allow_host_carla = not recorder_replay_manages_carla
+        replay_payload = (
+            {"carla_host_managed_by_replay": True}
+            if recorder_replay_manages_carla
+            else {}
+        )
         if not gateway_id:
             return HilRuntimeStartDecision(
-                allow_host_carla=True,
+                allow_host_carla=allow_host_carla,
                 allow_host_display=True,
                 allow_pi_pipeline=False,
                 allow_jetson_pipeline=False,
-                message="当前 run 未选择树莓派网关，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角",
+                message=(
+                    "Recorder replay 已由 native runtime 管理 CARLA；"
+                    "当前 run 未选择树莓派网关，已跳过 Pi 注入链路并继续启动 OpenCV 预览"
+                    if recorder_replay_manages_carla
+                    else "当前 run 未选择树莓派网关，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览"
+                ),
                 payload={
                     "gateway_id": None,
                     "hil_mode": str(hil_config.get("mode") or ""),
                     "reason_code": "gateway_not_selected",
+                    **replay_payload,
                 },
                 level=EventLevel.INFO,
             )
@@ -188,14 +213,20 @@ class HilRuntimeOrchestrator:
             gateway = self._gateway_store.get(gateway_id)
         except NotFoundError:
             return HilRuntimeStartDecision(
-                allow_host_carla=True,
+                allow_host_carla=allow_host_carla,
                 allow_host_display=True,
                 allow_pi_pipeline=False,
                 allow_jetson_pipeline=False,
-                message=f"指定树莓派网关不存在，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角: {gateway_id}",
+                message=(
+                    "Recorder replay 已由 native runtime 管理 CARLA；"
+                    f"指定树莓派网关不存在，已跳过 Pi 注入链路并继续启动OpenCV 预览: {gateway_id}"
+                    if recorder_replay_manages_carla
+                    else f"指定树莓派网关不存在，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览: {gateway_id}"
+                ),
                 payload={
                     "gateway_id": gateway_id,
                     "reason_code": "gateway_not_found",
+                    **replay_payload,
                 },
                 level=EventLevel.WARNING,
             )
@@ -218,61 +249,86 @@ class HilRuntimeOrchestrator:
             "gateway_checked_at_utc": checked_at.isoformat(),
             "pi_gateway_status": pi_gateway_status,
             "configured_pi_match": gateway_matches_configured_pi(gateway, self._settings),
+            **replay_payload,
         }
 
         if not payload["configured_pi_match"]:
             return HilRuntimeStartDecision(
-                allow_host_carla=True,
+                allow_host_carla=allow_host_carla,
                 allow_host_display=True,
                 allow_pi_pipeline=False,
                 allow_jetson_pipeline=False,
-                message="选中的树莓派网关与当前平台配置的 Pi 主机不匹配，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角",
+                message=(
+                    "Recorder replay 已由 native runtime 管理 CARLA；"
+                    "选中的树莓派网关与当前平台配置的 Pi 主机不匹配，已跳过 Pi 注入链路并继续启动OpenCV 预览"
+                    if recorder_replay_manages_carla
+                    else "选中的树莓派网关与当前平台配置的 Pi 主机不匹配，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览"
+                ),
                 payload={**payload, "reason_code": "gateway_host_mismatch"},
                 level=EventLevel.WARNING,
             )
 
         if not pi_gateway_status.get("configured"):
             return HilRuntimeStartDecision(
-                allow_host_carla=True,
+                allow_host_carla=allow_host_carla,
                 allow_host_display=True,
                 allow_pi_pipeline=False,
                 allow_jetson_pipeline=False,
-                message="平台未完成树莓派链路配置，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角",
+                message=(
+                    "Recorder replay 已由 native runtime 管理 CARLA；"
+                    "平台未完成树莓派链路配置，已跳过 Pi 注入链路并继续启动OpenCV 预览"
+                    if recorder_replay_manages_carla
+                    else "平台未完成树莓派链路配置，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览"
+                ),
                 payload={**payload, "reason_code": "pi_gateway_not_configured"},
                 level=EventLevel.WARNING,
             )
 
         if not pi_gateway_status.get("reachable"):
             return HilRuntimeStartDecision(
-                allow_host_carla=True,
+                allow_host_carla=allow_host_carla,
                 allow_host_display=True,
                 allow_pi_pipeline=False,
                 allow_jetson_pipeline=False,
-                message="树莓派网关当前不可达，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角",
+                message=(
+                    "Recorder replay 已由 native runtime 管理 CARLA；"
+                    "树莓派网关当前不可达，已跳过 Pi 注入链路并继续启动OpenCV 预览"
+                    if recorder_replay_manages_carla
+                    else "树莓派网关当前不可达，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览"
+                ),
                 payload={**payload, "reason_code": "pi_gateway_unreachable"},
                 level=EventLevel.WARNING,
             )
 
         if effective_status != "READY":
             return HilRuntimeStartDecision(
-                allow_host_carla=True,
+                allow_host_carla=allow_host_carla,
                 allow_host_display=True,
                 allow_pi_pipeline=False,
                 allow_jetson_pipeline=False,
                 message=(
-                    "树莓派网关未处于 READY 状态，已跳过 Pi 注入链路并继续启动 Host CARLA / 跟随视角"
-                    f" (当前: {effective_status})"
+                    (
+                        "Recorder replay 已由 native runtime 管理 CARLA；"
+                        "树莓派网关未处于 READY 状态，已跳过 Pi 注入链路并继续启动OpenCV 预览"
+                        if recorder_replay_manages_carla
+                        else "树莓派网关未处于 READY 状态，已跳过 Pi 注入链路并继续启动 Host CARLA / OpenCV 预览"
+                    )
+                    + f" (当前: {effective_status})"
                 ),
                 payload={**payload, "reason_code": "gateway_not_ready"},
                 level=EventLevel.WARNING,
             )
 
         return HilRuntimeStartDecision(
-            allow_host_carla=True,
+            allow_host_carla=allow_host_carla,
             allow_host_display=True,
             allow_pi_pipeline=True,
             allow_jetson_pipeline=True,
-            message=None,
+            message=(
+                "Recorder replay 已由 native runtime 管理 CARLA，已跳过 Host CARLA 自动拉起"
+                if recorder_replay_manages_carla
+                else None
+            ),
             payload={**payload, "reason_code": "gateway_ready"},
             level=EventLevel.INFO,
         )
@@ -283,6 +339,8 @@ class HilRuntimeOrchestrator:
         decision: HilRuntimeStartDecision,
     ) -> str:
         if step.step_id == "host_carla":
+            if decision.payload.get("carla_host_managed_by_replay"):
+                return "Recorder replay 已由 native runtime 管理 CARLA，已跳过 Host CARLA 自动拉起"
             return "树莓派网关未就绪，已跳过 Host CARLA 自动拉起"
         if step.step_id == "pi_pipeline":
             return "树莓派网关未就绪，已跳过 Pi HDMI RTP Pipeline"
@@ -369,7 +427,7 @@ class HilRuntimeOrchestrator:
             ),
             HilRuntimeStep(
                 step_id="host_display",
-                label="Host Native Follow Display",
+                label="Host OpenCV Sensor Preview",
                 start_command=self._command_or_default(
                     self._settings.hil_host_display_start_command,
                     self._default_host_display_start_command(),
@@ -410,9 +468,11 @@ class HilRuntimeOrchestrator:
     def _should_preserve_step_on_stop(step: HilRuntimeStep, run: Any, descriptor: Any) -> bool:
         if step.step_id != "host_carla":
             return False
-        success_condition = str(
-            getattr(getattr(descriptor, "termination", None), "success_condition", "") or ""
-        ).strip().lower()
+        success_condition = (
+            str(getattr(getattr(descriptor, "termination", None), "success_condition", "") or "")
+            .strip()
+            .lower()
+        )
         if success_condition in {"manual_stop", "manual_stop_only", "user_stop"}:
             return True
         return str(getattr(run, "scenario_name", "") or "").strip() == "town10_autonomous_demo"
@@ -431,21 +491,28 @@ class HilRuntimeOrchestrator:
         return (
             "CARLA_FRONT_RGB_PREVIEW_BACKGROUND=1 "
             "bash hil_runtime/host/scripts/start_carla_front_rgb_preview.sh "
-            "--display-mode native_follow "
-            "--map-name \"$DUCKPARK_HIL_MAP_NAME\" "
+            "--display-mode sensor_preview "
+            '--map-name "$DUCKPARK_HIL_MAP_NAME" '
+            '--sensor-id "${DUCKPARK_HIL_PREVIEW_SENSOR_ID:-FrontRGB}" '
             "--no-spawn-ego-if-missing "
             "--no-enable-autopilot "
             "--traffic-vehicles 0 "
-            "--wait-for-role-seconds 90"
+            "--wait-for-role-seconds 90 "
+            "--weather-preset ''"
         )
 
     def _default_host_display_stop_command(self) -> str | None:
         if not self._settings.hil_runtime_root.exists():
             return None
         return (
-            "docker exec \"${CARLA_FRONT_RGB_PREVIEW_CONTAINER:-ros2-dev}\" "
-            "pkill -f 'python3 hil_runtime/host/scripts/carla_front_rgb_preview.py' "
-            ">/dev/null 2>&1 || true"
+            "if command -v docker >/dev/null 2>&1; then "
+            'docker exec "${CARLA_FRONT_RGB_PREVIEW_CONTAINER:-ros2-dev}" '
+            "pkill -f 'python3 [h]il_runtime/host/scripts/carla_front_rgb_preview.py' "
+            ">/dev/null 2>&1 || true; "
+            "else "
+            "pkill -f 'python3 [h]il_runtime/host/scripts/carla_front_rgb_preview.py' "
+            ">/dev/null 2>&1 || true; "
+            "fi"
         )
 
     def _build_command_env(
@@ -467,15 +534,66 @@ class HilRuntimeOrchestrator:
         env["DUCKPARK_HIL_MODE"] = str(hil_config.get("mode") or "")
         env["DUCKPARK_HIL_VIDEO_SOURCE"] = str(hil_config.get("video_source") or "")
         env["DUCKPARK_HIL_DUT_INPUT_MODE"] = str(hil_config.get("dut_input_mode") or "")
-        env["DUCKPARK_HIL_RESULT_INGEST_MODE"] = str(
-            hil_config.get("result_ingest_mode") or ""
-        )
+        env["DUCKPARK_HIL_RESULT_INGEST_MODE"] = str(hil_config.get("result_ingest_mode") or "")
         env["DUCKPARK_HIL_TIMEOUT_SECONDS"] = str(descriptor.termination.timeout_seconds)
         env["DUCKPARK_HIL_FIXED_DELTA_SECONDS"] = str(descriptor.sync.fixed_delta_seconds)
         env["DUCKPARK_HIL_WEATHER_PRESET"] = str(descriptor.weather.preset)
+        scenario_source = getattr(run, "scenario_source", None) or {}
+        if str(scenario_source.get("launch_mode") or "").strip() == "carla_recorder_replay":
+            env["DUCKPARK_HIL_REPLAY_MODE"] = "carla_recorder_replay"
+            env["DUCKPARK_HIL_RECORDING_ID"] = str(scenario_source.get("recording_id") or "")
+            env["DUCKPARK_HIL_RECORDING_SOURCE_RUN_ID"] = str(
+                scenario_source.get("source_run_id") or ""
+            )
+            env["DUCKPARK_HIL_REPLAY_LOG_PATH"] = str(
+                scenario_source.get("recorder_log_path") or ""
+            )
+            env["DUCKPARK_HIL_REPLAY_START_SECONDS"] = str(
+                scenario_source.get("replay_start_seconds") or ""
+            )
+            env["DUCKPARK_HIL_REPLAY_DURATION_SECONDS"] = str(
+                scenario_source.get("replay_duration_seconds") or ""
+            )
+            env["DUCKPARK_HIL_REPLAY_FIXED_DELTA_SECONDS"] = str(
+                scenario_source.get("replay_fixed_delta_seconds")
+                or scenario_source.get("fixed_delta_seconds")
+                or descriptor.sync.fixed_delta_seconds
+            )
+            env["DUCKPARK_HIL_REPLAY_SENSOR_MODE"] = str(
+                scenario_source.get("replay_sensor_mode") or "carla_live"
+            )
+            env["DUCKPARK_HIL_SENSOR_PROFILE_ID"] = str(
+                scenario_source.get("sensor_profile_id") or ""
+            )
+            env["DUCKPARK_HIL_SENSOR_PROFILE_HASH"] = str(
+                scenario_source.get("sensor_profile_hash") or ""
+            )
+            env["DUCKPARK_HIL_PREVIEW_SENSOR_ID"] = str(
+                scenario_source.get("preview_sensor_id") or ""
+            )
+            preview_sensor_snapshot = scenario_source.get("preview_sensor_snapshot")
+            env["DUCKPARK_HIL_PREVIEW_SENSOR_JSON"] = (
+                json.dumps(preview_sensor_snapshot, ensure_ascii=False)
+                if isinstance(preview_sensor_snapshot, dict)
+                else ""
+            )
+            env["DUCKPARK_HIL_REPLAY_WARMUP_SECONDS"] = str(
+                scenario_source.get("sensor_warmup_seconds") or "0"
+            )
+            env["DUCKPARK_HIL_REPLAY_TIMEBASE"] = str(
+                scenario_source.get("timebase") or "synchronous_fixed_delta"
+            )
+            env["DUCKPARK_HIL_CLOCK_MODE"] = str(
+                scenario_source.get("hil_clock_mode") or "fixed_delta"
+            )
+            env["DUCKPARK_HIL_SENSOR_PROFILE_NAME"] = str(
+                scenario_source.get("sensor_profile_name")
+                or scenario_source.get("sensor_profile_id")
+                or getattr(descriptor.sensors, "profile_name", None)
+                or ""
+            )
         env["DUCKPARK_HIL_PLATFORM_BASE_URL"] = (
-            self._settings.hil_platform_base_url
-            or f"http://127.0.0.1:{self._settings.api_port}"
+            self._settings.hil_platform_base_url or f"http://127.0.0.1:{self._settings.api_port}"
         )
         return env
 

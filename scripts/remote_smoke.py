@@ -141,39 +141,48 @@ def wait_for_run_event(
     )
 
 
-def wait_for_sensor_capture_evidence(
-    ctx: SmokeContext,
-    run_id: str,
-    *,
-    timeout_seconds: int,
-    min_saved_frames: int = 1,
-) -> dict[str, Any]:
-    deadline = time.monotonic() + timeout_seconds
-    last_payload: dict[str, Any] | None = None
-    while time.monotonic() < deadline:
-        _, payload = api_request(
-            ctx.base_url,
-            "GET",
-            f"/runs/{run_id}/environment",
-            timeout_seconds=ctx.timeout_seconds,
-        )
-        control_state = payload["data"]["runtime_control"]["sensor_capture"]
-        last_payload = control_state
-        saved_frames = int(control_state.get("saved_frames") or 0)
-        manifest = control_state.get("manifest")
-        sensor_outputs = control_state.get("sensor_outputs") or []
-        print(
-            f"[remote-smoke] run {run_id} sensor_capture evidence frames={saved_frames}",
-            flush=True,
-        )
-        if manifest and sensor_outputs and saved_frames >= min_saved_frames:
-            return control_state
-        time.sleep(1)
-
-    raise RuntimeError(
-        f"run {run_id} sensor capture did not produce manifest/data within {timeout_seconds}s; "
-        f"last_state={last_payload}"
+def assert_sensor_capture_disabled(ctx: SmokeContext, run_id: str) -> dict[str, Any]:
+    _, payload = api_request(
+        ctx.base_url,
+        "GET",
+        f"/runs/{run_id}/environment",
+        timeout_seconds=ctx.timeout_seconds,
     )
+    control_state = payload["data"]["runtime_control"]["sensor_capture"]
+    saved_frames = int(control_state.get("saved_frames") or 0)
+    saved_samples = int(control_state.get("saved_samples") or 0)
+    print(
+        f"[remote-smoke] run {run_id} sensor_capture status={control_state.get('status')}",
+        flush=True,
+    )
+    expected = {
+        "enabled": False,
+        "auto_start": False,
+        "desired_state": "DISABLED",
+        "status": "DISABLED",
+        "active": False,
+        "output_root": None,
+        "download_url": None,
+    }
+    mismatches = {
+        key: {"expected": expected_value, "actual": control_state.get(key)}
+        for key, expected_value in expected.items()
+        if control_state.get(key) != expected_value
+    }
+    if saved_frames != 0:
+        mismatches["saved_frames"] = {"expected": 0, "actual": saved_frames}
+    if saved_samples != 0:
+        mismatches["saved_samples"] = {"expected": 0, "actual": saved_samples}
+    if control_state.get("sensor_outputs"):
+        mismatches["sensor_outputs"] = {
+            "expected": [],
+            "actual": control_state.get("sensor_outputs"),
+        }
+    if mismatches:
+        raise RuntimeError(
+            f"run {run_id} sensor capture should be disabled, mismatches={mismatches}"
+        )
+    return control_state
 
 
 def smoke_basic(ctx: SmokeContext) -> None:
@@ -392,7 +401,7 @@ def smoke_core(ctx: SmokeContext) -> None:
     ctx.active_run_id = None
 
 
-def smoke_capture(ctx: SmokeContext) -> None:
+def smoke_capture_disabled(ctx: SmokeContext) -> None:
     expected_vehicle_count = 2
     expected_walker_count = 1
     expected_seed = 21
@@ -432,25 +441,14 @@ def smoke_capture(ctx: SmokeContext) -> None:
         "RUNNING",
         timeout_seconds=30,
     )
-    api_request(
-        ctx.base_url,
-        "POST",
-        f"/runs/{run_id}/sensor-capture/start",
-        timeout_seconds=ctx.timeout_seconds,
-    )
     wait_for_runtime_control(
         ctx,
         run_id,
         "sensor_capture",
-        "RUNNING",
-        timeout_seconds=45,
+        "DISABLED",
+        timeout_seconds=30,
     )
-    sensor_capture_state = wait_for_sensor_capture_evidence(
-        ctx,
-        run_id,
-        timeout_seconds=45,
-        min_saved_frames=1,
-    )
+    assert_sensor_capture_disabled(ctx, run_id)
     try:
         status, frame = api_request(
             ctx.base_url,
@@ -472,37 +470,6 @@ def smoke_capture(ctx: SmokeContext) -> None:
             f"[remote-smoke] viewer frame ok for {run_id} ({len(frame)} bytes)",
             flush=True,
         )
-    download_url = str(sensor_capture_state.get("download_url") or "").strip()
-    if not download_url:
-        raise RuntimeError(f"sensor capture download url is missing for {run_id}")
-    status, archive_bytes = api_request(
-        ctx.base_url,
-        "GET",
-        download_url,
-        timeout_seconds=max(ctx.timeout_seconds, 45),
-    )
-    if status != 200 or not isinstance(archive_bytes, bytes) or len(archive_bytes) == 0:
-        raise RuntimeError(
-            f"sensor capture download returned unexpected payload for {run_id}"
-        )
-    print(
-        f"[remote-smoke] sensor capture download ok for {run_id} ({len(archive_bytes)} bytes)",
-        flush=True,
-    )
-
-    api_request(
-        ctx.base_url,
-        "POST",
-        f"/runs/{run_id}/sensor-capture/stop",
-        timeout_seconds=ctx.timeout_seconds,
-    )
-    wait_for_runtime_control(
-        ctx,
-        run_id,
-        "sensor_capture",
-        "STOPPED",
-        timeout_seconds=30,
-    )
     stop_run_best_effort(ctx, run_id)
     wait_for_run_status(
         ctx,
@@ -511,7 +478,7 @@ def smoke_capture(ctx: SmokeContext) -> None:
         terminal_failures={"FAILED"},
         timeout_seconds=45,
     )
-    print(f"[remote-smoke] capture smoke completed for {run_id}", flush=True)
+    print(f"[remote-smoke] sensor-disabled smoke completed for {run_id}", flush=True)
     ctx.active_run_id = None
 
 
@@ -524,9 +491,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--mode",
-        choices=("basic", "core", "scenario", "capture"),
+        choices=("basic", "core", "scenario", "sensor-disabled", "capture"),
         default="basic",
-        help="Smoke mode, default: %(default)s",
+        help="Smoke mode. 'capture' is a legacy alias for sensor-disabled. Default: %(default)s",
     )
     parser.add_argument(
         "--timeout-seconds",
@@ -549,8 +516,8 @@ def main() -> int:
             smoke_core(ctx)
         elif args.mode == "scenario":
             smoke_scenario(ctx)
-        elif args.mode == "capture":
-            smoke_capture(ctx)
+        elif args.mode in {"sensor-disabled", "capture"}:
+            smoke_capture_disabled(ctx)
     except Exception as exc:  # noqa: BLE001
         if ctx.active_run_id is not None:
             stop_run_best_effort(ctx, ctx.active_run_id)

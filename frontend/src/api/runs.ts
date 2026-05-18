@@ -47,14 +47,6 @@ export function updateRunEnvironment(runId: string, payload: RunEnvironmentUpdat
   return postJson<RunEnvironmentState>(`/runs/${runId}/environment`, payload);
 }
 
-export function startRunSensorCapture(runId: string) {
-  return postJson<RunEnvironmentState>(`/runs/${runId}/sensor-capture/start`);
-}
-
-export function stopRunSensorCapture(runId: string) {
-  return postJson<RunEnvironmentState>(`/runs/${runId}/sensor-capture/stop`);
-}
-
 export function getRunViewer(runId: string) {
   return apiRequest<RunViewerInfo>(`/runs/${runId}/viewer`);
 }

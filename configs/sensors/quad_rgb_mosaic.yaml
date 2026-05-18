@@ -1,0 +1,53 @@
+profile_name: quad_rgb_mosaic
+display_name: 四路 RGB 拼接视角（1080p）
+description: 四路 RGB 摄像头输出 2x2 HDMI 拼接画面，每路 960x540，适合演示和采集卡录制。
+metadata:
+  source: simchip-nexus
+  category: hdmi-mosaic
+  display_layout: 2x2
+  output_resolution: 1920x1080
+sensors:
+  - id: FrontCenter
+    type: sensor.camera.rgb
+    x: 1.5
+    y: 0.0
+    z: 1.7
+    roll: 0.0
+    pitch: 0.0
+    yaw: 0.0
+    width: 960
+    height: 540
+    fov: 90.0
+  - id: FrontLeft
+    type: sensor.camera.rgb
+    x: 1.5
+    y: -0.35
+    z: 1.7
+    roll: 0.0
+    pitch: 0.0
+    yaw: -45.0
+    width: 960
+    height: 540
+    fov: 100.0
+  - id: FrontRight
+    type: sensor.camera.rgb
+    x: 1.5
+    y: 0.35
+    z: 1.7
+    roll: 0.0
+    pitch: 0.0
+    yaw: 45.0
+    width: 960
+    height: 540
+    fov: 100.0
+  - id: RearCenter
+    type: sensor.camera.rgb
+    x: -1.2
+    y: 0.0
+    z: 1.7
+    roll: 0.0
+    pitch: 0.0
+    yaw: 180.0
+    width: 960
+    height: 540
+    fov: 100.0

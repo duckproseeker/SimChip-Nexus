@@ -2,8 +2,8 @@
 set -euo pipefail
 
 CONTAINER_NAME="${CARLA_FRONT_RGB_PREVIEW_CONTAINER:-ros2-dev}"
-CONTAINER_SRC_ROOT="${CARLA_FRONT_RGB_PREVIEW_SRC_ROOT:-/ros2_ws/src}"
-CONTAINER_PLATFORM_ROOT="${CARLA_FRONT_RGB_PREVIEW_PLATFORM_ROOT:-${CONTAINER_SRC_ROOT}/SimChip-Nexus}"
+CONTAINER_PLATFORM_ROOT="${CARLA_FRONT_RGB_PREVIEW_PLATFORM_ROOT:-/ros2_ws/src/SimChip-Nexus}"
+CONTAINER_SRC_ROOT="${CARLA_FRONT_RGB_PREVIEW_SRC_ROOT:-${CONTAINER_PLATFORM_ROOT}}"
 DISPLAY_VALUE="${CARLA_FRONT_RGB_PREVIEW_DISPLAY:-:1}"
 XAUTHORITY_PATH="${CARLA_FRONT_RGB_PREVIEW_XAUTHORITY:-/run/user/1000/gdm/Xauthority}"
 PYTHONPATH_VALUE="${CARLA_FRONT_RGB_PREVIEW_PYTHONPATH:-${CONTAINER_PLATFORM_ROOT}}"
@@ -21,9 +21,9 @@ Usage:
 
 Environment overrides:
   CARLA_FRONT_RGB_PREVIEW_CONTAINER   Docker container name, default ros2-dev
-  CARLA_FRONT_RGB_PREVIEW_SRC_ROOT    Source root inside container, default /ros2_ws/src
+  CARLA_FRONT_RGB_PREVIEW_SRC_ROOT    Source root inside container, default platform root
   CARLA_FRONT_RGB_PREVIEW_PLATFORM_ROOT
-                                      Platform repo path inside container, default /ros2_ws/src/carla_web_platform
+                                      Platform repo path inside container, default /ros2_ws/src/SimChip-Nexus
   CARLA_FRONT_RGB_PREVIEW_DISPLAY     X11 display, default :1
   CARLA_FRONT_RGB_PREVIEW_XAUTHORITY  Xauthority path inside container
   CARLA_FRONT_RGB_PREVIEW_SCRIPT_PATH Preview script path relative to source root

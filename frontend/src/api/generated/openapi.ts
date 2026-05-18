@@ -610,46 +610,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/runs/{run_id}/sensor-capture/start": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 开始运行中的传感器采集
-         * @description 仅改变传感器采集状态，不影响场景运行本身。适合在需要保留真实传感器数据时手动开始采集。
-         */
-        post: operations["start_run_sensor_capture_runs__run_id__sensor_capture_start_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/runs/{run_id}/sensor-capture/stop": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 停止运行中的传感器采集
-         * @description 停止真实传感器数据落盘，但不会停止当前场景。
-         */
-        post: operations["stop_run_sensor_capture_runs__run_id__sensor_capture_stop_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/runs/{run_id}/start": {
         parameters: {
             query?: never;
@@ -702,6 +662,159 @@ export interface paths {
          * @description 返回前端运行时显示界面所需的视角列表和当前可用性。
          */
         get: operations["get_run_viewer_runs__run_id__viewer_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-recordings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 列出场景资产库 recorder 资产 */
+        get: operations["list_scenario_recordings_scenario_recordings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-recordings/from-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 从已有 recorder run 发布场景资产 */
+        post: operations["publish_scenario_recording_from_run_scenario_recordings_from_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-recordings/{recording_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取场景资产详情 */
+        get: operations["get_scenario_recording_scenario_recordings__recording_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-recordings/{recording_id}/launch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 从场景资产创建 recorder replay run */
+        post: operations["launch_scenario_recording_scenario_recordings__recording_id__launch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 列出公共 corner case 场景源 */
+        get: operations["list_scenario_sources_scenario_sources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-sources/rescan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 重新扫描公共场景源目录 */
+        post: operations["rescan_scenario_sources_scenario_sources_rescan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-sources/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取公共场景源详情 */
+        get: operations["get_scenario_source_scenario_sources__source_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-sources/{source_id}/launch-recording": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 从公共场景源创建 recorder materialization run */
+        post: operations["launch_source_recording_scenario_sources__source_id__launch_recording_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scenario-sources/{source_id}/materializations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 列出场景源 materialization 历史 */
+        get: operations["list_source_materializations_scenario_sources__source_id__materializations_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -824,6 +937,127 @@ export interface paths {
          */
         put: operations["save_sensor_profile_endpoint_scenarios_sensor_profiles__profile_name__put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sensor-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 列出 SQLite 传感器库配置 */
+        get: operations["list_sensor_profiles_sensor_profiles_get"];
+        put?: never;
+        /** 创建传感器配置 */
+        post: operations["create_sensor_profile_sensor_profiles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sensor-profiles/{sensor_profile_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取传感器配置详情 */
+        get: operations["get_sensor_profile_sensor_profiles__sensor_profile_id__get"];
+        /** 更新传感器配置 */
+        put: operations["update_sensor_profile_sensor_profiles__sensor_profile_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sensor-profiles/{sensor_profile_id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 复制传感器配置 */
+        post: operations["copy_sensor_profile_sensor_profiles__sensor_profile_id__copy_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/carla/weather": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 动态修改全局天气 */
+        put: operations["update_carla_weather_system_carla_weather_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/pi-gateway": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 查询树莓派网关运行态 */
+        get: operations["get_pi_gateway_status_system_pi_gateway_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/pi-gateway/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 手动启动树莓派网关链路 */
+        post: operations["start_pi_gateway_system_pi_gateway_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/pi-gateway/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 手动停止树莓派网关链路 */
+        post: operations["stop_pi_gateway_system_pi_gateway_stop_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1396,6 +1630,51 @@ export interface components {
             /** Updated At Utc */
             updated_at_utc: string | null;
         };
+        /** RecordingReplayRunPayload */
+        RecordingReplayRunPayload: {
+            /** Created At Utc */
+            created_at_utc: string | null;
+            /** Duration Seconds */
+            duration_seconds: number;
+            /** Fixed Delta Seconds */
+            fixed_delta_seconds: number;
+            /** Hil Clock Mode */
+            hil_clock_mode: string;
+            /** Output Config Summary */
+            output_config_summary: {
+                [key: string]: unknown;
+            };
+            /** Preview Sensor Id */
+            preview_sensor_id: string;
+            /** Preview Sensor Snapshot */
+            preview_sensor_snapshot: {
+                [key: string]: unknown;
+            };
+            /** Recording Id */
+            recording_id: string;
+            /** Report Config Summary */
+            report_config_summary: {
+                [key: string]: unknown;
+            };
+            /** Run Id */
+            run_id: string;
+            /** Sensor Mode */
+            sensor_mode: string;
+            /** Sensor Profile Hash */
+            sensor_profile_hash: string;
+            /** Sensor Profile Id */
+            sensor_profile_id: string;
+            /** Sensor Profile Snapshot */
+            sensor_profile_snapshot: {
+                [key: string]: unknown;
+            };
+            /** Sensor Warmup Seconds */
+            sensor_warmup_seconds: number;
+            /** Start Seconds */
+            start_seconds: number;
+            /** Timebase */
+            timebase: string;
+        };
         /** ReportExportRequest */
         ReportExportRequest: {
             /** Benchmark Task Id */
@@ -1816,6 +2095,429 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** ScenarioRecordingDetailPayload */
+        ScenarioRecordingDetailPayload: {
+            recording: components["schemas"]["ScenarioRecordingPayload"];
+            /** Replay Runs */
+            replay_runs?: components["schemas"]["RecordingReplayRunPayload"][];
+        };
+        /** ScenarioRecordingDetailResponse */
+        ScenarioRecordingDetailResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioRecordingDetailPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioRecordingLaunchPayload */
+        ScenarioRecordingLaunchPayload: {
+            recording: components["schemas"]["ScenarioRecordingPayload"];
+            run: components["schemas"]["RunPayload"];
+        };
+        /** ScenarioRecordingLaunchRequest */
+        ScenarioRecordingLaunchRequest: {
+            /**
+             * Auto Start
+             * @default true
+             */
+            auto_start: boolean;
+            /** Duration Seconds */
+            duration_seconds: number;
+            /** Fixed Delta Seconds */
+            fixed_delta_seconds?: number | null;
+            /**
+             * Hil Clock Mode
+             * @default fixed_delta
+             */
+            hil_clock_mode: string;
+            metadata?: components["schemas"]["ScenarioMetadataPayload"] | null;
+            /** Output Config Summary */
+            output_config_summary?: {
+                [key: string]: unknown;
+            };
+            /** Preview Sensor Id */
+            preview_sensor_id?: string | null;
+            /** Report Config Summary */
+            report_config_summary?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Sensor Mode
+             * @default carla_live
+             */
+            sensor_mode: string;
+            /** Sensor Profile Id */
+            sensor_profile_id: string;
+            /**
+             * Sensor Warmup Seconds
+             * @default 2
+             */
+            sensor_warmup_seconds: number;
+            /**
+             * Start Seconds
+             * @default 0
+             */
+            start_seconds: number;
+            /**
+             * Timebase
+             * @default synchronous_fixed_delta
+             */
+            timebase: string;
+        };
+        /** ScenarioRecordingLaunchResponse */
+        ScenarioRecordingLaunchResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioRecordingLaunchPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioRecordingListPayload */
+        ScenarioRecordingListPayload: {
+            /** Recordings */
+            recordings: components["schemas"]["ScenarioRecordingPayload"][];
+        };
+        /** ScenarioRecordingListResponse */
+        ScenarioRecordingListResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioRecordingListPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioRecordingPayload */
+        ScenarioRecordingPayload: {
+            /** Carla Version */
+            carla_version?: string | null;
+            /** Corner Case Labels */
+            corner_case_labels: string[];
+            /** Created At Utc */
+            created_at_utc: string | null;
+            /** Determinism Level */
+            determinism_level: string;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** Map Name */
+            map_name: string;
+            /** Map Version */
+            map_version?: string | null;
+            /** Materialization Id */
+            materialization_id?: string | null;
+            /** Name */
+            name: string | null;
+            /** Notes */
+            notes: string | null;
+            /** Recommended Duration Seconds */
+            recommended_duration_seconds?: number | null;
+            /** Recommended Start Seconds */
+            recommended_start_seconds?: number | null;
+            /** Recorder File Sha256 */
+            recorder_file_sha256?: string | null;
+            /** Recorder File Size Bytes */
+            recorder_file_size_bytes: number;
+            /** Recorder Log Path */
+            recorder_log_path: string;
+            /** Recording Id */
+            recording_id: string;
+            /** Scenario Name */
+            scenario_name: string;
+            /** Sensor Profile Name */
+            sensor_profile_name: string | null;
+            /** Source Id */
+            source_id?: string | null;
+            /** Source Provider */
+            source_provider?: string | null;
+            /** Source Ref */
+            source_ref?: string | null;
+            /** Source Run Id */
+            source_run_id: string;
+            /** Source Run Status */
+            source_run_status?: string | null;
+            /** Source Type */
+            source_type?: string | null;
+            /** Tags */
+            tags: string[];
+            /** Traffic Density */
+            traffic_density: {
+                [key: string]: unknown;
+            };
+            /** Updated At Utc */
+            updated_at_utc: string | null;
+            /** Weather */
+            weather: {
+                [key: string]: unknown;
+            };
+        };
+        /** ScenarioRecordingPublishRequest */
+        ScenarioRecordingPublishRequest: {
+            /** Carla Version */
+            carla_version?: string | null;
+            /** Corner Case Labels */
+            corner_case_labels?: string[];
+            /**
+             * Determinism Level
+             * @default world_state_replay_with_carla_live_sensors
+             */
+            determinism_level: string;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** Map Version */
+            map_version?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Recommended Duration Seconds */
+            recommended_duration_seconds?: number | null;
+            /** Recommended Start Seconds */
+            recommended_start_seconds?: number | null;
+            /** Run Id */
+            run_id: string;
+            /** Source Ref */
+            source_ref?: string | null;
+            /** Source Type */
+            source_type?: string | null;
+            /** Tags */
+            tags?: string[];
+        };
+        /** ScenarioRecordingResponse */
+        ScenarioRecordingResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioRecordingPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioSourceDetailPayload */
+        ScenarioSourceDetailPayload: {
+            /** Materializations */
+            materializations?: components["schemas"]["ScenarioSourceMaterializationPayload"][];
+            source: components["schemas"]["ScenarioSourcePayload"];
+        };
+        /** ScenarioSourceDetailResponse */
+        ScenarioSourceDetailResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioSourceDetailPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioSourceLaunchRecordingPayload */
+        ScenarioSourceLaunchRecordingPayload: {
+            materialization: components["schemas"]["ScenarioSourceMaterializationPayload"];
+            run: components["schemas"]["RunPayload"];
+            source: components["schemas"]["ScenarioSourcePayload"];
+        };
+        /** ScenarioSourceLaunchRecordingRequest */
+        ScenarioSourceLaunchRecordingRequest: {
+            /**
+             * Auto Start
+             * @default true
+             */
+            auto_start: boolean;
+            /**
+             * Fixed Delta Seconds
+             * @default 0.05
+             */
+            fixed_delta_seconds: number;
+            /**
+             * Materialization Agent Type
+             * @default route_follower
+             */
+            materialization_agent_type: string;
+            metadata?: components["schemas"]["ScenarioMetadataPayload"] | null;
+            /**
+             * Sensor Profile Name
+             * @default front_rgb
+             */
+            sensor_profile_name: string;
+        };
+        /** ScenarioSourceLaunchRecordingResponse */
+        ScenarioSourceLaunchRecordingResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioSourceLaunchRecordingPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioSourceListPayload */
+        ScenarioSourceListPayload: {
+            /** Sources */
+            sources: components["schemas"]["ScenarioSourcePayload"][];
+        };
+        /** ScenarioSourceListResponse */
+        ScenarioSourceListResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioSourceListPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioSourceMaterializationListResponse */
+        ScenarioSourceMaterializationListResponse: {
+            /**
+             * Data
+             * @description 业务数据
+             */
+            data?: components["schemas"]["ScenarioSourceMaterializationPayload"][] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
+        /** ScenarioSourceMaterializationPayload */
+        ScenarioSourceMaterializationPayload: {
+            /** Completed At Utc */
+            completed_at_utc: string | null;
+            /** Created At Utc */
+            created_at_utc: string | null;
+            /** Error Message */
+            error_message: string | null;
+            /** Fixed Delta Seconds */
+            fixed_delta_seconds: number;
+            /** Materialization Agent Hash */
+            materialization_agent_hash: string;
+            /** Materialization Agent Type */
+            materialization_agent_type: string;
+            /** Materialization Id */
+            materialization_id: string;
+            /** Recorder File Sha256 */
+            recorder_file_sha256: string | null;
+            /** Recording Id */
+            recording_id: string | null;
+            /** Run Id */
+            run_id: string;
+            /** Sensor Profile Hash */
+            sensor_profile_hash: string | null;
+            /** Sensor Profile Id */
+            sensor_profile_id: string | null;
+            /** Source Id */
+            source_id: string;
+            /** Started At Utc */
+            started_at_utc: string | null;
+            /** Status */
+            status: string;
+            /** Updated At Utc */
+            updated_at_utc: string | null;
+        };
+        /** ScenarioSourceMaterializationSummaryPayload */
+        ScenarioSourceMaterializationSummaryPayload: {
+            /** Fixed Delta Seconds */
+            fixed_delta_seconds?: number | null;
+            /** Last Error */
+            last_error?: string | null;
+            /** Last Materialized At Utc */
+            last_materialized_at_utc?: string | null;
+            /** Last Recording Id */
+            last_recording_id?: string | null;
+            /** Last Run Id */
+            last_run_id?: string | null;
+            /** Sensor Profile Hash */
+            sensor_profile_hash?: string | null;
+            /** Status */
+            status: string;
+        };
+        /** ScenarioSourcePayload */
+        ScenarioSourcePayload: {
+            /** Compatibility Message */
+            compatibility_message: string | null;
+            /** Compatibility Status */
+            compatibility_status: string;
+            /** Corner Case Labels */
+            corner_case_labels: string[];
+            /** Discovered At Utc */
+            discovered_at_utc: string | null;
+            /** Map Name */
+            map_name: string;
+            materialization: components["schemas"]["ScenarioSourceMaterializationSummaryPayload"];
+            /** Parsed Metadata */
+            parsed_metadata: {
+                [key: string]: unknown;
+            };
+            /** Provider */
+            provider: string;
+            /** Provider Version */
+            provider_version: {
+                [key: string]: unknown;
+            };
+            /** Recommended Duration Seconds */
+            recommended_duration_seconds: number | null;
+            /** Route Id */
+            route_id: string | null;
+            /** Scenario Type */
+            scenario_type: string | null;
+            /** Source Hash */
+            source_hash: string;
+            /** Source Id */
+            source_id: string;
+            /** Source Path */
+            source_path: string;
+            /** Updated At Utc */
+            updated_at_utc: string | null;
+            /** Weather */
+            weather: {
+                [key: string]: unknown;
+            };
+        };
+        /** ScenarioSourceRescanPayload */
+        ScenarioSourceRescanPayload: {
+            /** Source Count */
+            source_count: number;
+            /** Sources */
+            sources: components["schemas"]["ScenarioSourcePayload"][];
+        };
+        /** ScenarioSourceRescanResponse */
+        ScenarioSourceRescanResponse: {
+            /** @description 业务数据 */
+            data?: components["schemas"]["ScenarioSourceRescanPayload"] | null;
+            /** @description 错误信息 */
+            error?: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Success
+             * @description 请求是否成功
+             * @default true
+             */
+            success: boolean;
+        };
         /** SensorCaptureOutputPayload */
         SensorCaptureOutputPayload: {
             /**
@@ -1894,6 +2596,13 @@ export interface components {
             /** Worker State Path */
             worker_state_path?: string | null;
         };
+        /** SensorProfileCopyRequest */
+        SensorProfileCopyRequest: {
+            /** Name */
+            name?: string | null;
+            /** Sensor Profile Id */
+            sensor_profile_id: string;
+        };
         /** SensorProfileListPayload */
         SensorProfileListPayload: {
             /** Items */
@@ -1914,22 +2623,40 @@ export interface components {
         };
         /** SensorProfilePayload */
         SensorProfilePayload: {
+            /** Created At Utc */
+            created_at_utc?: string | null;
             /** Description */
             description: string;
             /** Display Name */
             display_name: string;
+            /** Expected Fps */
+            expected_fps: number;
+            /** Fixed Delta Seconds */
+            fixed_delta_seconds: number;
+            /** Hil Output Mode */
+            hil_output_mode: string;
             /** Metadata */
             metadata?: {
                 [key: string]: unknown;
             };
+            /** Name */
+            name: string;
+            /** Output Mode */
+            output_mode: string;
+            /** Profile Hash */
+            profile_hash: string;
             /** Profile Name */
             profile_name: string;
             /** Raw Yaml */
             raw_yaml: string;
+            /** Sensor Profile Id */
+            sensor_profile_id: string;
             /** Sensors */
             sensors: components["schemas"]["SensorSpecPayload"][];
             /** Source Path */
             source_path: string;
+            /** Updated At Utc */
+            updated_at_utc?: string | null;
             /** Vehicle Model */
             vehicle_model?: string | null;
         };
@@ -1954,13 +2681,34 @@ export interface components {
              */
             description: string;
             /** Display Name */
-            display_name: string;
+            display_name?: string | null;
+            /** Expected Fps */
+            expected_fps?: number | null;
+            /**
+             * Fixed Delta Seconds
+             * @default 0.05
+             */
+            fixed_delta_seconds: number;
+            /**
+             * Hil Output Mode
+             * @default camera_open_loop
+             */
+            hil_output_mode: string;
             /** Metadata */
             metadata?: {
                 [key: string]: unknown;
             };
+            /** Name */
+            name?: string | null;
+            /**
+             * Output Mode
+             * @default carla_live
+             */
+            output_mode: string;
             /** Profile Name */
-            profile_name: string;
+            profile_name?: string | null;
+            /** Sensor Profile Id */
+            sensor_profile_id?: string | null;
             /** Sensors */
             sensors: components["schemas"]["SensorSpecPayload"][];
             /** Vehicle Model */
@@ -3209,68 +3957,6 @@ export interface operations {
             };
         };
     };
-    start_run_sensor_capture_runs__run_id__sensor_capture_start_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunEnvironmentStateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    stop_run_sensor_capture_runs__run_id__sensor_capture_stop_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunEnvironmentStateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     start_run_runs__run_id__start_post: {
         parameters: {
             query?: never;
@@ -3351,6 +4037,291 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunViewerInfoResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_scenario_recordings_scenario_recordings_get: {
+        parameters: {
+            query?: {
+                map_name?: string | null;
+                tag?: string | null;
+                corner_case_label?: string | null;
+                determinism_level?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioRecordingListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_scenario_recording_from_run_scenario_recordings_from_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRecordingPublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioRecordingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_scenario_recording_scenario_recordings__recording_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recording_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioRecordingDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    launch_scenario_recording_scenario_recordings__recording_id__launch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recording_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRecordingLaunchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioRecordingLaunchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_scenario_sources_scenario_sources_get: {
+        parameters: {
+            query?: {
+                provider?: string | null;
+                map_name?: string | null;
+                scenario_type?: string | null;
+                corner_case_label?: string | null;
+                compatibility_status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioSourceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rescan_scenario_sources_scenario_sources_rescan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioSourceRescanResponse"];
+                };
+            };
+        };
+    };
+    get_scenario_source_scenario_sources__source_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioSourceDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    launch_source_recording_scenario_sources__source_id__launch_recording_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioSourceLaunchRecordingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioSourceLaunchRecordingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_materializations_scenario_sources__source_id__materializations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioSourceMaterializationListResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3508,6 +4479,253 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sensor_profiles_sensor_profiles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorProfileListResponse"];
+                };
+            };
+        };
+    };
+    create_sensor_profile_sensor_profiles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SensorProfileSaveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sensor_profile_sensor_profiles__sensor_profile_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sensor_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_sensor_profile_sensor_profiles__sensor_profile_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sensor_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SensorProfileSaveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copy_sensor_profile_sensor_profiles__sensor_profile_id__copy_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sensor_profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SensorProfileCopyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_carla_weather_system_carla_weather_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WeatherPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_pi_gateway_status_system_pi_gateway_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse"];
+                };
+            };
+        };
+    };
+    start_pi_gateway_system_pi_gateway_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse"];
+                };
+            };
+        };
+    };
+    stop_pi_gateway_system_pi_gateway_stop_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse"];
                 };
             };
         };

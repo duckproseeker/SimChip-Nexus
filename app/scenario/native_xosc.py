@@ -125,6 +125,7 @@ def load_native_xosc_plan(
 ) -> NativeScenarioPlan:
     root = ElementTree.parse(xosc_path).getroot()
     warnings: list[str] = []
+    _resolve_parameter_references(root, warnings)
 
     entity_index = _parse_entities(root, warnings)
     _apply_init_actions(root, entity_index, warnings)
@@ -151,6 +152,31 @@ def load_native_xosc_plan(
         stop_trigger=stop_trigger,
         warnings=tuple(warnings),
     )
+
+
+def _resolve_parameter_references(
+    root: ElementTree.Element,
+    warnings: list[str],
+) -> None:
+    declarations = {
+        str(item.attrib.get("name") or "").strip(): str(item.attrib.get("value") or "").strip()
+        for item in root.findall("./ParameterDeclarations/ParameterDeclaration")
+        if str(item.attrib.get("name") or "").strip()
+    }
+    if not declarations:
+        return
+
+    for element in root.iter():
+        for key, raw_value in list(element.attrib.items()):
+            value = str(raw_value).strip()
+            if not value.startswith("$"):
+                continue
+            parameter_name = value[1:].strip()
+            parameter_value = declarations.get(parameter_name)
+            if parameter_value is None:
+                warnings.append(f"未解析的 OpenSCENARIO 参数引用: {value}")
+                continue
+            element.set(key, parameter_value)
 
 
 def _parse_entities(
