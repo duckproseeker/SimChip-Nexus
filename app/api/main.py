@@ -19,6 +19,7 @@ from app.api.routes_scenarios import router as scenarios_router
 from app.api.routes_sensor_profiles import router as sensor_profiles_router
 from app.api.routes_system import router as system_router
 from app.api.routes_ui import router as ui_router
+from app.api.routes_pipelines import router as pipelines_router
 from app.core.logging import setup_logging
 
 setup_logging()
@@ -64,6 +65,7 @@ app.include_router(reports_router)
 app.include_router(system_router)
 app.include_router(carla_router)
 app.include_router(ui_router)
+app.include_router(pipelines_router)
 
 
 @app.get("/healthz", tags=["系统"])
