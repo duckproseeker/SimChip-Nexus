@@ -848,3 +848,72 @@ export type CreateCapturePayload = CreateCapturePayloadSchema;
 export type ReportExportPayload = ReportExportPayloadSchema;
 
 export type RerunBenchmarkTaskPayload = RerunBenchmarkTaskPayloadSchema;
+
+export interface WorkflowStepReadiness {
+  step: string;
+  label: string;
+  ready: boolean;
+  blocking_reason: string | null;
+  action_path: string | null;
+}
+
+export interface WorkflowReadiness {
+  project_id: string | null;
+  benchmark_definition_id: string | null;
+  scenario_id: string | null;
+  steps: WorkflowStepReadiness[];
+  next_step: WorkflowStepReadiness | null;
+  all_ready: boolean;
+}
+
+// Pipeline types
+
+export interface PipelineNodeDef {
+  node_id: string;
+  type: 'project' | 'scenario_config' | 'sensor_profile' | 'run' | 'report';
+  position: { x: number; y: number };
+  data: Record<string, unknown>;
+}
+
+export interface PipelineEdgeDef {
+  edge_id: string;
+  source: string;
+  source_handle: string;
+  target: string;
+  target_handle: string;
+}
+
+export interface Pipeline {
+  pipeline_id: string;
+  name: string;
+  description: string;
+  nodes: PipelineNodeDef[];
+  edges: PipelineEdgeDef[];
+  created_at_utc: string;
+  updated_at_utc: string;
+}
+
+export interface PipelineNodeState {
+  status: string;
+  run_id?: string | null;
+  error?: string | null;
+}
+
+export interface PipelineExecution {
+  execution_id: string;
+  pipeline_id: string;
+  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'STOPPED';
+  node_states: Record<string, PipelineNodeState>;
+  created_at_utc: string;
+  updated_at_utc: string;
+}
+
+export interface PipelineValidationError {
+  code: string;
+  message: string;
+}
+
+export interface PipelineValidationResult {
+  valid: boolean;
+  errors: PipelineValidationError[];
+}
