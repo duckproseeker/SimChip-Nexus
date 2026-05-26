@@ -7,8 +7,16 @@ import {
 } from '../../api/pipelines';
 import type { PipelineNodeDef, PipelineEdgeDef } from '../../api/types';
 
+const SENSOR_TYPE_MAP: Record<string, string> = {
+  sensor_camera: 'sensor.camera.rgb',
+  sensor_lidar:  'sensor.lidar.ray_cast',
+  sensor_radar:  'sensor.other.radar',
+  sensor_gnss:   'sensor.other.gnss',
+  sensor_imu:    'sensor.other.imu',
+};
+
 export function EditorToolbar() {
-  const { pipeline, nodes, edges, isDirty, markClean, setExecutionId } =
+  const { pipeline, nodes, edges, isDirty, markClean, setExecutionId, updateNodeData } =
     usePipelineStore();
   const navigate = useNavigate();
 
@@ -25,7 +33,7 @@ export function EditorToolbar() {
       source_handle: e.sourceHandle ?? '',
       target: e.target,
       target_handle: e.targetHandle ?? '',
-    })),
+    })) as PipelineEdgeDef[],
   });
 
   const handleSave = async () => {
@@ -36,6 +44,24 @@ export function EditorToolbar() {
 
   const handleRun = async () => {
     if (!pipeline) return;
+
+    // Assemble sensors from canvas sensor nodes and write into run nodes
+    const sensorNodes = nodes.filter((n) =>
+      Object.keys(SENSOR_TYPE_MAP).includes(n.type ?? '')
+    );
+    const assembledSensors = sensorNodes.map((n) => ({
+      id: n.data.sensor_id,
+      type: SENSOR_TYPE_MAP[n.type!],
+      ...n.data,
+    }));
+
+    // Write assembled_sensors into each live_run and replay_run node
+    for (const n of nodes) {
+      if (n.type === 'live_run' || n.type === 'replay_run') {
+        updateNodeData(n.id, { assembled_sensors: assembledSensors });
+      }
+    }
+
     await handleSave();
     const result = await validatePipeline(pipeline.pipeline_id);
     if (!result.valid) {

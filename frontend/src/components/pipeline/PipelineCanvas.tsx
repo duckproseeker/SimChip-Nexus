@@ -15,16 +15,32 @@ import {
 import '@xyflow/react/dist/style.css';
 import { usePipelineStore } from '../../features/pipeline/store';
 import { ProjectNode } from './nodes/ProjectNode';
-import { ScenarioConfigNode } from './nodes/ScenarioConfigNode';
-import { SensorProfileNode } from './nodes/SensorProfileNode';
-import { RunNode } from './nodes/RunNode';
 import { ReportNode } from './nodes/ReportNode';
+import { ScenarioNode } from './nodes/ScenarioNode';
+import { MapNode } from './nodes/MapNode';
+import { WeatherNode } from './nodes/WeatherNode';
+import { RecordingNode } from './nodes/RecordingNode';
+import { SensorCameraNode } from './nodes/SensorCameraNode';
+import { SensorLidarNode } from './nodes/SensorLidarNode';
+import { SensorRadarNode } from './nodes/SensorRadarNode';
+import { SensorGnssNode } from './nodes/SensorGnssNode';
+import { SensorImuNode } from './nodes/SensorImuNode';
+import { LiveRunNode } from './nodes/LiveRunNode';
+import { ReplayRunNode } from './nodes/ReplayRunNode';
 
 const NODE_TYPE_MAP = {
   project: ProjectNode,
-  scenario_config: ScenarioConfigNode,
-  sensor_profile: SensorProfileNode,
-  run: RunNode,
+  scenario: ScenarioNode,
+  map: MapNode,
+  weather: WeatherNode,
+  recording: RecordingNode,
+  sensor_camera: SensorCameraNode,
+  sensor_lidar: SensorLidarNode,
+  sensor_radar: SensorRadarNode,
+  sensor_gnss: SensorGnssNode,
+  sensor_imu: SensorImuNode,
+  live_run: LiveRunNode,
+  replay_run: ReplayRunNode,
   report: ReportNode,
 } as const;
 

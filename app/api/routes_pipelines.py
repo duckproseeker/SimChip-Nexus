@@ -111,20 +111,31 @@ def _validate_pipeline(record: PipelineRecord) -> PipelineValidationResult:
     elif len(project_nodes) > 1:
         errors.append(PipelineValidationError(code="MULTIPLE_PROJECTS", message="Pipeline must have exactly one Project node"))
 
-    # RunNode must have both scenario_config and sensor_profile_id inputs
-    run_nodes = [n for n in record.nodes if n.type == "run"]
-    for run_node in run_nodes:
+    # live_run node port validation
+    live_run_nodes = [n for n in record.nodes if n.type == "live_run"]
+    for run_node in live_run_nodes:
         incoming_handles = {e.target_handle for e in edges if e.target == run_node.node_id}
-        if "scenario_config" not in incoming_handles:
-            errors.append(PipelineValidationError(
-                code="MISSING_SCENARIO",
-                message=f"Run node {run_node.node_id} is missing a ScenarioConfig connection",
-            ))
-        if "sensor_profile_id" not in incoming_handles:
-            errors.append(PipelineValidationError(
-                code="MISSING_SENSOR",
-                message=f"Run node {run_node.node_id} is missing a SensorProfile connection",
-            ))
+        if "project" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_PROJECT", message=f"实时仿真节点 {run_node.node_id} 缺少项目连接"))
+        if "scenario" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_SCENARIO", message=f"实时仿真节点 {run_node.node_id} 缺少场景连接"))
+        if "map" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_MAP", message=f"实时仿真节点 {run_node.node_id} 缺少地图连接"))
+        if "weather" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_WEATHER", message=f"实时仿真节点 {run_node.node_id} 缺少天气连接"))
+        if "sensor" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_SENSOR", message=f"实时仿真节点 {run_node.node_id} 至少需要一个传感器"))
+
+    # replay_run node port validation
+    replay_run_nodes = [n for n in record.nodes if n.type == "replay_run"]
+    for run_node in replay_run_nodes:
+        incoming_handles = {e.target_handle for e in edges if e.target == run_node.node_id}
+        if "project" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_PROJECT", message=f"录制回放节点 {run_node.node_id} 缺少项目连接"))
+        if "recording" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_RECORDING", message=f"录制回放节点 {run_node.node_id} 缺少场景录制连接"))
+        if "sensor" not in incoming_handles:
+            errors.append(PipelineValidationError(code="MISSING_SENSOR", message=f"录制回放节点 {run_node.node_id} 至少需要一个传感器"))
 
     return PipelineValidationResult(valid=len(errors) == 0, errors=errors)
 
@@ -174,28 +185,61 @@ def _run_pipeline_async(pipeline_id: str, execution_id: str) -> None:
                 if node.type == "project":
                     ctx["project_id"] = node.data.get("project_id")
 
-                elif node.type == "scenario_config":
-                    ctx["scenario_config"] = {
-                        "scenario_name": node.data.get("scenario_name"),
-                        "map_name": node.data.get("map_name"),
-                        "weather": node.data.get("weather"),
-                        "traffic": node.data.get("traffic"),
-                        "template_params": node.data.get("template_params", {}),
-                    }
+                elif node.type == "scenario":
+                    ctx["scenario_name"] = node.data.get("scenario_name")
 
-                elif node.type == "sensor_profile":
-                    ctx["sensor_profile_id"] = node.data.get("sensor_profile_id")
+                elif node.type == "map":
+                    ctx["map_name"] = node.data.get("map_name")
 
-                elif node.type == "run":
+                elif node.type == "weather":
+                    ctx["weather"] = node.data.get("weather_preset_id") or node.data.get("weather_custom")
+
+                elif node.type == "recording":
+                    ctx["recording_id"] = node.data.get("recording_id")
+
+                elif node.type in ("sensor_camera", "sensor_lidar", "sensor_radar", "sensor_gnss", "sensor_imu"):
+                    ctx.setdefault("sensors", [])
+                    ctx["sensors"].append(node.data)  # type: ignore[union-attr]
+
+                elif node.type == "live_run":
                     from app.api.routes_runs import get_run_manager
                     run_manager = get_run_manager()
-                    scenario_cfg = ctx.get("scenario_config") or {}
+                    sensors = node.data.get("assembled_sensors") or ctx.get("sensors") or []
                     descriptor = {
-                        "scenario_name": scenario_cfg.get("scenario_name"),
-                        "map_name": scenario_cfg.get("map_name"),
-                        "weather": scenario_cfg.get("weather"),
-                        "traffic": scenario_cfg.get("traffic"),
-                        "sensor_profile_id": ctx.get("sensor_profile_id"),
+                        "scenario_name": ctx.get("scenario_name"),
+                        "map_name": ctx.get("map_name"),
+                        "weather": ctx.get("weather"),
+                        "sensors": sensors,
+                        "metadata": {
+                            "tags": [f"project:{ctx.get('project_id')}"],
+                        },
+                    }
+                    run = run_manager.create_run(descriptor=descriptor)
+                    run_manager.start_run(run.run_id)
+                    ctx["run_id"] = run.run_id
+
+                    while True:
+                        run = run_manager.get_run(run.run_id)
+                        if run.status in {RunStatus.COMPLETED, RunStatus.FAILED, RunStatus.CANCELED}:
+                            break
+                        time.sleep(2)
+
+                    execution.node_states[node_id] = {
+                        "status": run.status.value,
+                        "run_id": run.run_id,
+                    }
+                    e_store.save(execution)
+                    if run.status != RunStatus.COMPLETED:
+                        raise RuntimeError(f"Run ended with status {run.status.value}")
+                    continue
+
+                elif node.type == "replay_run":
+                    from app.api.routes_runs import get_run_manager
+                    run_manager = get_run_manager()
+                    sensors = node.data.get("assembled_sensors") or ctx.get("sensors") or []
+                    descriptor = {
+                        "recording_id": ctx.get("recording_id"),
+                        "sensors": sensors,
                         "metadata": {
                             "tags": [f"project:{ctx.get('project_id')}"],
                         },
@@ -240,7 +284,7 @@ def _run_pipeline_async(pipeline_id: str, execution_id: str) -> None:
         execution.status = PipelineExecutionStatus.COMPLETED
         e_store.save(execution)
 
-    except Exception as exc:
+    except Exception:
         execution.status = PipelineExecutionStatus.FAILED
         e_store.save(execution)
 

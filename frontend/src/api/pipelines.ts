@@ -5,6 +5,10 @@ import type {
   PipelineExecution,
   PipelineNodeDef,
   PipelineValidationResult,
+  ProjectRecord,
+  ScenarioCatalogItem,
+  EnvironmentPreset,
+  ScenarioRecording,
 } from './types';
 
 export function listPipelines(): Promise<Pipeline[]> {
@@ -53,4 +57,20 @@ export function listPipelineExecutions(pipelineId: string): Promise<PipelineExec
 
 export function stopPipelineExecution(executionId: string): Promise<void> {
   return postJson<void>(`/pipeline-executions/${executionId}/stop`);
+}
+
+export function fetchProjects(): Promise<ProjectRecord[]> {
+  return apiRequest<ProjectRecord[]>('/projects');
+}
+
+export function fetchScenarioCatalog(): Promise<ScenarioCatalogItem[]> {
+  return apiRequest<ScenarioCatalogItem[]>('/scenarios/catalog');
+}
+
+export function fetchEnvironmentPresets(): Promise<EnvironmentPreset[]> {
+  return apiRequest<EnvironmentPreset[]>('/scenarios/environment-presets');
+}
+
+export function fetchRecordings(): Promise<ScenarioRecording[]> {
+  return apiRequest<ScenarioRecording[]>('/scenario-recordings');
 }

@@ -364,7 +364,14 @@ class PipelineExecutionStatus(str, Enum):
 
 class PipelineNodeDef(BaseModel):
     node_id: str = Field(description="Unique node identifier within the pipeline")
-    type: str = Field(description="Node type: project|scenario_config|sensor_profile|run|report")
+    type: str = Field(
+        description=(
+            "Node type. Valid: project | scenario | map | weather | recording | "
+            "sensor_camera | sensor_lidar | sensor_radar | sensor_gnss | sensor_imu | "
+            "live_run | replay_run | report. "
+            "Legacy (migration warning only): scenario_config | sensor_profile | run"
+        )
+    )
     position: dict[str, float] = Field(description="Canvas position {x, y}")
     data: dict[str, Any] = Field(default_factory=dict, description="Node-specific configuration")
 
