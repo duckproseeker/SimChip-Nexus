@@ -12,3 +12,6 @@ frontend/.env
 frontend/node_modules/
 frontend/dist/
 frontend/tmp/
+docs/
+!docs/superpowers/
+.superpowers/

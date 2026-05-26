@@ -352,3 +352,55 @@ class ReportRecord(BaseModel):
     summary: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
+
+
+class PipelineExecutionStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    STOPPED = "STOPPED"
+
+
+class PipelineNodeDef(BaseModel):
+    node_id: str = Field(description="Unique node identifier within the pipeline")
+    type: str = Field(
+        description=(
+            "Node type. Valid: project | scenario | map | weather | recording | "
+            "sensor_camera | sensor_lidar | sensor_radar | sensor_gnss | sensor_imu | "
+            "live_run | replay_run | report. "
+            "Legacy (migration warning only): scenario_config | sensor_profile | run"
+        )
+    )
+    position: dict[str, float] = Field(description="Canvas position {x, y}")
+    data: dict[str, Any] = Field(default_factory=dict, description="Node-specific configuration")
+
+
+class PipelineEdgeDef(BaseModel):
+    edge_id: str = Field(description="Unique edge identifier")
+    source: str = Field(description="Source node_id")
+    source_handle: str = Field(description="Output port name on source node")
+    target: str = Field(description="Target node_id")
+    target_handle: str = Field(description="Input port name on target node")
+
+
+class PipelineRecord(BaseModel):
+    pipeline_id: str = Field(description="UUID")
+    name: str = Field(description="Human-readable pipeline name")
+    description: str = Field(default="", description="Optional description")
+    nodes: list[PipelineNodeDef] = Field(default_factory=list)
+    edges: list[PipelineEdgeDef] = Field(default_factory=list)
+    created_at: datetime = Field(description="Creation timestamp")
+    updated_at: datetime = Field(description="Last update timestamp")
+
+
+class PipelineExecutionRecord(BaseModel):
+    execution_id: str = Field(description="UUID")
+    pipeline_id: str = Field(description="Parent pipeline ID")
+    status: PipelineExecutionStatus = Field(default=PipelineExecutionStatus.PENDING)
+    node_states: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Map of node_id to {status, run_id?, error?}"
+    )
+    created_at: datetime = Field(description="Creation timestamp")
+    updated_at: datetime = Field(description="Last update timestamp")

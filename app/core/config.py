@@ -102,6 +102,8 @@ class Settings:
     scenario_recordings_root: Path
     public_scenario_sources_root: Path
     sensor_profiles_root: Path
+    pipelines_root: Path
+    pipeline_executions_root: Path
     scenario_runner_root: Path | None
     bench2drive_root: Path | None
     leaderboard_root: Path | None
@@ -196,6 +198,14 @@ def get_settings() -> Settings:
     sensor_profiles_root = _path_from_env(
         "SENSOR_PROFILES_ROOT", project_root / "configs" / "sensors", base_dir=project_root
     )
+    pipelines_root = _path_from_env(
+        "PIPELINES_ROOT", project_root / "run_data" / "pipelines", base_dir=project_root
+    )
+    pipeline_executions_root = _path_from_env(
+        "PIPELINE_EXECUTIONS_ROOT",
+        project_root / "run_data" / "pipeline_executions",
+        base_dir=project_root,
+    )
     scenario_runner_root = _existing_path(
         os.getenv("SCENARIO_RUNNER_ROOT"), base_dir=project_root
     ) or _first_existing_path(
@@ -262,6 +272,8 @@ def get_settings() -> Settings:
         scenario_recordings_root=scenario_recordings_root,
         public_scenario_sources_root=public_scenario_sources_root,
         sensor_profiles_root=sensor_profiles_root,
+        pipelines_root=pipelines_root,
+        pipeline_executions_root=pipeline_executions_root,
         scenario_runner_root=scenario_runner_root,
         bench2drive_root=bench2drive_root,
         leaderboard_root=leaderboard_root,

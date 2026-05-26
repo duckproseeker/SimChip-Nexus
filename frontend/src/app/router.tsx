@@ -1,28 +1,16 @@
-import { createBrowserRouter, Navigate, RouterProvider, useParams } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 import { AppShell } from '../components/layout/AppShell';
-import { BenchmarksPage } from '../pages/benchmarks/BenchmarksPage';
-import { DeviceDetailPage } from '../pages/devices/DeviceDetailPage';
-import { DevicesPage } from '../pages/devices/DevicesPage';
-import { ExecutionDetailPage } from '../pages/executions/ExecutionDetailPage';
-import { ExecutionsPage } from '../pages/executions/ExecutionsPage';
-import { ProjectsPage } from '../pages/projects/ProjectsPage';
-import { ReportsPage } from '../pages/reports/ReportsPage';
-import { ScenarioRecordingsPage } from '../pages/scenario-recordings/ScenarioRecordingsPage';
-import { ScenarioSourcesPage } from '../pages/scenario-sources/ScenarioSourcesPage';
-import { ScenarioSetsPage } from '../pages/scenario-sets/ScenarioSetsPage';
-import { SensorProfilesPage } from '../pages/sensor-profiles/SensorProfilesPage';
-import { SettingsPage } from '../pages/settings/SettingsPage';
-import { StudioPage } from '../pages/studio/StudioPage';
 
-function LegacyRunRedirect() {
-  const { runId = '' } = useParams();
-  return <Navigate to={runId ? `/executions/${runId}` : '/executions'} replace />;
-}
+const PipelineListPage   = lazy(() => import('../pages/pipelines/PipelineListPage'));
+const PipelineEditorPage = lazy(() => import('../pages/pipelines/PipelineEditorPage'));
+const PipelineRunPage    = lazy(() => import('../pages/pipelines/PipelineRunPage'));
 
-function LegacyGatewayRedirect() {
-  const { gatewayId = '' } = useParams();
-  return <Navigate to={gatewayId ? `/devices/${gatewayId}` : '/devices'} replace />;
+function PageLoader() {
+  return <div className="page-loader" aria-label="页面加载中" />;
 }
 
 const router = createBrowserRouter(
@@ -31,32 +19,43 @@ const router = createBrowserRouter(
       path: '/',
       element: <AppShell />,
       children: [
-        { index: true, element: <Navigate to="/projects" replace /> },
-        { path: 'overview', element: <Navigate to="/projects" replace /> },
-        { path: 'projects', element: <ProjectsPage /> },
-        { path: 'benchmarks', element: <BenchmarksPage /> },
-        { path: 'scenario-sets', element: <ScenarioSetsPage /> },
-        { path: 'scenario-sources', element: <ScenarioSourcesPage /> },
-        { path: 'scenario-recordings', element: <ScenarioRecordingsPage /> },
-        { path: 'sensor-profiles', element: <SensorProfilesPage /> },
-        { path: 'runs', element: <Navigate to="/executions" replace /> },
-        { path: 'runs/:runId', element: <LegacyRunRedirect /> },
-        { path: 'executions', element: <ExecutionsPage /> },
-        { path: 'executions/:runId', element: <ExecutionDetailPage /> },
-        { path: 'reports', element: <ReportsPage /> },
-        { path: 'gateways', element: <Navigate to="/devices" replace /> },
-        { path: 'gateways/:gatewayId', element: <LegacyGatewayRedirect /> },
-        { path: 'captures', element: <Navigate to="/devices" replace /> },
-        { path: 'captures/:captureId', element: <Navigate to="/devices" replace /> },
-        { path: 'devices', element: <DevicesPage /> },
-        { path: 'devices/:gatewayId', element: <DeviceDetailPage /> },
-        { path: 'studio', element: <StudioPage /> },
-        { path: 'settings', element: <SettingsPage /> }
-      ]
-    }
+        { index: true, element: <Navigate to="/pipelines" replace /> },
+        { path: '*', element: <Navigate to="/pipelines" replace /> },
+        {
+          path: 'pipelines',
+          element: (
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <PipelineListPage />
+              </Suspense>
+            </ErrorBoundary>
+          ),
+        },
+        {
+          path: 'pipelines/:id',
+          element: (
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <PipelineEditorPage />
+              </Suspense>
+            </ErrorBoundary>
+          ),
+        },
+        {
+          path: 'pipelines/:id/run/:eid',
+          element: (
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <PipelineRunPage />
+              </Suspense>
+            </ErrorBoundary>
+          ),
+        },
+      ],
+    },
   ],
   {
-    basename: '/ui'
+    basename: '/ui',
   }
 );
 
