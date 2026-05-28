@@ -19,6 +19,9 @@ from app.api.routes_scenario_recordings import get_scenario_recording_store
 from app.api.routes_scenario_sources import get_scenario_source_store
 from app.api.routes_sensor_profiles import get_sensor_profile_store
 from app.core.config import get_settings
+from app.storage.pipeline_execution_store import get_pipeline_execution_store
+from app.storage.pipeline_store import get_pipeline_store
+from app.storage.scenario_asset_store import get_scenario_asset_store
 
 
 @pytest.fixture(autouse=True)
@@ -85,6 +88,11 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     )
     monkeypatch.setenv("GATEWAYS_ROOT", str(project_root / "run_data" / "gateways"))
     monkeypatch.setenv("SENSOR_PROFILES_ROOT", str(project_root / "configs" / "sensors"))
+    monkeypatch.setenv("PIPELINES_ROOT", str(project_root / "run_data" / "pipelines"))
+    monkeypatch.setenv(
+        "PIPELINE_EXECUTIONS_ROOT",
+        str(project_root / "run_data" / "pipeline_executions"),
+    )
 
     get_settings.cache_clear()
     get_run_manager.cache_clear()
@@ -99,6 +107,11 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     get_scenario_recording_store.cache_clear()
     get_scenario_source_store.cache_clear()
     get_sensor_profile_store.cache_clear()
+    get_scenario_asset_store.cache_clear()
+    get_pipeline_store.cache_clear()
+    get_pipeline_execution_store.cache_clear()
+    get_pipeline_store.cache_clear()
+    get_pipeline_execution_store.cache_clear()
 
     yield
 
@@ -115,3 +128,6 @@ def reset_settings_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     get_scenario_recording_store.cache_clear()
     get_scenario_source_store.cache_clear()
     get_sensor_profile_store.cache_clear()
+    get_scenario_asset_store.cache_clear()
+    get_pipeline_store.cache_clear()
+    get_pipeline_execution_store.cache_clear()

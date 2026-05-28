@@ -354,6 +354,35 @@ class ReportRecord(BaseModel):
     updated_at: datetime
 
 
+class PortType(str, Enum):
+    SCENE = "scene"
+    SENSOR_DATA = "sensor_data"
+    STREAM = "stream"
+
+
+class NodeCategory(str, Enum):
+    SCENE_SOURCE = "scene_source"
+    ENV_OVERRIDE = "env_override"
+    SENSOR = "sensor"
+    OUTPUT = "output"
+    TERMINAL = "terminal"
+
+
+NODE_PORT_SCHEMA: dict[str, dict] = {
+    "scene_replay": {"inputs": [], "outputs": [PortType.SCENE], "category": NodeCategory.SCENE_SOURCE},
+    "env_override": {"inputs": [PortType.SCENE], "outputs": [PortType.SCENE], "category": NodeCategory.ENV_OVERRIDE},
+    "camera": {"inputs": [PortType.SCENE], "outputs": [PortType.SENSOR_DATA], "category": NodeCategory.SENSOR},
+    "lidar": {"inputs": [PortType.SCENE], "outputs": [PortType.SENSOR_DATA], "category": NodeCategory.SENSOR},
+    "radar": {"inputs": [PortType.SCENE], "outputs": [PortType.SENSOR_DATA], "category": NodeCategory.SENSOR},
+    "gnss": {"inputs": [PortType.SCENE], "outputs": [PortType.SENSOR_DATA], "category": NodeCategory.SENSOR},
+    "imu": {"inputs": [PortType.SCENE], "outputs": [PortType.SENSOR_DATA], "category": NodeCategory.SENSOR},
+    "rtp_output": {"inputs": [PortType.SENSOR_DATA], "outputs": [PortType.STREAM], "category": NodeCategory.OUTPUT},
+    "pointcloud_output": {"inputs": [PortType.SENSOR_DATA], "outputs": [PortType.STREAM], "category": NodeCategory.OUTPUT},
+    "raw_output": {"inputs": [PortType.SENSOR_DATA], "outputs": [PortType.STREAM], "category": NodeCategory.OUTPUT},
+    "dut": {"inputs": [PortType.STREAM], "outputs": [], "category": NodeCategory.TERMINAL},
+}
+
+
 class PipelineExecutionStatus(str, Enum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
@@ -404,3 +433,47 @@ class PipelineExecutionRecord(BaseModel):
     )
     created_at: datetime = Field(description="Creation timestamp")
     updated_at: datetime = Field(description="Last update timestamp")
+
+
+class ScenarioAsset(BaseModel):
+    id: str
+    name: str
+    recorder_log_path: str
+    map_name: str = ""
+    duration_seconds: float = 0.0
+    tags: list[str] = []
+    description: str = ""
+    file_size_bytes: int = 0
+    created_at: str = ""
+    metadata: dict[str, Any] = {}
+
+
+class DatasetStatus(str, Enum):
+    PENDING = "PENDING"
+    RENDERING = "RENDERING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+
+class SensorConfig(BaseModel):
+    sensor_id: str
+    sensor_type: str  # sensor.camera.rgb, sensor.lidar.ray_cast, sensor.other.radar, etc.
+    transform: dict[str, float] = Field(default_factory=dict)  # x, y, z, roll, pitch, yaw
+    attributes: dict[str, Any] = Field(default_factory=dict)  # width, height, fov, channels, range, etc.
+
+
+class DatasetRecord(BaseModel):
+    dataset_id: str
+    scenario_id: str  # references ScenarioAsset.id
+    pipeline_id: str = ""  # optional reference to pipeline that created it
+    name: str
+    status: DatasetStatus = DatasetStatus.PENDING
+    sensor_configs: list[SensorConfig] = Field(default_factory=list)
+    total_frames: int = 0
+    rendered_frames: int = 0
+    delta_seconds: float = 0.05
+    duration_seconds: float = 0.0
+    output_dir: str = ""
+    error_message: str = ""
+    created_at: str = ""
+    updated_at: str = ""

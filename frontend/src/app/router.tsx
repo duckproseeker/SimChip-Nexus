@@ -8,6 +8,8 @@ import { AppShell } from '../components/layout/AppShell';
 const PipelineListPage   = lazy(() => import('../pages/pipelines/PipelineListPage'));
 const PipelineEditorPage = lazy(() => import('../pages/pipelines/PipelineEditorPage'));
 const PipelineRunPage    = lazy(() => import('../pages/pipelines/PipelineRunPage'));
+const ScenariosPage      = lazy(() => import('../pages/scenarios/ScenariosPage'));
+const DatasetsPage       = lazy(() => import('../pages/datasets/DatasetsPage'));
 
 function PageLoader() {
   return <div className="page-loader" aria-label="页面加载中" />;
@@ -47,6 +49,26 @@ const router = createBrowserRouter(
             <ErrorBoundary>
               <Suspense fallback={<PageLoader />}>
                 <PipelineRunPage />
+              </Suspense>
+            </ErrorBoundary>
+          ),
+        },
+        {
+          path: 'scenarios',
+          element: (
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <ScenariosPage />
+              </Suspense>
+            </ErrorBoundary>
+          ),
+        },
+        {
+          path: 'datasets',
+          element: (
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <DatasetsPage />
               </Suspense>
             </ErrorBoundary>
           ),

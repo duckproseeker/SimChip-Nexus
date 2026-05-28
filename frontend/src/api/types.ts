@@ -871,23 +871,17 @@ export interface WorkflowReadiness {
 export interface PipelineNodeDef {
   node_id: string;
   type:
-    | 'project'
-    | 'scenario'
-    | 'map'
-    | 'weather'
-    | 'recording'
-    | 'sensor_camera'
-    | 'sensor_lidar'
-    | 'sensor_radar'
-    | 'sensor_gnss'
-    | 'sensor_imu'
-    | 'live_run'
-    | 'replay_run'
-    | 'report'
-    // legacy — kept for migration warning only
-    | 'scenario_config'
-    | 'sensor_profile'
-    | 'run';
+    | 'scene_replay'
+    | 'env_override'
+    | 'camera'
+    | 'lidar'
+    | 'radar'
+    | 'gnss'
+    | 'imu'
+    | 'rtp_output'
+    | 'pointcloud_output'
+    | 'raw_output'
+    | 'dut';
   position: { x: number; y: number };
   data: Record<string, unknown>;
 }

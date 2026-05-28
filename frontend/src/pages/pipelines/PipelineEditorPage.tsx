@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -8,12 +8,17 @@ import { NodeLibrary } from '../../components/pipeline/NodeLibrary';
 import { PipelineCanvas } from '../../components/pipeline/PipelineCanvas';
 import { PropertyPanel } from '../../components/pipeline/PropertyPanel';
 import { EditorToolbar } from '../../components/pipeline/EditorToolbar';
-import type { PipelineNodeDef } from '../../api/types';
+import { TemplateSelector } from '../../components/pipeline/TemplateSelector';
+import { GuidedTour } from '../../components/pipeline/GuidedTour';
+import type { PipelineNodeDef, PipelineEdgeDef } from '../../api/types';
+import type { PipelineTemplate } from '../../features/pipeline/templates';
 
 export default function PipelineEditorPage() {
   const { id } = useParams<{ id: string }>();
-  const { setPipeline, nodes, edges, isDirty, markClean } = usePipelineStore();
+  const { setPipeline, setNodes, setEdges, nodes, edges, dirty, markClean, showTour, setShowTour } =
+    usePipelineStore();
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const { data: pipeline } = useQuery({
     queryKey: ['pipeline', id],
@@ -22,12 +27,23 @@ export default function PipelineEditorPage() {
   });
 
   useEffect(() => {
-    if (pipeline) setPipeline(pipeline);
+    if (pipeline) {
+      setPipeline(pipeline);
+      if (pipeline.nodes.length === 0) {
+        setShowTemplates(true);
+      }
+    }
   }, [pipeline, setPipeline]);
+
+  const handleTemplateSelect = (template: PipelineTemplate) => {
+    setNodes(template.nodes);
+    setEdges(template.edges);
+    setShowTemplates(false);
+  };
 
   // Debounced auto-save
   useEffect(() => {
-    if (!isDirty || !id) return;
+    if (!dirty || !id) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       await updatePipeline(id, {
@@ -43,14 +59,14 @@ export default function PipelineEditorPage() {
           source_handle: e.sourceHandle ?? '',
           target: e.target,
           target_handle: e.targetHandle ?? '',
-        })),
+        })) as PipelineEdgeDef[],
       });
       markClean();
     }, 500);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [isDirty, nodes, edges, id, markClean]);
+  }, [dirty, nodes, edges, id, markClean]);
 
   return (
     <ReactFlowProvider>
@@ -62,6 +78,13 @@ export default function PipelineEditorPage() {
           <PropertyPanel />
         </div>
       </div>
+      {showTemplates && (
+        <TemplateSelector
+          onSelect={handleTemplateSelect}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
+      {showTour && <GuidedTour onDismiss={() => setShowTour(false)} />}
     </ReactFlowProvider>
   );
 }

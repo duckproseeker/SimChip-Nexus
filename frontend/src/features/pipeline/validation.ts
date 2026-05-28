@@ -1,36 +1,47 @@
-import type { Edge, Node } from '@xyflow/react';
+import { NODE_SPECS } from '../../components/pipeline/nodes';
 
-export interface ValidationError {
-  code: string;
-  message: string;
-}
+interface NodeDef { node_id: string; type: string; }
+interface EdgeDef { source: string; source_handle: string; target: string; target_handle: string; }
 
-export function validateGraph(nodes: Node[], edges: Edge[]): ValidationError[] {
-  const errors: ValidationError[] = [];
+export function validateGraph(nodes: NodeDef[], edges: EdgeDef[]): string[] {
+  const errors: string[] = [];
+  const nodeMap = new Map(nodes.map(n => [n.node_id, n]));
 
-  const projectNodes = nodes.filter((n) => n.type === 'project');
-  if (projectNodes.length === 0) {
-    errors.push({ code: 'NO_PROJECT', message: '请添加一个项目节点' });
-  } else if (projectNodes.length > 1) {
-    errors.push({ code: 'MULTIPLE_PROJECTS', message: '只允许一个项目节点' });
+  if (!nodes.some(n => n.type === 'scene_replay')) {
+    errors.push('需要至少一个场景回放节点');
   }
 
-  const liveRunNodes = nodes.filter((n) => n.type === 'live_run');
-  for (const run of liveRunNodes) {
-    const handles = new Set(edges.filter((e) => e.target === run.id).map((e) => e.targetHandle));
-    if (!handles.has('project'))  errors.push({ code: 'MISSING_PROJECT',  message: '实时仿真节点缺少项目连接' });
-    if (!handles.has('scenario')) errors.push({ code: 'MISSING_SCENARIO', message: '实时仿真节点缺少场景连接' });
-    if (!handles.has('map'))      errors.push({ code: 'MISSING_MAP',      message: '实时仿真节点缺少地图连接' });
-    if (!handles.has('weather'))  errors.push({ code: 'MISSING_WEATHER',  message: '实时仿真节点缺少天气连接' });
-    if (!handles.has('sensor'))   errors.push({ code: 'MISSING_SENSOR',   message: '实时仿真节点至少需要一个传感器' });
+  for (const e of edges) {
+    const src = nodeMap.get(e.source);
+    const tgt = nodeMap.get(e.target);
+    if (!src || !tgt) continue;
+    const srcSpec = NODE_SPECS[src.type];
+    const tgtSpec = NODE_SPECS[tgt.type];
+    if (!srcSpec || !tgtSpec) continue;
+    if (e.source_handle !== e.target_handle) {
+      errors.push(`端口类型不匹配: ${srcSpec.label} → ${tgtSpec.label}`);
+    }
   }
 
-  const replayRunNodes = nodes.filter((n) => n.type === 'replay_run');
-  for (const run of replayRunNodes) {
-    const handles = new Set(edges.filter((e) => e.target === run.id).map((e) => e.targetHandle));
-    if (!handles.has('project'))   errors.push({ code: 'MISSING_PROJECT',   message: '录制回放节点缺少项目连接' });
-    if (!handles.has('recording')) errors.push({ code: 'MISSING_RECORDING', message: '录制回放节点缺少场景录制连接' });
-    if (!handles.has('sensor'))    errors.push({ code: 'MISSING_SENSOR',    message: '录制回放节点至少需要一个传感器' });
+  const inDegree = new Map<string, number>(nodes.map(n => [n.node_id, 0]));
+  const adj = new Map<string, string[]>(nodes.map(n => [n.node_id, []]));
+  for (const e of edges) {
+    adj.get(e.source)?.push(e.target);
+    inDegree.set(e.target, (inDegree.get(e.target) ?? 0) + 1);
+  }
+  const queue = [...inDegree.entries()].filter(([, d]) => d === 0).map(([id]) => id);
+  let visited = 0;
+  while (queue.length > 0) {
+    const nid = queue.shift()!;
+    visited++;
+    for (const neighbor of adj.get(nid) ?? []) {
+      const deg = (inDegree.get(neighbor) ?? 1) - 1;
+      inDegree.set(neighbor, deg);
+      if (deg === 0) queue.push(neighbor);
+    }
+  }
+  if (visited < nodes.length) {
+    errors.push('检测到环路');
   }
 
   return errors;

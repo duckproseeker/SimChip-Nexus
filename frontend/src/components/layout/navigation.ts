@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons';
-import { HiOutlineSquares2X2 } from 'react-icons/hi2';
+import { HiOutlineSquares2X2, HiOutlineFilm, HiOutlineCircleStack } from 'react-icons/hi2';
 
 export interface NavigationItem {
   to: string;
@@ -22,6 +22,20 @@ export const navigation: NavigationItem[] = [
     caption: '节点式工作流',
     keywords: ['pipeline', 'workflow', 'node', '流程', '编排'],
     icon: HiOutlineSquares2X2,
+  },
+  {
+    to: '/scenarios',
+    label: '场景库',
+    caption: '场景资产管理',
+    keywords: ['scenario', 'recording', '场景', '录制', '回放'],
+    icon: HiOutlineFilm,
+  },
+  {
+    to: '/datasets',
+    label: '数据集',
+    caption: '传感器渲染数据',
+    keywords: ['dataset', 'render', 'sensor', '数据集', '渲染', '传感器'],
+    icon: HiOutlineCircleStack,
   },
 ];
 

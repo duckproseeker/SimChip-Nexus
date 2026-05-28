@@ -43,8 +43,13 @@ export function validatePipeline(pipelineId: string): Promise<PipelineValidation
   return postJson<PipelineValidationResult>(`/pipelines/${pipelineId}/validate`);
 }
 
-export function executePipeline(pipelineId: string): Promise<PipelineExecution> {
-  return postJson<PipelineExecution>(`/pipelines/${pipelineId}/execute`);
+export interface ExecuteBody {
+  mode?: 'offline_render' | 'online_play' | 'legacy';
+  options?: Record<string, unknown>;
+}
+
+export function executePipeline(pipelineId: string, body?: ExecuteBody): Promise<PipelineExecution> {
+  return postJson<PipelineExecution>(`/pipelines/${pipelineId}/execute`, body);
 }
 
 export function getPipelineExecution(executionId: string): Promise<PipelineExecution> {

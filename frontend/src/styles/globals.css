@@ -4964,3 +4964,232 @@ body::before {
   background: rgba(240, 244, 250, 0.9);
   color: #4a5e78;
 }
+
+/* ─── Console Shell (Pipeline Editor Layout) ─────────────── */
+.console-shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.console-shell--collapsed {
+  grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.console-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid var(--border);
+  background: var(--shell-sidebar-bg);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+
+.console-sidebar__brand {
+  padding: 1rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.console-sidebar__brand--minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.console-sidebar__eyebrow {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-caption);
+}
+
+.console-sidebar__brand h1 {
+  margin: 0.3rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.console-sidebar__collapse {
+  min-height: 28px;
+  padding: 0.15rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.console-sidebar__collapse:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.console-sidebar__nav {
+  flex: 1;
+  padding: 0.75rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.console-nav-group__label {
+  margin: 0 0 0.4rem 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-caption);
+}
+
+.console-nav-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.console-nav-item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: var(--text-soft);
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.console-nav-item:hover {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.console-nav-item--active {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--text);
+}
+
+.console-nav-item__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.console-nav-item__copy strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.console-nav-item__copy small {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.console-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.console-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--shell-topbar-bg);
+  backdrop-filter: blur(8px);
+}
+
+.console-topbar--minimal {
+  min-height: 56px;
+}
+
+.console-topbar__headline {
+  min-width: 0;
+}
+
+.console-topbar__eyebrow {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-caption);
+}
+
+.console-topbar__headline h2 {
+  margin: 0.1rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.console-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.console-main__content {
+  flex: 1;
+  padding: 0.95rem 1.1rem 1.2rem;
+  min-width: 0;
+}
+
+.route-stage {
+  animation: route-stage-in 200ms cubic-bezier(0.22, 0.74, 0.26, 1);
+}
+
+/* Collapsed sidebar: hide text */
+.console-shell--collapsed .console-sidebar__brand h1,
+.console-shell--collapsed .console-nav-group__label,
+.console-shell--collapsed .console-nav-item__copy,
+.console-shell--collapsed .console-sidebar__eyebrow {
+  display: none;
+}
+
+.console-shell--collapsed .console-sidebar__brand {
+  justify-content: center;
+}
+
+.console-shell--collapsed .console-nav-item {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding: 0.6rem;
+}
+
+@media (max-width: 900px) {
+  .console-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .console-sidebar {
+    position: relative;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+}
+/* ─────────────────────────────────────────────────────────── */

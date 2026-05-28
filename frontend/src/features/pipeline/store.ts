@@ -1,14 +1,18 @@
 import { create } from 'zustand';
-import type { Edge, Node } from '@xyflow/react';
+import type { Node, Edge, Connection } from '@xyflow/react';
+import type { IsValidConnection } from '@xyflow/react';
 import type { Pipeline } from '../../api/types';
+import { NODE_SPECS } from '../../components/pipeline/nodes';
 
 interface PipelineStore {
-  pipeline: Pipeline | null;
+  pipelineId: string | null;
+  pipelineName: string | null;
   nodes: Node[];
   edges: Edge[];
   selectedNodeId: string | null;
-  isDirty: boolean;
+  dirty: boolean;
   executionId: string | null;
+  showTour: boolean;
 
   setPipeline: (pipeline: Pipeline) => void;
   setNodes: (nodes: Node[]) => void;
@@ -17,19 +21,24 @@ interface PipelineStore {
   updateNodeData: (nodeId: string, data: Record<string, unknown>) => void;
   markClean: () => void;
   setExecutionId: (id: string | null) => void;
+  setShowTour: (show: boolean) => void;
+  isValidConnection: IsValidConnection<Edge>;
 }
 
-export const usePipelineStore = create<PipelineStore>((set) => ({
-  pipeline: null,
+export const usePipelineStore = create<PipelineStore>((set, get) => ({
+  pipelineId: null,
+  pipelineName: null,
   nodes: [],
   edges: [],
   selectedNodeId: null,
-  isDirty: false,
+  dirty: false,
   executionId: null,
+  showTour: !localStorage.getItem('pipeline_tour_done'),
 
   setPipeline: (pipeline) =>
     set({
-      pipeline,
+      pipelineId: pipeline.pipeline_id,
+      pipelineName: pipeline.name,
       nodes: pipeline.nodes.map((n) => ({
         id: n.node_id,
         type: n.type,
@@ -43,11 +52,11 @@ export const usePipelineStore = create<PipelineStore>((set) => ({
         target: e.target,
         targetHandle: e.target_handle,
       })),
-      isDirty: false,
+      dirty: false,
     }),
 
-  setNodes: (nodes) => set({ nodes, isDirty: true }),
-  setEdges: (edges) => set({ edges, isDirty: true }),
+  setNodes: (nodes) => set({ nodes, dirty: true }),
+  setEdges: (edges) => set({ edges, dirty: true }),
   setSelectedNodeId: (id) => set({ selectedNodeId: id }),
 
   updateNodeData: (nodeId, data) =>
@@ -55,9 +64,25 @@ export const usePipelineStore = create<PipelineStore>((set) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, ...data } } : n
       ),
-      isDirty: true,
+      dirty: true,
     })),
 
-  markClean: () => set({ isDirty: false }),
+  markClean: () => set({ dirty: false }),
   setExecutionId: (id) => set({ executionId: id }),
+
+  setShowTour: (show) => {
+    if (!show) localStorage.setItem('pipeline_tour_done', '1');
+    set({ showTour: show });
+  },
+
+  isValidConnection: (connection) => {
+    const { nodes } = get();
+    const sourceNode = nodes.find((n) => n.id === connection.source);
+    const targetNode = nodes.find((n) => n.id === connection.target);
+    if (!sourceNode || !targetNode) return false;
+    const sourceSpec = NODE_SPECS[sourceNode.type!];
+    const targetSpec = NODE_SPECS[targetNode.type!];
+    if (!sourceSpec || !targetSpec) return false;
+    return connection.sourceHandle === connection.targetHandle;
+  },
 }));
